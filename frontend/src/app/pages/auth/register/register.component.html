@@ -1,0 +1,136 @@
+<div class="register-container">
+  <h2>Créer un compte</h2>
+  
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <div class="alert alert-danger" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <div class="form-group">
+      <label for="nom">Nom</label>
+      <input 
+        type="text" 
+        id="nom" 
+        formControlName="nom" 
+        class="form-control"
+        [ngClass]="{'is-invalid': submitted && f['nom'].errors}"
+      >
+      <div *ngIf="submitted && f['nom'].errors" class="invalid-feedback">
+        <div *ngIf="f['nom'].errors['required']">Le nom est requis</div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="prenom">Prénom</label>
+      <input 
+        type="text" 
+        id="prenom" 
+        formControlName="prenom" 
+        class="form-control"
+        [ngClass]="{'is-invalid': submitted && f['prenom'].errors}"
+      >
+      <div *ngIf="submitted && f['prenom'].errors" class="invalid-feedback">
+        <div *ngIf="f['prenom'].errors['required']">Le prénom est requis</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="pseudo">Pseudo</label>
+      <input 
+        type="text" 
+        id="pseudo" 
+        formControlName="pseudo" 
+        class="form-control"
+        [ngClass]="{'is-invalid': submitted && f['pseudo'].errors}"
+      >
+      <div *ngIf="submitted && f['pseudo'].errors" class="invalid-feedback">
+        <div *ngIf="f['pseudo'].errors['required']">Le pseudo est requis</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input 
+        type="email" 
+        id="email" 
+        formControlName="email" 
+        class="form-control"
+        [ngClass]="{'is-invalid': submitted && f['email'].errors}"
+      >
+      <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+        <div *ngIf="f['email'].errors['required']">L'email est requis</div>
+        <div *ngIf="f['email'].errors['email']">L'email n'est pas valide</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="dateNaissance">Date de naissance</label>
+      <input 
+        type="date" 
+        id="dateNaissance" 
+        formControlName="dateNaissance" 
+        class="form-control"
+        [ngClass]="{'is-invalid': submitted && f['dateNaissance'].errors}"
+      >
+      <div *ngIf="submitted && f['dateNaissance'].errors" class="invalid-feedback">
+        <div *ngIf="f['dateNaissance'].errors['required']">La date de naissance est requise</div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="motDePasse">Mot de passe</label>
+      <input 
+        type="password" 
+        id="motDePasse" 
+        formControlName="motDePasse" 
+        class="form-control"
+        [ngClass]="{'is-invalid': submitted && f['motDePasse'].errors}"
+      >
+      <div *ngIf="submitted && f['motDePasse'].errors" class="invalid-feedback">
+        <div *ngIf="f['motDePasse'].errors['required']">Le mot de passe est requis</div>
+        <div *ngIf="f['motDePasse'].errors['minlength']">Le mot de passe doit contenir au moins 6 caractères</div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="confirmMotDePasse">Confirmer le mot de passe</label>
+      <input 
+        type="password" 
+        id="confirmMotDePasse" 
+        formControlName="confirmMotDePasse" 
+        class="form-control"
+        [ngClass]="{'is-invalid': submitted && f['confirmMotDePasse'].errors}"
+      >
+      <div *ngIf="submitted && f['confirmMotDePasse'].errors" class="invalid-feedback">
+        <div *ngIf="f['confirmMotDePasse'].errors['required']">La confirmation du mot de passe est requise</div>
+        <div *ngIf="f['confirmMotDePasse'].errors['mustMatch']">Les mots de passe ne correspondent pas</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-check">
+        <input 
+          type="checkbox" 
+          id="acceptTerms" 
+          formControlName="acceptTerms" 
+          class="form-check-input"
+          [ngClass]="{'is-invalid': submitted && f['acceptTerms'].errors}"
+        >
+        <label for="acceptTerms" class="form-check-label">
+          J'accepte les <a href="#">conditions d'utilisation</a>
+        </label>
+        <div *ngIf="submitted && f['acceptTerms'].errors" class="invalid-feedback">
+          <div *ngIf="f['acceptTerms'].errors['required']">Vous devez accepter les conditions d'utilisation</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button type="submit" class="btn-primary" [disabled]="loading">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
+        S'inscrire
+      </button>
+      <a routerLink="/auth/login">Déjà inscrit ? Se connecter</a>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,61 @@
+<div class="reservation-container">
+  <h2>Nouvelle réservation</h2>
+  
+  <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()" class="reservation-form">
+    <div class="form-group">
+      <label for="borne">Borne de recharge</label>
+      <select id="borne" formControlName="borneId" class="form-control">
+        <option value="">Sélectionnez une borne</option>
+        <option *ngFor="let borne of bornes" [value]="borne.idBorne">
+          Borne {{ borne.idBorne }} - {{ borne.localisation }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="date">Date</label>
+      <input type="date" id="date" formControlName="date" class="form-control">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="startTime">Heure de début</label>
+        <input type="time" id="startTime" formControlName="startTime" class="form-control">
+      </div>
+      <div class="form-group col-md-6">
+        <label for="endTime">Heure de fin</label>
+        <input type="time" id="endTime" formControlName="endTime" class="form-control">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="vehicleType">Type de véhicule</label>
+      <select id="vehicleType" formControlName="vehicleType" class="form-control">
+        <option value="">Sélectionnez un type</option>
+        <option value="voiture">Voiture électrique</option>
+        <option value="moto">Moto électrique</option>
+        <option value="utilitaire">Véhicule utilitaire</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+      <span *ngIf="!isLoading">Réserver</span>
+      <span *ngIf="isLoading">En cours...</span>
+    </button>
+  </form>
+
+  <div class="reservations-list" *ngIf="reservations.length > 0">
+    <h3>Mes réservations</h3>
+    <div class="reservation-card" *ngFor="let reservation of reservations">
+      <div class="reservation-info">
+        <h4>{{ getBorneName(reservation.borne.idBorne) }}</h4>
+        <p>{{ reservation.dateDebut | date:'dd/MM/yyyy' }} de {{ reservation.dateDebut | date:'HH:mm' }} à {{ reservation.dateFin | date:'HH:mm' }}</p>
+      </div>
+      <button class="btn btn-danger" 
+              (click)="cancelReservation(reservation.idReservation)"
+              [disabled]="isLoading">
+        Annuler
+      </button>
+    </div>
+  </div>
+</div>

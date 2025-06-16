@@ -1,0 +1,40 @@
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section about">
+        <h2 class="logo-text">Electricity Business</h2>
+        <p>
+          Plateforme de mise en relation entre propriétaires de bornes de recharge 
+          et conducteurs de véhicules électriques.
+        </p>
+        <div class="contact">
+          <span><i class="fa fa-phone"></i> &nbsp; +33 123 456 789</span>
+          <span><i class="fa fa-envelope"></i> &nbsp; contact@electricity-business.com</span>
+        </div>
+      </div>
+      
+      <div class="footer-section links">
+        <h2>Liens Rapides</h2>
+        <ul>
+          <li><a routerLink="/">Accueil</a></li>
+          <li><a routerLink="/bornes">Trouver une borne</a></li>
+          <li><a routerLink="/auth/login">Connexion</a></li>
+          <li><a routerLink="/auth/register">Inscription</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section contact-form">
+        <h2>Contactez-nous</h2>
+        <form>
+          <input type="email" name="email" class="text-input contact-input" placeholder="Votre email">
+          <textarea name="message" class="text-input contact-input" placeholder="Votre message..."></textarea>
+          <button type="submit" class="btn btn-primary">Envoyer</button>
+        </form>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; {{ currentYear }} Electricity Business. Tous droits réservés.</p>
+    </div>
+  </div>
+</footer> 

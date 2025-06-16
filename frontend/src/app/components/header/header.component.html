@@ -1,0 +1,40 @@
+<header class="site-header">
+  <div class="container">
+    <div class="logo">
+      <a routerLink="/">
+        <span class="logo-text">Electricity Business</span>
+      </a>
+    </div>
+    
+    <nav class="main-nav" [class.active]="isMenuOpen">
+      <ul class="nav-list">
+        <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Accueil</a></li>
+        <li><a routerLink="/bornes" routerLinkActive="active">Bornes</a></li>
+        
+        <ng-container *ngIf="!currentUser">
+          <li><a routerLink="/auth/login" routerLinkActive="active">Connexion</a></li>
+          <li><a routerLink="/auth/register" routerLinkActive="active" class="btn-primary">Inscription</a></li>
+        </ng-container>
+        
+        <ng-container *ngIf="currentUser">
+          <li><a routerLink="/reservations" routerLinkActive="active">Réservations</a></li>
+          <li class="dropdown">
+            <a (click)="$event.preventDefault()">{{ currentUser.prenom }}</a>
+            <ul class="dropdown-menu">
+              <li><a routerLink="/profile">Mon profil</a></li>
+              <li><a routerLink="/vehicules">Mes véhicules</a></li>
+              <li><a routerLink="/bornes/mes-bornes">Mes bornes</a></li>
+              <li><a (click)="logout()">Déconnexion</a></li>
+            </ul>
+          </li>
+        </ng-container>
+      </ul>
+    </nav>
+    
+    <button class="mobile-toggle" (click)="toggleMenu()" [class.active]="isMenuOpen">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</header> 
