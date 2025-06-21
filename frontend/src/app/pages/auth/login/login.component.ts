@@ -37,13 +37,14 @@ export class LoginComponent {
     this.authService.login({ pseudo, password }).subscribe({
       next: (response: ApiResponse<{token: string, user: any}>) => {
         if (response.result === 'SUCCESS') {
+          this.toastService.showSuccess(response.message || 'Connexion réussie');
           this.router.navigate(['/']);
         } else {
-          this.toastService.showError(response.message || 'Login failed');
+          this.toastService.showError(response.message || 'Invalid credentials');
         }
       },
       error: (err: any) => {
-        this.toastService.showError('An error occurred during login');
+        this.toastService.showError(err.error?.message || 'Invalid credentials');
         this.loading = false;
       },
       complete: () => {

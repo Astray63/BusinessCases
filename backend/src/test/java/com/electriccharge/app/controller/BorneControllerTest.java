@@ -114,10 +114,47 @@ public class BorneControllerTest {
         Long borneId = 1L;
         ChargingStationDto inputDto = new ChargingStationDto();
         inputDto.setNom("Updated Borne");
+        inputDto.setNumero("B001");
+        inputDto.setLocalisation("Test Location");
+        inputDto.setLatitude(45.0);
+        inputDto.setLongitude(5.0);
+        inputDto.setPuissance(22);
+        inputDto.setEtat("DISPONIBLE");
+        inputDto.setPrixALaMinute(new BigDecimal("2.50"));
+        inputDto.setConnectorType("Type 2");
+        inputDto.setAddress("123 Test Street");
+        inputDto.setHourlyRate(new BigDecimal("15.00"));
+        inputDto.setOwnerId(1L);
+        inputDto.setDescription("Test description");
+        inputDto.setInstructionSurPied("Test instructions");
+        inputDto.setNumero("B001");
+        inputDto.setLocalisation("Test Location");
+        inputDto.setLatitude(45.0);
+        inputDto.setLongitude(5.0);
+        inputDto.setPuissance(22);
+        inputDto.setEtat("DISPONIBLE");
+        inputDto.setPrixALaMinute(new BigDecimal("2.50"));
+        inputDto.setConnectorType("Type 2");
+        inputDto.setAddress("123 Test Street");
+        inputDto.setHourlyRate(new BigDecimal("15.00"));
+        inputDto.setOwnerId(1L);
+        inputDto.setDescription("Test description"); // Ajout du champ manquant
+        inputDto.setInstructionSurPied("Test instructions"); // Ajout du champ manquant
         
         ChargingStationDto outputDto = new ChargingStationDto();
         outputDto.setId(borneId);
         outputDto.setNom(inputDto.getNom());
+        outputDto.setNumero(inputDto.getNumero());
+        outputDto.setLocalisation(inputDto.getLocalisation());
+        outputDto.setLatitude(inputDto.getLatitude());
+        outputDto.setLongitude(inputDto.getLongitude());
+        outputDto.setPuissance(inputDto.getPuissance());
+        outputDto.setEtat(inputDto.getEtat());
+        outputDto.setPrixALaMinute(inputDto.getPrixALaMinute());
+        outputDto.setConnectorType(inputDto.getConnectorType());
+        outputDto.setAddress(inputDto.getAddress());
+        outputDto.setHourlyRate(inputDto.getHourlyRate());
+        outputDto.setOwnerId(inputDto.getOwnerId());
         
         when(chargingStationService.update(eq(borneId), any(ChargingStationDto.class)))
             .thenReturn(outputDto);
@@ -127,7 +164,7 @@ public class BorneControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(inputDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("SUCCESS"))
+                .andExpect(jsonPath("$.result").value("SUCCESS"))
                 .andExpect(jsonPath("$.data.nom").value(inputDto.getNom()));
     }
 

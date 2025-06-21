@@ -1,5 +1,6 @@
 package com.electriccharge.app.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +11,8 @@ import org.locationtech.jts.geom.Point;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,7 +31,7 @@ public class ChargingStation {
     @Column(name = "numero", nullable = false, length = 50)
     private String numero;
     
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(name = "nom", nullable = false, length = 100)
     private String nom;
 
     @Column(name = "localisation", nullable = false)
@@ -43,10 +46,13 @@ public class ChargingStation {
     @Column(name = "puissance", nullable = false)
     private Integer puissance;
     
-    @Column(name = "medias")
-    @ElementCollection
-    @CollectionTable(name = "borne_medias", joinColumns = @JoinColumn(name = "borne_id"))
-    private List<String> medias;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "borne_medias",
+        joinColumns = @JoinColumn(name = "borne_id")
+    )
+    @Column(name = "media_url")
+    private List<String> medias = new ArrayList<>();
     
     @Column(name = "instruction_sur_pied")
     private String instructionSurPied;
@@ -60,6 +66,9 @@ public class ChargingStation {
     
     @Column(name = "prix_a_la_minute", nullable = false, precision = 10, scale = 4)
     private BigDecimal prixALaMinute;
+
+    @Column(name = "hourly_rate")
+    private BigDecimal hourlyRate;
     
     @Column(name = "connector_type", nullable = false, length = 50)
     private String connectorType;
@@ -77,56 +86,39 @@ public class ChargingStation {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "power_output")
+    private Double powerOutput;
     
     // Relations
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
+    @JsonIgnore
     private Utilisateur owner;
     
     @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Reservation> reservations;
+    @JsonIgnore
+    private Set<Reservation> reservations = new HashSet<>();
     
     @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Avis> avis;
+    @JsonIgnore
+    private Set<Avis> avis = new HashSet<>();
     
     @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Signalement> signalements;
+    @JsonIgnore
+    private Set<Signalement> signalements = new HashSet<>();
     
     @OneToOne(mappedBy = "chargingStation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private ChargingStationLieu chargingStationLieu;
     
     @Column(name = "address", nullable = false)
     private String address;
-
-    @Column(name = "hourly_rate", nullable = false)
-    private BigDecimal hourlyRate;
     
-    @Column(name = "power_output", nullable = false)
-    private Integer powerOutput;
-
-    // Getters and Setters for powerOutput
-    public Integer getPowerOutput() {
-        return powerOutput;
-    }
-
-    public void setPowerOutput(Integer powerOutput) {
-        this.powerOutput = powerOutput;
-    }
-
     public enum Etat {
-        DISPONIBLE("disponible"),
-        OCCUPEE("occupee"),
-        HORS_SERVICE("hors_service"),
-        MAINTENANCE("maintenance");
-        
-        private final String value;
-        
-        Etat(String value) {
-            this.value = value;
-        }
-        
-        public String getValue() {
-            return value;
-        }
+        DISPONIBLE,
+        OCCUPEE,
+        EN_PANNE,
+        EN_MAINTENANCE
     }
 }

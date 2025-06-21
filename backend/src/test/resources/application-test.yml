@@ -1,9 +1,9 @@
 spring:
   datasource:
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
     username: sa
     password:
+    driver-class-name: org.h2.Driver
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
@@ -12,6 +12,27 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        default_schema: public
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+        hbm2ddl.auto: validate
+        hbm2ddl.show: true
+        jdbc.batch_size: 20
+        generate_statistics: true
+        use_sql_comments: true
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.type.descriptor.sql.BasicExtractor: TRACE
+    org.hibernate.hql.internal.ast.HqlSqlWalker: DEBUG
+    org.hibernate.engine.jdbc.spi.SqlStatementLogger: DEBUG
   security:
     jwt:
       secret: testSecretKeyForJwtTokenGenerationInTestEnvironment123456789

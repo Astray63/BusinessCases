@@ -71,20 +71,22 @@ public ResponseEntity<ApiResponse<?>> register(@Valid @RequestBody RegisterReque
                 new UsernamePasswordAuthenticationToken(pseudo, authRequest.password())
             );
             
-            // Generate JWT token
-            String jwtToken = jwtUtils.generateJwtToken(authentication);
+            // Generate tokens
+            String accessToken = jwtUtils.generateJwtToken(authentication);
+            String refreshToken = jwtUtils.generateRefreshToken(pseudo);
             
             // Get user details
             UtilisateurDto utilisateur = utilisateurService.getUtilisateurByPseudo(pseudo);
             
-            // Return successful response with token in header and user details in body
+            // Return successful response with tokens
             return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + jwtToken)
+                .header("Authorization", "Bearer " + accessToken)
                 .body(new ApiResponse<>(
                     "SUCCESS",
                     "Connexion réussie",
                     Map.of(
-                        "token", jwtToken,
+                        "accessToken", accessToken,
+                        "refreshToken", refreshToken,
                         "user", utilisateur
                     )
                 ));
@@ -107,6 +109,30 @@ public ResponseEntity<ApiResponse<?>> register(@Valid @RequestBody RegisterReque
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ApiResponse<?>> refreshToken(@RequestParam String refreshToken) {
+        try {
+            if (!jwtUtils.validateToken(refreshToken)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Refresh token invalide"));
+            }
+
+            String username = jwtUtils.getUsernameFromToken(refreshToken);
+            String newAccessToken = jwtUtils.generateJwtToken(
+                new UsernamePasswordAuthenticationToken(username, null)
+            );
+            
+            return ResponseEntity.ok()
+                .header("Authorization", "Bearer " + newAccessToken)
+                .body(ApiResponse.success("Token rafraîchi", Map.of(
+                    "accessToken", newAccessToken
+                )));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Erreur lors du rafraîchissement du token: " + e.getMessage()));
         }
     }
 

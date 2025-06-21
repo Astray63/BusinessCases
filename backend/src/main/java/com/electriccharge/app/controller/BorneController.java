@@ -3,6 +3,7 @@ package com.electriccharge.app.controller;
 import com.electriccharge.app.dto.ApiResponse;
 import com.electriccharge.app.dto.ChargingStationDto;
 import com.electriccharge.app.service.ChargingStationService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,9 +37,12 @@ public class BorneController {
             ChargingStationDto borne = chargingStationService.getById(id);
             return new ResponseEntity<>(ApiResponse.success(borne),
                     HttpStatus.OK);
-        } catch (Exception e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -61,9 +65,12 @@ public class BorneController {
             ChargingStationDto updatedBorne = chargingStationService.update(id, chargingStationDto);
             return new ResponseEntity<>(ApiResponse.success("Borne mise à jour avec succès", updatedBorne),
                     HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
-                    HttpStatus.BAD_REQUEST);
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -73,9 +80,12 @@ public class BorneController {
             chargingStationService.delete(id);
             return new ResponseEntity<>(ApiResponse.success("Borne supprimée avec succès"),
                     HttpStatus.OK);
-        } catch (Exception e) {
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -83,10 +93,10 @@ public class BorneController {
     public ResponseEntity<ApiResponse<?>> getBornesByLieu(@PathVariable Long idLieu) {
         try {
             List<ChargingStationDto> bornes = chargingStationService.getByLieu(idLieu);
-            return new ResponseEntity<>(ApiResponse.success(bornes), 
+            return new ResponseEntity<>(ApiResponse.success(bornes),
                     HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(ApiResponse.error(e.getMessage()), 
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -95,10 +105,10 @@ public class BorneController {
     public ResponseEntity<ApiResponse<?>> getBornesByDisponibilite(@PathVariable Boolean disponible) {
         try {
             List<ChargingStationDto> bornes = chargingStationService.getByDisponibilite(disponible);
-            return new ResponseEntity<>(ApiResponse.success(bornes), 
+            return new ResponseEntity<>(ApiResponse.success(bornes),
                     HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(ApiResponse.error(e.getMessage()), 
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -107,10 +117,13 @@ public class BorneController {
     public ResponseEntity<ApiResponse<?>> getBornesByEtat(@PathVariable String etat) {
         try {
             List<ChargingStationDto> bornes = chargingStationService.getByEtat(etat);
-            return new ResponseEntity<>(ApiResponse.success(bornes), 
+            return new ResponseEntity<>(ApiResponse.success(bornes),
                     HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>(ApiResponse.error(e.getMessage()), 
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -119,41 +132,51 @@ public class BorneController {
     public ResponseEntity<ApiResponse<?>> getBornesProches(
             @RequestParam Double latitude,
             @RequestParam Double longitude,
-            @RequestParam(defaultValue = "5.0") Double distance) {
+            @RequestParam Double distance) {
         try {
             List<ChargingStationDto> bornes = chargingStationService.getProches(latitude, longitude, distance);
-            return new ResponseEntity<>(ApiResponse.success(bornes), 
+            return new ResponseEntity<>(ApiResponse.success(bornes),
                     HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(ApiResponse.error(e.getMessage()), 
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping("/{id}/occupation")
-    public ResponseEntity<ApiResponse<?>> toggleOccupation(@PathVariable Long id,
-                                                         @RequestParam Boolean occupee) {
+    public ResponseEntity<ApiResponse<?>> toggleOccupation(
+            @PathVariable Long id,
+            @RequestParam Boolean occupee) {
         try {
-            ChargingStationDto borne = chargingStationService.toggleOccupation(id, occupee);
-            String message = occupee ? "Borne marquée comme occupée" : "Borne marquée comme libre";
-            return new ResponseEntity<>(ApiResponse.success(message, borne), 
+            ChargingStationDto updatedBorne = chargingStationService.toggleOccupation(id, occupee);
+            return new ResponseEntity<>(ApiResponse.success(updatedBorne),
                     HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>(ApiResponse.error(e.getMessage()), 
-                    HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping("/{id}/etat")
-    public ResponseEntity<ApiResponse<?>> changerEtat(@PathVariable Long id,
-                                                    @RequestParam String nouvelEtat) {
+    public ResponseEntity<ApiResponse<?>> changerEtat(
+            @PathVariable Long id,
+            @RequestParam String nouvelEtat) {
         try {
-            ChargingStationDto borne = chargingStationService.changerEtat(id, nouvelEtat);
-            return new ResponseEntity<>(ApiResponse.success("État de la borne mis à jour", borne), 
+            ChargingStationDto updatedBorne = chargingStationService.changerEtat(id, nouvelEtat);
+            return new ResponseEntity<>(ApiResponse.success(updatedBorne),
                     HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(ApiResponse.error(e.getMessage()), 
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

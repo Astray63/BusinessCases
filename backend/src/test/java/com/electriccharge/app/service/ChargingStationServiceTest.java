@@ -89,11 +89,11 @@ class ChargingStationServiceTest {
         when(chargingStationRepository.save(any(ChargingStation.class))).thenAnswer(i -> i.getArguments()[0]);
 
         // Act
-        ChargingStationDto result = chargingStationService.changerEtat(id, "HORS_SERVICE");
+        ChargingStationDto result = chargingStationService.changerEtat(id, "EN_PANNE");
 
         // Assert
         assertNotNull(result);
-        assertEquals(ChargingStation.Etat.HORS_SERVICE.name(), result.getEtat());
+        assertEquals(ChargingStation.Etat.EN_PANNE.name(), result.getEtat());
         verify(chargingStationRepository, times(1)).save(any(ChargingStation.class));
     }
 
