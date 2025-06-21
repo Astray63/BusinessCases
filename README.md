@@ -11,6 +11,7 @@ A web application that connects electric vehicle owners with charging station ow
 - [Development Guidelines](#development-guidelines)
 - [Testing](#testing)
 - [License](#license)
+- [🐳 Lancer l'application avec Docker](#🐳-lancer-l'application-avec-docker)
 
 ## Project Overview
 
@@ -164,3 +165,26 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Contributors
 
 - Your Name - Initial work 
+
+## 🐳 Lancer l'application avec Docker
+
+Assurez-vous d'avoir Docker et Docker Compose installés.
+
+```bash
+# À la racine du projet
+docker compose up --build -d
+```
+
+Services exposés :
+
+| Service   | Port hôte | Description                        |
+|-----------|-----------|------------------------------------|
+| PostgreSQL| 5432      | Base de données                    |
+| Backend   | 8080      | API Spring Boot (`/api`…)          |
+| Frontend  | 4200      | Application Angular (prod)         |
+
+Arrêt et suppression :
+
+```bash
+docker compose down
+``` 

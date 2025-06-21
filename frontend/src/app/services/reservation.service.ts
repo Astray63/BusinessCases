@@ -24,12 +24,13 @@ export class ReservationService {
   }
 
   // Méthodes utilisateur
-  getUserReservations(): Observable<ApiResponse<Reservation[]>> {
-    return this.http.get<ApiResponse<Reservation[]>>(`${this.apiUrl}/me`);
+  /** Réservations de l'utilisateur connecté */
+  getReservationsByCurrentUser(userId: number): Observable<ApiResponse<Reservation[]>> {
+    return this.http.get<ApiResponse<Reservation[]>>(`${this.apiUrl}/utilisateur/${userId}`);
   }
 
   getReservationsByUser(userId: number): Observable<ApiResponse<Reservation[]>> {
-    return this.http.get<ApiResponse<Reservation[]>>(`${this.apiUrl}/user/${userId}`);
+    return this.http.get<ApiResponse<Reservation[]>>(`${this.apiUrl}/utilisateur/${userId}`);
   }
 
   getReservationsByBorne(borneId: number): Observable<ApiResponse<Reservation[]>> {
@@ -41,15 +42,20 @@ export class ReservationService {
   }
 
   updateReservation(id: number, reservation: Partial<Reservation>): Observable<ApiResponse<Reservation>> {
+    // Non implémenté côté backend pour l'instant
     return this.http.put<ApiResponse<Reservation>>(`${this.apiUrl}/${id}`, reservation);
   }
 
-  cancelReservation(id: number): Observable<ApiResponse<void>> {
-    return this.http.put<ApiResponse<void>>(`${this.apiUrl}/${id}/cancel`, {});
+  cancelReservation(id: number, requesterId?: number): Observable<ApiResponse<void>> {
+    let params = new HttpParams();
+    if (requesterId !== undefined) {
+      params = params.set('requesterId', requesterId.toString());
+    }
+    return this.http.put<ApiResponse<void>>(`${this.apiUrl}/${id}/cancel`, {}, { params });
   }
 
-  confirmReservation(id: number): Observable<ApiResponse<void>> {
-    return this.http.put<ApiResponse<void>>(`${this.apiUrl}/${id}/confirm`, {});
+  completeReservation(id: number): Observable<ApiResponse<void>> {
+    return this.http.put<ApiResponse<void>>(`${this.apiUrl}/${id}/complete`, {});
   }
 
   // Export et factures

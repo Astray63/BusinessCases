@@ -6,6 +6,7 @@ import { Borne } from '../../models/borne.model';
 import { Reservation } from '../../models/reservation.model';
 import { ToastService } from '../../services/toast.service';
 import { AuthService } from '../../services/auth.service';
+import { ApiResponse } from '../../models/api-response.model';
 
 @Component({
   selector: 'app-reservation',
@@ -41,17 +42,19 @@ export class ReservationComponent implements OnInit {
 
   loadBornes(): void {
     this.borneService.getAllBornes().subscribe({
-      next: (response) => this.bornes = response.data || [],
-      error: (err) => this.toastService.showError('Erreur lors du chargement des bornes')
+      next: (response: ApiResponse<Borne[]>) => {
+        this.bornes = response.data || [];
+      },
+      error: (err: any) => this.toastService.showError('Erreur lors du chargement des bornes')
     });
   }
 
   loadReservations(): void {
     const currentUser = this.authService.getCurrentUser();
     if (currentUser) {
-      this.reservationService.getUserReservations().subscribe({
-        next: (response) => this.reservations = response.data || [],
-        error: (err) => this.toastService.showError('Erreur lors du chargement des réservations')
+      this.reservationService.getReservationsByCurrentUser(currentUser.idUtilisateur).subscribe({
+        next: (response: ApiResponse<Reservation[]>) => this.reservations = response.data || [],
+        error: (err: any) => this.toastService.showError('Erreur lors du chargement des réservations')
       });
     }
   }
@@ -63,15 +66,28 @@ export class ReservationComponent implements OnInit {
     }
 
     this.isLoading = true;
-    const reservationData = this.reservationForm.value;
+    const formValues = this.reservationForm.value;
+
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) { this.toastService.showError('Utilisateur non authentifié'); return; }
+
+    const dateDebut = new Date(formValues.date + 'T' + formValues.startTime);
+    const dateFin = new Date(formValues.date + 'T' + formValues.endTime);
+
+    const reservationPayload: any = {
+      utilisateurId: currentUser.idUtilisateur,
+      chargingStationId: formValues.borneId,
+      dateDebut: dateDebut.toISOString(),
+      dateFin: dateFin.toISOString()
+    };
     
-    this.reservationService.createReservation(reservationData).subscribe({
-      next: (response) => {
+    this.reservationService.createReservation(reservationPayload).subscribe({
+      next: (response: ApiResponse<Reservation>) => {
         this.toastService.showSuccess(response.message || 'Réservation créée avec succès');
         this.reservationForm.reset();
         this.loadReservations();
       },
-      error: (err) => {
+      error: (err: any) => {
         const errorMsg = err.error?.message || 'Erreur lors de la création de la réservation';
         this.toastService.showError(errorMsg);
       },
@@ -85,12 +101,14 @@ export class ReservationComponent implements OnInit {
   }
 
   cancelReservation(reservationId: number): void {
-    this.reservationService.cancelReservation(reservationId).subscribe({
-      next: (response) => {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) { return; }
+    this.reservationService.cancelReservation(reservationId, currentUser.idUtilisateur).subscribe({
+      next: (response: ApiResponse<any>) => {
         this.toastService.showSuccess(response.message || 'Réservation annulée avec succès');
         this.loadReservations();
       },
-      error: (err) => {
+      error: (err: any) => {
         const errorMsg = err.error?.message || 'Erreur lors de l\'annulation';
         this.toastService.showError(errorMsg);
       }
