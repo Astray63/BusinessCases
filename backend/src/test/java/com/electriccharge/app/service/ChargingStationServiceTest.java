@@ -6,7 +6,7 @@ import com.electriccharge.app.model.Utilisateur;
 import com.electriccharge.app.repository.ChargingStationRepository;
 import com.electriccharge.app.repository.UtilisateurRepository;
 import com.electriccharge.app.service.impl.ChargingStationServiceImpl;
-import jakarta.persistence.EntityNotFoundException;
+import com.electriccharge.app.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -106,7 +106,7 @@ class ChargingStationServiceTest {
         when(utilisateurRepository.findById(999L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(EntityNotFoundException.class, () -> chargingStationService.create(dto));
+        assertThrows(ResourceNotFoundException.class, () -> chargingStationService.create(dto));
         verify(chargingStationRepository, never()).save(any(ChargingStation.class));
     }
 
@@ -136,7 +136,7 @@ class ChargingStationServiceTest {
         when(chargingStationRepository.findById(id)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(EntityNotFoundException.class, () -> chargingStationService.getById(id));
+        assertThrows(ResourceNotFoundException.class, () -> chargingStationService.getById(id));
     }
 
     @Test

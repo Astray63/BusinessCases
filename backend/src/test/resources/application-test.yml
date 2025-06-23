@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -12,10 +12,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        default_schema: public
+        dialect: org.hibernate.dialect.H2Dialect
         jdbc:
           lob:
             non_contextual_creation: true
+        connection:
+          provider_class: org.hibernate.hikaricp.internal.HikariCPConnectionProvider
   sql:
     init:
       mode: always

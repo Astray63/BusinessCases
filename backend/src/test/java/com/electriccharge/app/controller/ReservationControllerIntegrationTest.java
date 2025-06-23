@@ -1,5 +1,7 @@
 package com.electriccharge.app.controller;
 
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import com.electriccharge.app.dto.ReservationDto;
 import com.electriccharge.app.model.ChargingStation;
 import com.electriccharge.app.model.Utilisateur;
@@ -23,8 +25,16 @@ import java.time.LocalDateTime;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = com.eb.electricitybusiness.ElectricityBusinessApplication.class)
+@SpringBootTest(
+    classes = { 
+        com.eb.electricitybusiness.ElectricityBusinessApplication.class,
+        com.eb.electricitybusiness.config.SecurityConfig.class 
+    },
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
+@TestPropertySource(locations = "classpath:application-test.yml")
 class ReservationControllerIntegrationTest {
 
     @Autowired
@@ -115,4 +125,4 @@ class ReservationControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray());
     }
-} 
+}
