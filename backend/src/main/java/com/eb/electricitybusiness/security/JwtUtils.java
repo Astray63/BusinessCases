@@ -6,13 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 /**
  * Utility class for JWT token operations.
@@ -23,14 +21,14 @@ public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
     
     private final Key jwtSecret;
-    private final int jwtExpirationMs;
-    private final int jwtRefreshExpirationMs;
+    private final long jwtExpirationMs;
+    private final long jwtRefreshExpirationMs;
     private final SignatureAlgorithm algorithm;
 
     public JwtUtils(
         @Value("${app.jwt.secret}") String secretKey,
-        @Value("${app.jwt.expiration-ms}") int expirationMs,
-        @Value("${app.jwt.refresh-expiration-ms}") int refreshExpirationMs,
+        @Value("${app.jwt.expiration-ms}") long expirationMs,
+        @Value("${app.jwt.refresh-expiration-ms}") long refreshExpirationMs,
         @Value("${app.jwt.algorithm:HS256}") String algorithm
     ) {
         this.jwtSecret = Keys.hmacShaKeyFor(secretKey.getBytes());
@@ -46,13 +44,9 @@ public class JwtUtils {
      */
     public String generateJwtToken(Authentication authentication) {
         String username = authentication.getName();
-        List<String> roles = authentication.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.toList());
 
         return Jwts.builder()
             .setSubject(username)
-            .claim("roles", roles)
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
             .signWith(jwtSecret, algorithm)

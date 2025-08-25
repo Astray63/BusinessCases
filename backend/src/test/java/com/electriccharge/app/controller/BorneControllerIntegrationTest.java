@@ -1,7 +1,5 @@
 package com.electriccharge.app.controller;
 
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import com.electriccharge.app.dto.ApiResponse;
 import com.electriccharge.app.dto.ChargingStationDto;
 import com.electriccharge.app.model.ChargingStation;
@@ -26,17 +24,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(
-    classes = { 
-        com.eb.electricitybusiness.ElectricityBusinessApplication.class,
-        com.eb.electricitybusiness.config.SecurityConfig.class 
-    },
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
+@SpringBootTest(classes = com.eb.electricitybusiness.ElectricityBusinessApplication.class)
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
-@TestPropertySource(locations = "classpath:application-test.yml")
-@MockBean({ChargingStationRepository.class, UtilisateurRepository.class})
 class BorneControllerIntegrationTest {
 
     @Autowired

@@ -40,7 +40,7 @@ public class AuthController {
         this.jwtUtils = jwtUtils;
     }
 
-    // Puis modifiez votre méthode :
+
 @PostMapping("/register")
 public ResponseEntity<ApiResponse<?>> register(@Valid @RequestBody RegisterRequestDto request) {
     try {
@@ -100,7 +100,7 @@ public ResponseEntity<ApiResponse<?>> register(@Valid @RequestBody RegisterReque
         }
     }
 
-    // ✅ Solution 1 - Utilisez @RequestParam
+
     @PostMapping("/checkEmail")
     public ResponseEntity<ApiResponse<?>> checkEmailExists(@RequestParam String email) {
         try {

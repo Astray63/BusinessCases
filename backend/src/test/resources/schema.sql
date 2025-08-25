@@ -1,6 +1,6 @@
 -- Création des tables minimales pour les tests
 CREATE TABLE IF NOT EXISTS utilisateur (
-    id_utilisateur BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id_utilisateur BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nom VARCHAR(255) NOT NULL,
     prenom VARCHAR(255) NOT NULL,
     pseudo VARCHAR(255) UNIQUE NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS utilisateur (
 );
 
 CREATE TABLE IF NOT EXISTS charging_stations (
-    id_borne BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id_borne BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nom VARCHAR(255) NOT NULL,
     numero VARCHAR(50) NOT NULL,
     localisation VARCHAR(255),

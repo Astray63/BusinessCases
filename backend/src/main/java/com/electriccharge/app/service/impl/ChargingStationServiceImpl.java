@@ -1,14 +1,13 @@
 package com.electriccharge.app.service.impl;
 
 import com.electriccharge.app.dto.ChargingStationDto;
-import com.electriccharge.app.exception.ResourceNotFoundException;
 import com.electriccharge.app.model.ChargingStation;
 import com.electriccharge.app.model.Utilisateur;
 import com.electriccharge.app.repository.ChargingStationRepository;
 import com.electriccharge.app.repository.UtilisateurRepository;
 import com.electriccharge.app.service.ChargingStationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,23 +18,15 @@ import java.util.stream.Collectors;
 @Transactional
 public class ChargingStationServiceImpl implements ChargingStationService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ChargingStationServiceImpl.class);
-    
-    private final ChargingStationRepository chargingStationRepository;
-    private final UtilisateurRepository utilisateurRepository;
+    @Autowired
+    private ChargingStationRepository chargingStationRepository;
 
-    public ChargingStationServiceImpl(
-        ChargingStationRepository chargingStationRepository,
-        UtilisateurRepository utilisateurRepository
-    ) {
-        this.chargingStationRepository = chargingStationRepository;
-        this.utilisateurRepository = utilisateurRepository;
-    }
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
 
     @Override
     @Transactional
     public ChargingStationDto create(ChargingStationDto dto) {
-        logger.debug("Creating new charging station");
         ChargingStation station = new ChargingStation();
         updateStationFromDto(station, dto);
         ChargingStation savedStation = chargingStationRepository.save(station);
@@ -45,19 +36,40 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional
     public ChargingStationDto update(Long id, ChargingStationDto dto) {
-        logger.debug("Updating charging station with id {}", id);
         ChargingStation station = chargingStationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Borne non trouvée avec l'id " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
         updateStationFromDto(station, dto);
         ChargingStation updatedStation = chargingStationRepository.save(station);
         return convertToDto(updatedStation);
     }
 
+    private void updateStationFromDto(ChargingStation station, ChargingStationDto dto) {
+        station.setNumero(dto.getNumero());
+        station.setNom(dto.getNom());
+        station.setLocalisation(dto.getLocalisation());
+        station.setLatitude(dto.getLatitude());
+        station.setLongitude(dto.getLongitude());
+        station.setPuissance(dto.getPuissance());
+        station.setMedias(dto.getMedias());
+        station.setInstructionSurPied(dto.getInstructionSurPied());
+        station.setEtat(parseEtat(dto.getEtat()));
+        station.setOccupee(dto.getOccupee());
+        station.setPrixALaMinute(dto.getPrixALaMinute());
+        station.setConnectorType(dto.getConnectorType());
+        station.setDescription(dto.getDescription());
+        station.setAddress(dto.getAddress());
+        station.setHourlyRate(dto.getHourlyRate());
+        
+        Utilisateur owner = utilisateurRepository.findById(dto.getOwnerId())
+                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé avec l'id " + dto.getOwnerId()));
+        station.setOwner(owner);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<ChargingStationDto> getAll() {
-        logger.debug("Fetching all charging stations");
-        return chargingStationRepository.findAll().stream()
+        List<ChargingStation> stations = chargingStationRepository.findAll();
+        return stations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -65,16 +77,16 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional(readOnly = true)
     public ChargingStationDto getById(Long id) {
-        logger.debug("Fetching charging station with id {}", id);
-        return convertToDto(chargingStationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Borne non trouvée avec l'id " + id)));
+        ChargingStation station = chargingStationRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
+        return convertToDto(station);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ChargingStationDto> getByOwner(Long ownerId) {
-        logger.debug("Fetching charging stations for owner {}", ownerId);
-        return chargingStationRepository.findByOwner_IdUtilisateur(ownerId).stream()
+        List<ChargingStation> stations = chargingStationRepository.findByOwner_IdUtilisateur(ownerId);
+        return stations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -82,8 +94,8 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional(readOnly = true)
     public List<ChargingStationDto> getByLieu(Long idLieu) {
-        logger.debug("Fetching charging stations for location {}", idLieu);
-        return chargingStationRepository.findByChargingStationLieu_Lieu_IdLieu(idLieu).stream()
+        List<ChargingStation> stations = chargingStationRepository.findByChargingStationLieu_Lieu_IdLieu(idLieu);
+        return stations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -92,8 +104,8 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Transactional(readOnly = true)
     public List<ChargingStationDto> getByDisponibilite(Boolean disponible) {
         String etat = disponible ? "DISPONIBLE" : "OCCUPEE";
-        logger.debug("Fetching charging stations with availability {}", etat);
-        return chargingStationRepository.findByEtat(etat).stream()
+        List<ChargingStation> stations = chargingStationRepository.findByEtat(etat);
+        return stations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -101,8 +113,8 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional(readOnly = true)
     public List<ChargingStationDto> getByEtat(String etat) {
-        logger.debug("Fetching charging stations with state {}", etat);
-        return chargingStationRepository.findByEtat(etat).stream()
+        List<ChargingStation> stations = chargingStationRepository.findByEtat(etat);
+        return stations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -110,15 +122,14 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional
     public void delete(Long id) {
-        logger.debug("Deleting charging station with id {}", id);
         chargingStationRepository.deleteById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ChargingStationDto> getProches(Double latitude, Double longitude, Double distance) {
-        logger.debug("Fetching charging stations near ({},{}) within {} km", latitude, longitude, distance);
-        return chargingStationRepository.findByDistance(latitude, longitude, distance).stream()
+        List<ChargingStation> stations = chargingStationRepository.findByDistance(latitude, longitude, distance);
+        return stations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -126,9 +137,8 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional
     public ChargingStationDto toggleOccupation(Long id, Boolean occupee) {
-        logger.debug("Setting occupied status to {} for station {}", occupee, id);
         ChargingStation station = chargingStationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Borne non trouvée avec l'id " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
         station.setOccupee(occupee);
         station.setEtat(occupee ? ChargingStation.Etat.OCCUPEE : ChargingStation.Etat.DISPONIBLE);
         ChargingStation updatedStation = chargingStationRepository.save(station);
@@ -138,9 +148,8 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional
     public ChargingStationDto changerEtat(Long id, String nouvelEtat) {
-        logger.debug("Changing state to {} for station {}", nouvelEtat, id);
         ChargingStation station = chargingStationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Borne non trouvée avec l'id " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
         station.setEtat(parseEtat(nouvelEtat));
         if (nouvelEtat.equals("OCCUPEE")) {
             station.setOccupee(true);
@@ -162,26 +171,8 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         }
     }
 
-    private void updateStationFromDto(ChargingStation station, ChargingStationDto dto) {
-        station.setNumero(dto.getNumero());
-        station.setNom(dto.getNom());
-        station.setLocalisation(dto.getLocalisation());
-        station.setLatitude(dto.getLatitude());
-        station.setLongitude(dto.getLongitude());
-        station.setPuissance(dto.getPuissance());
-        station.setMedias(dto.getMedias());
-        station.setInstructionSurPied(dto.getInstructionSurPied());
-        station.setEtat(parseEtat(dto.getEtat()));
-        station.setOccupee(dto.getOccupee());
-        station.setPrixALaMinute(dto.getPrixALaMinute());
-        station.setConnectorType(dto.getConnectorType());
-        station.setDescription(dto.getDescription());
-        station.setAddress(dto.getAddress());
-        station.setHourlyRate(dto.getHourlyRate());
-        
-        Utilisateur owner = utilisateurRepository.findById(dto.getOwnerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé avec l'id " + dto.getOwnerId()));
-        station.setOwner(owner);
+    private String convertEtatToString(ChargingStation.Etat etat) {
+        return etat != null ? etat.name() : null;
     }
 
     private ChargingStationDto convertToDto(ChargingStation station) {
@@ -195,7 +186,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         dto.setPuissance(station.getPuissance());
         dto.setMedias(station.getMedias() != null ? station.getMedias() : List.of());
         dto.setInstructionSurPied(station.getInstructionSurPied());
-        dto.setEtat(station.getEtat() != null ? station.getEtat().name() : null);
+        dto.setEtat(convertEtatToString(station.getEtat()));
         dto.setOccupee(station.getOccupee());
         dto.setPrixALaMinute(station.getPrixALaMinute());
         dto.setConnectorType(station.getConnectorType());
