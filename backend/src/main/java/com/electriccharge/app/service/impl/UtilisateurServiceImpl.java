@@ -2,12 +2,15 @@ package com.electriccharge.app.service.impl;
 
 import com.electriccharge.app.dto.AuthRequestDto;
 import com.electriccharge.app.dto.UtilisateurDto;
+import com.electriccharge.app.dto.ChangePasswordRequestDto;
 import com.electriccharge.app.exception.DuplicateResourceException;
 import com.electriccharge.app.exception.ResourceNotFoundException;
 import com.electriccharge.app.model.Utilisateur;
 import com.electriccharge.app.repository.UtilisateurRepository;
 import com.electriccharge.app.service.UtilisateurService;
+import com.electriccharge.app.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,7 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +47,12 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Value("${email.verification.code.expiry-minutes:15}")
+    private int verificationCodeExpiryMinutes;
 
     @Override
     @Transactional
@@ -69,10 +80,27 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
         utilisateur.setAdressePhysique(utilisateurDto.adressePhysique());
         utilisateur.setMedias(List.of(utilisateurDto.medias().split(",")));
         utilisateur.setEstBanni(false);
-        utilisateur.setEmailVerified(true); // Temporarily set to true until email verification is implemented
-        utilisateur.setVerificationCode(null);
+        
+        // Générer un code de vérification à 6 chiffres
+        String verificationCode = generateVerificationCode();
+        utilisateur.setVerificationCode(verificationCode);
+        utilisateur.setVerificationCodeExpiry(LocalDateTime.now().plusMinutes(verificationCodeExpiryMinutes));
+        utilisateur.setEmailVerified(false);
 
         Utilisateur savedUtilisateur = utilisateurRepository.save(utilisateur);
+        
+        // Envoyer l'email de vérification
+        try {
+            emailService.sendVerificationEmail(
+                savedUtilisateur.getEmail(), 
+                savedUtilisateur.getPrenom() + " " + savedUtilisateur.getNom(),
+                verificationCode
+            );
+        } catch (Exception e) {
+            // Log l'erreur mais ne bloque pas l'inscription
+            System.err.println("Erreur lors de l'envoi de l'email: " + e.getMessage());
+        }
+        
         return mapToDto(savedUtilisateur);
     }
 
@@ -191,6 +219,105 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
         return utilisateurRepository.existsByPseudo(pseudo);
     }
 
+    @Override
+    @Transactional
+    public void changePassword(Long userId, ChangePasswordRequestDto request) {
+        Utilisateur utilisateur = utilisateurRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "id", userId));
+        
+        // Vérifier l'ancien mot de passe
+        if (!passwordEncoder.matches(request.getAncienMotDePasse(), utilisateur.getMotDePasse())) {
+            throw new IllegalArgumentException("L'ancien mot de passe est incorrect");
+        }
+        
+        // Mettre à jour avec le nouveau mot de passe
+        utilisateur.setMotDePasse(passwordEncoder.encode(request.getNouveauMotDePasse()));
+        utilisateurRepository.save(utilisateur);
+    }
+
+    /**
+     * Génère un code de vérification à 6 chiffres
+     */
+    private String generateVerificationCode() {
+        Random random = new Random();
+        return String.format("%06d", random.nextInt(1000000));
+    }
+
+    @Override
+    @Transactional
+    public boolean verifyEmail(String email, String code) {
+        Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "email", email));
+
+        // Vérifier si le compte est déjà vérifié
+        if (utilisateur.getEmailVerified()) {
+            throw new IllegalStateException("Ce compte est déjà vérifié");
+        }
+
+        // Vérifier si le code existe
+        if (utilisateur.getVerificationCode() == null) {
+            throw new IllegalStateException("Aucun code de vérification n'a été généré pour ce compte");
+        }
+
+        // Vérifier si le code a expiré
+        if (utilisateur.getVerificationCodeExpiry().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Le code de vérification a expiré. Veuillez en demander un nouveau.");
+        }
+
+        // Vérifier si le code correspond
+        if (!utilisateur.getVerificationCode().equals(code)) {
+            return false;
+        }
+
+        // Marquer l'email comme vérifié
+        utilisateur.setEmailVerified(true);
+        utilisateur.setVerificationCode(null);
+        utilisateur.setVerificationCodeExpiry(null);
+        utilisateurRepository.save(utilisateur);
+
+        // Envoyer l'email de bienvenue
+        try {
+            emailService.sendWelcomeEmail(
+                utilisateur.getEmail(),
+                utilisateur.getPrenom() + " " + utilisateur.getNom()
+            );
+        } catch (Exception e) {
+            // Log l'erreur mais ne bloque pas la vérification
+            System.err.println("Erreur lors de l'envoi de l'email de bienvenue: " + e.getMessage());
+        }
+
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public void resendVerificationCode(String email) {
+        Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "email", email));
+
+        // Vérifier si le compte est déjà vérifié
+        if (utilisateur.getEmailVerified()) {
+            throw new IllegalStateException("Ce compte est déjà vérifié");
+        }
+
+        // Générer un nouveau code
+        String newCode = generateVerificationCode();
+        utilisateur.setVerificationCode(newCode);
+        utilisateur.setVerificationCodeExpiry(LocalDateTime.now().plusMinutes(verificationCodeExpiryMinutes));
+        utilisateurRepository.save(utilisateur);
+
+        // Envoyer le nouvel email
+        try {
+            emailService.sendVerificationEmail(
+                utilisateur.getEmail(),
+                utilisateur.getPrenom() + " " + utilisateur.getNom(),
+                newCode
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de l'envoi de l'email de vérification", e);
+        }
+    }
+
     private UtilisateurDto mapToDto(Utilisateur utilisateur) {
         return new UtilisateurDto(
             utilisateur.getIdUtilisateur(),
@@ -204,7 +331,10 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
             utilisateur.getAdressePhysique(),
             utilisateur.getMedias() != null && !utilisateur.getMedias().isEmpty() ? 
                 String.join(",", utilisateur.getMedias()) : "", // medias
-            null // idAdresse - à ajuster selon votre logique métier
+            null, // idAdresse - à ajuster selon votre logique métier
+            !utilisateur.getEstBanni(), // actif (inverse de estBanni)
+            utilisateur.getCreatedAt(),
+            null // dateModification - pas dans le modèle actuel
         );
     }
 }

@@ -1,61 +1,435 @@
-<div class="reservation-container">
-  <h2>Nouvelle réservation</h2>
-  
-  <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()" class="reservation-form">
-    <div class="form-group">
-      <label for="borne">Borne de recharge</label>
-      <select id="borne" formControlName="borneId" class="form-control">
-        <option value="">Sélectionnez une borne</option>
-        <option *ngFor="let borne of bornes" [value]="borne.idBorne">
-          Borne {{ borne.idBorne }} - {{ borne.localisation }}
-        </option>
-      </select>
-    </div>
+<div class="reservation-page">
+  <div class="page-header">
+    <h1>Gestion des Réservations</h1>
+    <p class="subtitle">Réservez une borne électrique ou gérez vos réservations existantes</p>
+  </div>
 
-    <div class="form-group">
-      <label for="date">Date</label>
-      <input type="date" id="date" formControlName="date" class="form-control">
-    </div>
-
-    <div class="form-row">
-      <div class="form-group col-md-6">
-        <label for="startTime">Heure de début</label>
-        <input type="time" id="startTime" formControlName="startTime" class="form-control">
-      </div>
-      <div class="form-group col-md-6">
-        <label for="endTime">Heure de fin</label>
-        <input type="time" id="endTime" formControlName="endTime" class="form-control">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="vehicleType">Type de véhicule</label>
-      <select id="vehicleType" formControlName="vehicleType" class="form-control">
-        <option value="">Sélectionnez un type</option>
-        <option value="voiture">Voiture électrique</option>
-        <option value="moto">Moto électrique</option>
-        <option value="utilitaire">Véhicule utilitaire</option>
-      </select>
-    </div>
-
-    <button type="submit" class="btn btn-primary" [disabled]="isLoading">
-      <span *ngIf="!isLoading">Réserver</span>
-      <span *ngIf="isLoading">En cours...</span>
+  <!-- Navigation par onglets -->
+  <div class="tabs-navigation">
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'nouvelle'"
+      (click)="changerTab('nouvelle')">
+      <i class="icon-plus"></i> Nouvelle réservation
     </button>
-  </form>
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'en-cours'"
+      (click)="changerTab('en-cours')">
+      <i class="icon-clock"></i> En cours ({{ reservationsEnCours.length }})
+    </button>
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'passees'"
+      (click)="changerTab('passees')">
+      <i class="icon-history"></i> Passées ({{ reservationsPassees.length }})
+    </button>
+    <button 
+      *ngIf="isProprietaire"
+      class="tab-button" 
+      [class.active]="activeTab === 'proprietaire'"
+      (click)="changerTab('proprietaire')">
+      <i class="icon-user"></i> Mes bornes ({{ reservationsProprietaire.length }})
+    </button>
+  </div>
 
-  <div class="reservations-list" *ngIf="reservations.length > 0">
-    <h3>Mes réservations</h3>
-    <div class="reservation-card" *ngFor="let reservation of reservations">
-      <div class="reservation-info">
-        <h4>{{ getBorneName(reservation.borne.idBorne) }}</h4>
-        <p>{{ reservation.dateDebut | date:'dd/MM/yyyy' }} de {{ reservation.dateDebut | date:'HH:mm' }} à {{ reservation.dateFin | date:'HH:mm' }}</p>
+  <!-- Contenu des onglets -->
+  <div class="tab-content">
+    
+    <!-- ONGLET: Nouvelle réservation -->
+    <div *ngIf="activeTab === 'nouvelle'" class="tab-panel">
+      <div class="reservation-form-container">
+        <h2>Effectuer une réservation</h2>
+        
+        <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()" class="reservation-form">
+          
+          <!-- Sélection de la borne -->
+          <div class="form-group">
+            <label for="borneId">Borne de recharge *</label>
+            <select 
+              id="borneId" 
+              formControlName="borneId" 
+              class="form-control"
+              (change)="selectionnerBorne($event)">
+              <option value="">-- Sélectionnez une borne disponible --</option>
+              <option *ngFor="let borne of bornesDisponibles" [value]="borne.idBorne">
+                {{ borne.localisation }} - {{ borne.type }} ({{ borne.puissance }} kW) - {{ borne.prix }}€/h
+              </option>
+            </select>
+            <small class="form-text">Seules les bornes disponibles sont affichées</small>
+          </div>
+
+          <!-- Informations de la borne sélectionnée -->
+          <div *ngIf="selectedBorne" class="borne-details">
+            <h4>Détails de la borne</h4>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="label">Localisation:</span>
+                <span class="value">{{ selectedBorne.localisation }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Type:</span>
+                <span class="value">{{ selectedBorne.type }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Puissance:</span>
+                <span class="value">{{ selectedBorne.puissance }} kW</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Prix:</span>
+                <span class="value">{{ selectedBorne.prix }}€/heure</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plage horaire -->
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="dateDebut">Date de début *</label>
+              <input 
+                type="date" 
+                id="dateDebut" 
+                formControlName="dateDebut" 
+                class="form-control"
+                [min]="getCurrentDate()">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="heureDebut">Heure de début *</label>
+              <input 
+                type="time" 
+                id="heureDebut" 
+                formControlName="heureDebut" 
+                class="form-control">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="dateFin">Date de fin *</label>
+              <input 
+                type="date" 
+                id="dateFin" 
+                formControlName="dateFin" 
+                class="form-control"
+                [min]="getCurrentDate()">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="heureFin">Heure de fin *</label>
+              <input 
+                type="time" 
+                id="heureFin" 
+                formControlName="heureFin" 
+                class="form-control">
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="form-actions">
+            <button 
+              type="submit" 
+              class="btn btn-primary" 
+              [disabled]="isLoading || reservationForm.invalid">
+              <span *ngIf="!isLoading">📅 Réserver</span>
+              <span *ngIf="isLoading">⏳ En cours...</span>
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-secondary" 
+              (click)="reservationForm.reset()"
+              [disabled]="isLoading">
+              Réinitialiser
+            </button>
+          </div>
+
+          <div class="info-message">
+            <p>ℹ️ Une notification sera automatiquement envoyée au propriétaire de la borne après votre réservation.</p>
+          </div>
+        </form>
       </div>
-      <button class="btn btn-danger" 
+    </div>
+
+    <!-- ONGLET: Réservations en cours -->
+    <div *ngIf="activeTab === 'en-cours'" class="tab-panel">
+      <h2>Réservations en cours</h2>
+      <p class="description">Réservations en attente de validation ou confirmées</p>
+
+      <div *ngIf="reservationsEnCours.length === 0" class="empty-state">
+        <p>Aucune réservation en cours</p>
+      </div>
+
+      <div class="reservations-grid">
+        <div 
+          *ngFor="let reservation of reservationsEnCours" 
+          class="reservation-card"
+          [class.en-attente]="reservation.statut === 'EN_ATTENTE'">
+          
+          <div class="reservation-header">
+            <span class="reservation-id">#{{ reservation.idReservation }}</span>
+            <span class="reservation-statut" [ngClass]="getStatutClass(reservation.statut)">
+              {{ getStatutLabel(reservation.statut) }}
+            </span>
+          </div>
+
+          <div class="reservation-body">
+            <div class="info-row">
+              <span class="icon">📍</span>
+              <div class="info-content">
+                <strong>{{ reservation.borne.localisation }}</strong>
+                <small>{{ reservation.borne.type }} - {{ reservation.borne.puissance }} kW</small>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <span class="icon">📅</span>
+              <div class="info-content">
+                <strong>{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</strong>
+                <small>{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</small>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <span class="icon">⏱️</span>
+              <div class="info-content">
+                <strong>Durée</strong>
+                <small>{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</small>
+              </div>
+            </div>
+
+            <div class="info-row" *ngIf="reservation.montantTotal">
+              <span class="icon">💰</span>
+              <div class="info-content">
+                <strong>Montant</strong>
+                <small>{{ reservation.montantTotal }} €</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="reservation-footer">
+            <button 
+              class="btn btn-danger btn-sm" 
               (click)="cancelReservation(reservation.idReservation)"
               [disabled]="isLoading">
-        Annuler
-      </button>
+              Annuler
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- ONGLET: Réservations passées -->
+    <div *ngIf="activeTab === 'passees'" class="tab-panel">
+      <div class="panel-header">
+        <h2>Réservations passées</h2>
+        
+        <!-- Filtres -->
+        <div class="filtres-container">
+          <form [formGroup]="filtreForm" class="filtres-form">
+            <div class="filtre-group">
+              <label>Statut</label>
+              <select formControlName="statut" class="form-control">
+                <option value="">Tous</option>
+                <option value="TERMINEE">Terminée</option>
+                <option value="ANNULEE">Annulée</option>
+                <option value="REFUSEE">Refusée</option>
+              </select>
+            </div>
+
+            <div class="filtre-group">
+              <label>Date début</label>
+              <input type="date" formControlName="dateDebut" class="form-control">
+            </div>
+
+            <div class="filtre-group">
+              <label>Date fin</label>
+              <input type="date" formControlName="dateFin" class="form-control">
+            </div>
+
+            <div class="filtre-group">
+              <label>Borne</label>
+              <select formControlName="borneId" class="form-control">
+                <option value="">Toutes</option>
+                <option *ngFor="let borne of bornes" [value]="borne.idBorne">
+                  {{ borne.localisation }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filtre-actions">
+              <button 
+                type="button" 
+                class="btn btn-primary btn-sm" 
+                (click)="appliquerFiltre()">
+                Filtrer
+              </button>
+              <button 
+                type="button" 
+                class="btn btn-secondary btn-sm" 
+                (click)="reinitialiserFiltre()"
+                *ngIf="filtreActif">
+                Réinitialiser
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Actions d'export -->
+        <div class="export-actions">
+          <button 
+            class="btn btn-success" 
+            (click)="exporterExcel()"
+            [disabled]="reservationsPassees.length === 0 || isLoading">
+            📊 Exporter Excel
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="reservationsPassees.length === 0" class="empty-state">
+        <p>Aucune réservation passée</p>
+      </div>
+
+      <div class="reservations-table" *ngIf="reservationsPassees.length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Borne</th>
+              <th>Date</th>
+              <th>Durée</th>
+              <th>Statut</th>
+              <th>Montant</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reservation of reservationsPassees">
+              <td>#{{ reservation.idReservation }}</td>
+              <td>
+                <strong>{{ reservation.borne.localisation }}</strong><br>
+                <small>{{ reservation.borne.type }}</small>
+              </td>
+              <td>
+                {{ reservation.dateDebut | date:'dd/MM/yyyy' }}<br>
+                <small>{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</small>
+              </td>
+              <td>{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</td>
+              <td>
+                <span class="badge" [ngClass]="getStatutClass(reservation.statut)">
+                  {{ getStatutLabel(reservation.statut) }}
+                </span>
+                <div *ngIf="reservation.motifRefus" class="motif-refus">
+                  <small>{{ reservation.motifRefus }}</small>
+                </div>
+              </td>
+              <td>
+                <strong *ngIf="reservation.montantTotal">{{ reservation.montantTotal }} €</strong>
+                <span *ngIf="!reservation.montantTotal">-</span>
+              </td>
+              <td>
+                <button 
+                  *ngIf="reservation.statut === 'TERMINEE' || reservation.statut === 'CONFIRMEE'"
+                  class="btn btn-sm btn-outline" 
+                  (click)="genererRecuPDF(reservation)"
+                  [disabled]="isLoading">
+                  📄 Reçu PDF
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ONGLET: Gestion propriétaire -->
+    <div *ngIf="activeTab === 'proprietaire' && isProprietaire" class="tab-panel">
+      <h2>Réservations de mes bornes</h2>
+      <p class="description">Gérez les demandes de réservation pour vos bornes</p>
+
+      <div *ngIf="reservationsProprietaire.length === 0" class="empty-state">
+        <p>Aucune réservation pour vos bornes</p>
+      </div>
+
+      <div class="reservations-grid">
+        <div 
+          *ngFor="let reservation of reservationsProprietaire" 
+          class="reservation-card proprietaire-card">
+          
+          <div class="reservation-header">
+            <span class="reservation-id">#{{ reservation.idReservation }}</span>
+            <span class="reservation-statut" [ngClass]="getStatutClass(reservation.statut)">
+              {{ getStatutLabel(reservation.statut) }}
+            </span>
+          </div>
+
+          <div class="reservation-body">
+            <div class="info-row">
+              <span class="icon">👤</span>
+              <div class="info-content">
+                <strong>{{ reservation.utilisateur.prenom }} {{ reservation.utilisateur.nom }}</strong>
+                <small>{{ reservation.utilisateur.email }}</small>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <span class="icon">📍</span>
+              <div class="info-content">
+                <strong>{{ reservation.borne.localisation }}</strong>
+                <small>{{ reservation.borne.type }} - {{ reservation.borne.puissance }} kW</small>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <span class="icon">📅</span>
+              <div class="info-content">
+                <strong>{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</strong>
+                <small>{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</small>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <span class="icon">⏱️</span>
+              <div class="info-content">
+                <strong>Durée</strong>
+                <small>{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</small>
+              </div>
+            </div>
+
+            <div class="info-row" *ngIf="reservation.montantTotal">
+              <span class="icon">💰</span>
+              <div class="info-content">
+                <strong>Revenu estimé</strong>
+                <small>{{ reservation.montantTotal }} €</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="reservation-footer" *ngIf="reservation.statut === 'EN_ATTENTE'">
+            <button 
+              class="btn btn-success btn-sm" 
+              (click)="accepterReservation(reservation.idReservation)"
+              [disabled]="isLoading">
+              ✓ Accepter
+            </button>
+            <button 
+              class="btn btn-danger btn-sm" 
+              (click)="refuserReservation(reservation.idReservation)"
+              [disabled]="isLoading">
+              ✗ Refuser
+            </button>
+          </div>
+
+          <div class="reservation-footer" *ngIf="reservation.statut !== 'EN_ATTENTE'">
+            <span class="status-text">
+              {{ getStatutLabel(reservation.statut) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Loader global -->
+  <div *ngIf="isLoading" class="global-loader">
+    <div class="spinner"></div>
   </div>
 </div>

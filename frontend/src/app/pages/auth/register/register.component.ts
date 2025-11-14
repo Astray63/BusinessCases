@@ -69,8 +69,9 @@ export class RegisterComponent implements OnInit {
       .subscribe({
         next: (response) => {
           if (response.result === 'SUCCESS') {
-            this.router.navigate(['/auth/login'], { 
-              queryParams: { registered: true }
+            // Rediriger vers la page de vérification d'email
+            this.router.navigate(['/auth/verify-email'], { 
+              queryParams: { email: this.registerForm.value.email }
             });
           } else {
             this.errorMessage = response.message || 'Une erreur inconnue est survenue.';

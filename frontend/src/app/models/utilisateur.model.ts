@@ -10,6 +10,11 @@ export interface Utilisateur {
   actif: boolean;
   dateCreation?: Date;
   dateModification?: Date;
+  dateNaissance?: Date;
+  iban?: string;
+  adressePhysique?: string;
+  medias?: string;
+  idAdresse?: number;
 }
 
 export interface UtilisateurAuth {

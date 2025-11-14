@@ -108,6 +108,9 @@ public class Utilisateur implements UserDetails {
     @Column(name = "verification_code", length = 64)
     private String verificationCode;
     
+    @Column(name = "verification_code_expiry")
+    private LocalDateTime verificationCodeExpiry;
+    
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;

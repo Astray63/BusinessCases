@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Utilisateur } from '../../models/utilisateur.model';
@@ -15,6 +15,7 @@ import { RouterModule } from '@angular/router';
 export class HeaderComponent implements OnInit {
   currentUser: Utilisateur | null = null;
   isMenuOpen = false;
+  isDropdownOpen = false;
 
   constructor(
     private authService: AuthService,
@@ -31,9 +32,30 @@ export class HeaderComponent implements OnInit {
     this.isMenuOpen = !this.isMenuOpen;
   }
 
+  toggleDropdown(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  closeDropdown(): void {
+    this.isDropdownOpen = false;
+    this.isMenuOpen = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    // Fermer le dropdown si on clique en dehors
+    const target = event.target as HTMLElement;
+    if (!target.closest('.dropdown')) {
+      this.isDropdownOpen = false;
+    }
+  }
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/']);
     this.isMenuOpen = false;
+    this.isDropdownOpen = false;
   }
 }

@@ -1,0 +1,213 @@
+<div class="container py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="lieux-container">
+  <div class="page-header">
+    <h1>Mes lieux de recharge</h1>
+    <button class="btn btn-primary" routerLink="/lieux/ajouter">
+      <i class="bi bi-plus-lg"></i> Ajouter un lieu
+    </button>
+  </div>
+
+      <!-- Messages -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i> {{ successMessage }}
+        <button type="button" class="btn-close" (click)="clearMessages()"></button>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle"></i> {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="clearMessages()"></button>
+      </div>
+
+      <!-- Formulaire -->
+      <div class="card mb-4" *ngIf="showForm">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="bi bi-pencil-square"></i>
+            {{ editMode ? 'Modifier le lieu' : 'Nouveau lieu' }}
+          </h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="lieuForm" (ngSubmit)="onSubmit()">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="nom" class="form-label">Nom du lieu *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="nom" 
+                  formControlName="nom"
+                  [class.is-invalid]="lieuForm.get('nom')?.invalid && lieuForm.get('nom')?.touched">
+                <div class="invalid-feedback" *ngIf="lieuForm.get('nom')?.invalid && lieuForm.get('nom')?.touched">
+                  Le nom est obligatoire (max 100 caractères)
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="adresse" class="form-label">Adresse complète *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="adresse" 
+                  formControlName="adresse"
+                  placeholder="Adresse complète"
+                  [class.is-invalid]="lieuForm.get('adresse')?.invalid && lieuForm.get('adresse')?.touched">
+                <div class="invalid-feedback" *ngIf="lieuForm.get('adresse')?.invalid && lieuForm.get('adresse')?.touched">
+                  L'adresse est obligatoire
+                </div>
+              </div>
+
+              <div class="col-md-3 mb-3">
+                <label for="numero" class="form-label">Numéro</label>
+                <input type="text" class="form-control" id="numero" formControlName="numero">
+              </div>
+
+              <div class="col-md-9 mb-3">
+                <label for="rue" class="form-label">Rue</label>
+                <input type="text" class="form-control" id="rue" formControlName="rue">
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label for="codePostal" class="form-label">Code postal *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="codePostal" 
+                  formControlName="codePostal"
+                  [class.is-invalid]="lieuForm.get('codePostal')?.invalid && lieuForm.get('codePostal')?.touched">
+                <div class="invalid-feedback" *ngIf="lieuForm.get('codePostal')?.invalid && lieuForm.get('codePostal')?.touched">
+                  Le code postal est obligatoire
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label for="ville" class="form-label">Ville *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="ville" 
+                  formControlName="ville"
+                  [class.is-invalid]="lieuForm.get('ville')?.invalid && lieuForm.get('ville')?.touched">
+                <div class="invalid-feedback" *ngIf="lieuForm.get('ville')?.invalid && lieuForm.get('ville')?.touched">
+                  La ville est obligatoire
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label for="pays" class="form-label">Pays *</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="pays" 
+                  formControlName="pays"
+                  [class.is-invalid]="lieuForm.get('pays')?.invalid && lieuForm.get('pays')?.touched">
+                <div class="invalid-feedback" *ngIf="lieuForm.get('pays')?.invalid && lieuForm.get('pays')?.touched">
+                  Le pays est obligatoire
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="region" class="form-label">Région</label>
+                <input type="text" class="form-control" id="region" formControlName="region">
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="complementEtape" class="form-label">Complément d'adresse</label>
+                <input type="text" class="form-control" id="complementEtape" formControlName="complementEtape"
+                  placeholder="Bâtiment, étage, appartement...">
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="latitude" class="form-label">Latitude</label>
+                <input 
+                  type="number" 
+                  step="any" 
+                  class="form-control" 
+                  id="latitude" 
+                  formControlName="latitude"
+                  placeholder="Ex: 48.8566"
+                  [class.is-invalid]="lieuForm.get('latitude')?.invalid && lieuForm.get('latitude')?.touched">
+                <div class="invalid-feedback" *ngIf="lieuForm.get('latitude')?.invalid && lieuForm.get('latitude')?.touched">
+                  La latitude doit être entre -90 et 90
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="longitude" class="form-label">Longitude</label>
+                <input 
+                  type="number" 
+                  step="any" 
+                  class="form-control" 
+                  id="longitude" 
+                  formControlName="longitude"
+                  placeholder="Ex: 2.3522"
+                  [class.is-invalid]="lieuForm.get('longitude')?.invalid && lieuForm.get('longitude')?.touched">
+                <div class="invalid-feedback" *ngIf="lieuForm.get('longitude')?.invalid && lieuForm.get('longitude')?.touched">
+                  La longitude doit être entre -180 et 180
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="loading || lieuForm.invalid">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!loading" class="bi bi-check-lg me-1"></i>
+                {{ editMode ? 'Mettre à jour' : 'Créer' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="resetForm()" [disabled]="loading">
+                <i class="bi bi-x-lg me-1"></i> Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Liste des lieux -->
+      <div *ngIf="loading && lieux.length === 0" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-2">Chargement de vos lieux...</p>
+      </div>
+
+      <div *ngIf="!loading && lieux.length === 0" class="alert alert-info">
+        <i class="bi bi-info-circle"></i> Vous n'avez pas encore de lieu enregistré. Ajoutez-en un pour commencer !
+      </div>
+
+      <div class="row" *ngIf="lieux.length > 0">
+        <div class="col-md-6 col-lg-4 mb-4" *ngFor="let lieu of lieux">
+          <div class="card h-100 lieu-card">
+            <div class="card-body">
+              <h5 class="card-title">
+                <i class="bi bi-geo-alt-fill text-primary"></i>
+                {{ lieu.nom }}
+              </h5>
+              <p class="card-text">
+                <strong>Adresse :</strong><br>
+                {{ getAddressString(lieu) }}<br>
+                {{ lieu.codePostal }} {{ lieu.ville }}<br>
+                {{ lieu.pays }}
+                <span *ngIf="lieu.region"> - {{ lieu.region }}</span>
+              </p>
+              <div *ngIf="lieu.latitude && lieu.longitude" class="mb-2">
+                <small class="text-muted">
+                  <i class="bi bi-pin-map"></i>
+                  GPS: {{ lieu.latitude | number:'1.4-4' }}, {{ lieu.longitude | number:'1.4-4' }}
+                </small>
+              </div>
+              <div class="d-flex gap-2 mt-3">
+                <button class="btn btn-sm btn-outline-primary" (click)="editLieu(lieu)">
+                  <i class="bi bi-pencil"></i> Modifier
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteLieu(lieu.idLieu!)" [disabled]="loading">
+                  <i class="bi bi-trash"></i> Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

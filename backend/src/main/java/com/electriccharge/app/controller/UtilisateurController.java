@@ -2,6 +2,7 @@ package com.electriccharge.app.controller;
 
 import com.electriccharge.app.dto.ApiResponse;
 import com.electriccharge.app.dto.UtilisateurDto;
+import com.electriccharge.app.dto.ChangePasswordRequestDto;
 import com.electriccharge.app.service.UtilisateurService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,5 +82,19 @@ public class UtilisateurController {
         utilisateurService.reactiverUtilisateur(id);
         return new ResponseEntity<>(ApiResponse.success("Utilisateur réactivé avec succès"), 
                 HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/change-password")
+    public ResponseEntity<ApiResponse<?>> changePassword(
+            @PathVariable Long id,
+            @Valid @RequestBody ChangePasswordRequestDto request) {
+        try {
+            utilisateurService.changePassword(id, request);
+            return new ResponseEntity<>(ApiResponse.success("Mot de passe changé avec succès"), 
+                    HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()), 
+                    HttpStatus.BAD_REQUEST);
+        }
     }
 }

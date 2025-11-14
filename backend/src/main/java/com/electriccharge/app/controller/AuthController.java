@@ -4,6 +4,8 @@ import com.electriccharge.app.dto.ApiResponse;
 import com.electriccharge.app.dto.AuthRequestDto;
 import com.electriccharge.app.dto.RegisterRequestDto;
 import com.electriccharge.app.dto.UtilisateurDto;
+import com.electriccharge.app.dto.VerifyEmailRequestDto;
+import com.electriccharge.app.dto.ResendVerificationRequestDto;
 import com.electriccharge.app.service.UtilisateurService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +50,10 @@ public ResponseEntity<ApiResponse<?>> register(@Valid @RequestBody RegisterReque
             request.getUtilisateur(), 
             request.getMotDePasse()
         );
-        return new ResponseEntity<>(ApiResponse.success("Inscription réussie", nouveauUtilisateur),
-                HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiResponse.success(
+            "Inscription réussie. Un code de vérification a été envoyé à votre adresse email.", 
+            nouveauUtilisateur),
+            HttpStatus.CREATED);
     } catch (Exception e) {
         return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                 HttpStatus.BAD_REQUEST);
@@ -145,6 +149,45 @@ public ResponseEntity<ApiResponse<?>> register(@Valid @RequestBody RegisterReque
         } catch (Exception e) {
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()), 
                     HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<ApiResponse<?>> verifyEmail(@Valid @RequestBody VerifyEmailRequestDto request) {
+        try {
+            boolean verified = utilisateurService.verifyEmail(request.email(), request.code());
+            if (verified) {
+                return ResponseEntity.ok(ApiResponse.success(
+                    "Email vérifié avec succès ! Vous pouvez maintenant vous connecter.", 
+                    null
+                ));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error("Code de vérification incorrect"));
+            }
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Erreur lors de la vérification: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<ApiResponse<?>> resendVerification(@Valid @RequestBody ResendVerificationRequestDto request) {
+        try {
+            utilisateurService.resendVerificationCode(request.email());
+            return ResponseEntity.ok(ApiResponse.success(
+                "Un nouveau code de vérification a été envoyé à votre adresse email.", 
+                null
+            ));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Erreur lors de l'envoi du code: " + e.getMessage()));
         }
     }
 }

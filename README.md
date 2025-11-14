@@ -1,5 +1,12 @@
 # Electricity Business (EB)
 
+![Build & SonarCloud](https://github.com/Astray63/BusinessCases/actions/workflows/sonarcloud.yml/badge.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Astray63_BusinessCases&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Astray63_BusinessCases)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Astray63_BusinessCases&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Astray63_BusinessCases)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Astray63_BusinessCases&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Astray63_BusinessCases)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Astray63_BusinessCases&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Astray63_BusinessCases)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Astray63_BusinessCases&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Astray63_BusinessCases)
+
 A web application that connects electric vehicle owners with charging station owners, enabling the rental and booking of charging stations.
 
 ## Table of Contents
@@ -10,6 +17,7 @@ A web application that connects electric vehicle owners with charging station ow
 - [API Documentation](#api-documentation)
 - [Development Guidelines](#development-guidelines)
 - [Testing](#testing)
+- [CI & Code Quality](#ci--code-quality)
 - [License](#license)
 - [🐳 Lancer l'application avec Docker](#🐳-lancer-l'application-avec-docker)
 
@@ -157,6 +165,30 @@ Run frontend tests with:
 cd frontend
 ng test
 ```
+
+## CI & Code Quality
+
+Le workflow GitHub Actions `Build & SonarCloud` s'exécute sur chaque push / pull request vers `main` ou à la demande (onglet Actions > workflow > Run workflow).
+
+Il réalise :
+1. Compilation & tests backend (`mvn verify` + JaCoCo)
+2. Analyse SonarCloud (qualité, couverture, bugs, vulnérabilités)
+3. Publication éventuelle du rapport de couverture comme artifact
+
+Badges en tête de README : état build, Quality Gate, couverture et métriques clefs.
+
+Exécuter l'analyse SonarCloud en local :
+```bash
+export SONAR_TOKEN=xxxx # token SonarCloud (ne pas committer)
+cd backend
+mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+    -Dsonar.projectKey=Astray63_BusinessCases \
+    -Dsonar.organization=astray63 \
+    -Dsonar.host.url=https://sonarcloud.io \
+    -Dsonar.token=$SONAR_TOKEN
+```
+
+Lien tableau de bord : https://sonarcloud.io/project/overview?id=Astray63_BusinessCases
 
 ## License
 

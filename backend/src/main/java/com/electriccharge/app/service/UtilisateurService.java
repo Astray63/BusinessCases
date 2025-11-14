@@ -2,6 +2,7 @@ package com.electriccharge.app.service;
 
 import com.electriccharge.app.dto.UtilisateurDto;
 import com.electriccharge.app.dto.AuthRequestDto;
+import com.electriccharge.app.dto.ChangePasswordRequestDto;
 import java.util.List;
 
 public interface UtilisateurService {
@@ -31,4 +32,10 @@ public interface UtilisateurService {
     boolean existsByEmail(String email);
     
     boolean existsByPseudo(String pseudo);
+    
+    void changePassword(Long userId, ChangePasswordRequestDto request);
+    
+    boolean verifyEmail(String email, String code);
+    
+    void resendVerificationCode(String email);
 } 

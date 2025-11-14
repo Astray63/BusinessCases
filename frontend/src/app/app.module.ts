@@ -8,6 +8,10 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AppRoutingModule } from './app-routing.module';
 import { SharedModule } from './shared/shared.module';
 import { AppComponent } from './app.component';
+import { HeaderComponent } from './components/header/header.component';
+import { FooterComponent } from './components/footer/footer.component';
+import { ToastComponent } from './components/toasts/toast.component';
+import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 
 // Interceptors
 import { AuthInterceptor } from './services/auth.interceptor';
@@ -15,6 +19,9 @@ import { LoadingInterceptor } from './interceptors/loading.interceptor';
 import { ErrorInterceptor } from './interceptors/error.interceptor';
 
 @NgModule({
+  declarations: [
+    AppComponent
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -23,7 +30,11 @@ import { ErrorInterceptor } from './interceptors/error.interceptor';
     ReactiveFormsModule,
     BrowserAnimationsModule,
     NgbModule,
-    SharedModule
+    SharedModule,
+    HeaderComponent,
+    FooterComponent,
+    ToastComponent,
+    LoadingSpinnerComponent
   ],
   providers: [
     // L'ordre des intercepteurs est important : Auth -> Loading -> Error

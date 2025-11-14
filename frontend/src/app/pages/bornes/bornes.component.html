@@ -1,31 +1,214 @@
-<div class="bornes-container">
-  <h1>Bornes de recharge</h1>
-  <p>Liste des bornes de recharge disponibles</p>
-  
-  <!-- Placeholder content for bornes page -->
-  <div class="bornes-list">
-    <div class="borne-card">
-      <h3>Borne #1</h3>
-      <p>Adresse: 123 Rue de la Charge, 75001 Paris</p>
-      <p>Type: Rapide (50kW)</p>
-      <p>Statut: Disponible</p>
-      <button class="btn-primary">Réserver</button>
+<div class="container-fluid p-0">
+  <div class="row g-0">
+    <!-- Panneau de filtres -->
+    <div class="col-lg-3 filters-panel">
+      <div class="p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0"><i class="bi bi-funnel"></i> Filtres</h4>
+          <button class="btn btn-sm btn-outline-secondary" (click)="toggleView()">
+            <i class="bi" [ngClass]="showMap ? 'bi-list' : 'bi-map'"></i>
+            {{ showMap ? 'Liste' : 'Carte' }}
+          </button>
+        </div>
+
+        <!-- Recherche -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Recherche</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Localisation..."
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="onSearchChange()">
+          </div>
+        </div>
+
+        <!-- Distance -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">
+            Distance maximum: <span class="text-primary">{{ distance }} km</span>
+          </label>
+          <input 
+            type="range" 
+            class="form-range" 
+            min="1" 
+            max="50" 
+            [(ngModel)]="distance"
+            (change)="onFilterChange()">
+          <div class="d-flex justify-content-between">
+            <small class="text-muted">1 km</small>
+            <small class="text-muted">50 km</small>
+          </div>
+        </div>
+
+        <!-- Prix -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">
+            Prix: <span class="text-primary">{{ prixMin }}€ - {{ prixMax }}€/h</span>
+          </label>
+          <div class="row">
+            <div class="col-6">
+              <label class="form-label small">Min</label>
+              <input 
+                type="range" 
+                class="form-range" 
+                min="0" 
+                max="50" 
+                [(ngModel)]="prixMin"
+                (change)="onFilterChange()">
+            </div>
+            <div class="col-6">
+              <label class="form-label small">Max</label>
+              <input 
+                type="range" 
+                class="form-range" 
+                min="0" 
+                max="50" 
+                [(ngModel)]="prixMax"
+                (change)="onFilterChange()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Puissance -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">
+            Puissance minimale: <span class="text-primary">{{ puissanceMin }} kW</span>
+          </label>
+          <input 
+            type="range" 
+            class="form-range" 
+            min="0" 
+            max="350" 
+            step="10"
+            [(ngModel)]="puissanceMin"
+            (change)="onFilterChange()">
+          <div class="d-flex justify-content-between">
+            <small class="text-muted">0 kW</small>
+            <small class="text-muted">350 kW</small>
+          </div>
+        </div>
+
+        <!-- État -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">État</label>
+          <select 
+            class="form-select" 
+            [(ngModel)]="selectedEtat"
+            (change)="onFilterChange()">
+            <option value="all">Tous les états</option>
+            <option value="DISPONIBLE">Disponible</option>
+            <option value="OCCUPEE">Occupée</option>
+            <option value="EN_MAINTENANCE">En maintenance</option>
+            <option value="EN_PANNE">Hors service</option>
+          </select>
+        </div>
+
+        <!-- Disponibles uniquement -->
+        <div class="mb-3">
+          <div class="form-check">
+            <input 
+              class="form-check-input" 
+              type="checkbox" 
+              id="disponibleOnly"
+              [(ngModel)]="disponibleOnly"
+              (change)="onFilterChange()">
+            <label class="form-check-label" for="disponibleOnly">
+              Disponibles uniquement
+            </label>
+          </div>
+        </div>
+
+        <!-- Bouton recherche -->
+        <button 
+          class="btn btn-primary w-100" 
+          (click)="searchBornes()"
+          [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          <i *ngIf="!loading" class="bi bi-search me-2"></i>
+          Rechercher
+        </button>
+
+        <!-- Résultats -->
+        <div class="mt-3 p-2 bg-light rounded">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Résultats:</span>
+            <span class="badge bg-primary">{{ filteredBornes.length }}</span>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
+          <i class="bi bi-exclamation-triangle"></i> {{ errorMessage }}
+        </div>
+      </div>
     </div>
-    
-    <div class="borne-card">
-      <h3>Borne #2</h3>
-      <p>Adresse: 456 Avenue Électrique, 69002 Lyon</p>
-      <p>Type: Ultra-rapide (150kW)</p>
-      <p>Statut: Occupée</p>
-      <button class="btn-primary" disabled>Réserver</button>
-    </div>
-    
-    <div class="borne-card">
-      <h3>Borne #3</h3>
-      <p>Adresse: 789 Boulevard Énergie, 33000 Bordeaux</p>
-      <p>Type: Standard (22kW)</p>
-      <p>Statut: Disponible</p>
-      <button class="btn-primary">Réserver</button>
+
+    <!-- Carte ou Liste -->
+    <div class="col-lg-9">
+      <!-- Vue Carte -->
+      <div *ngIf="showMap" id="map" class="map-container"></div>
+
+      <!-- Vue Liste -->
+      <div *ngIf="!showMap" class="list-container p-3">
+        <div *ngIf="loading && filteredBornes.length === 0" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Chargement...</span>
+          </div>
+          <p class="mt-2">Recherche en cours...</p>
+        </div>
+
+        <div *ngIf="!loading && filteredBornes.length === 0" class="alert alert-info">
+          <i class="bi bi-info-circle"></i> Aucune borne trouvée avec ces critères. Essayez d'augmenter le rayon de recherche.
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 col-xl-4 mb-3" *ngFor="let borne of filteredBornes">
+            <div class="card h-100 borne-card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning-charge-fill text-warning"></i>
+                    Borne #{{ borne.idBorne }}
+                  </h5>
+                  <span class="badge" [ngClass]="getEtatClass(borne.etat)">
+                    {{ getEtatLabel(borne.etat) }}
+                  </span>
+                </div>
+
+                <p class="card-text mb-2">
+                  <i class="bi bi-geo-alt"></i> {{ borne.localisation }}
+                </p>
+
+                <div class="d-flex justify-content-between mb-2">
+                  <span><strong>Puissance:</strong> {{ getPuissanceLabel(borne.puissance) }}</span>
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+                  <span><strong>Prix:</strong> {{ borne.prix }}€/h</span>
+                  <span><strong>Type:</strong> {{ borne.type }}</span>
+                </div>
+
+                <div class="d-flex gap-2">
+                  <button 
+                    class="btn btn-sm btn-primary flex-grow-1"
+                    (click)="reserverBorne(borne.idBorne)"
+                    [disabled]="borne.etat !== 'DISPONIBLE'">
+                    <i class="bi bi-calendar-check"></i> Réserver
+                  </button>
+                  <button 
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="onBorneSelect(borne)">
+                    <i class="bi bi-map"></i> Voir
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div> 

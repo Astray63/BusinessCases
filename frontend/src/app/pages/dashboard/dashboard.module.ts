@@ -1,22 +1,24 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { VehiculesComponent } from './vehicules.component';
+import { DashboardComponent } from './dashboard.component';
+import { AuthGuard } from '../../guards/auth.guard';
 
 const routes: Routes = [
   {
     path: '',
-    component: VehiculesComponent
+    component: DashboardComponent,
+    canActivate: [AuthGuard]
   }
 ];
 
 @NgModule({
   declarations: [
-    VehiculesComponent
+    DashboardComponent
   ],
   imports: [
     CommonModule,
     RouterModule.forChild(routes)
   ]
 })
-export class VehiculesModule { } 
+export class DashboardModule { }

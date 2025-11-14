@@ -4,6 +4,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
+import { ValidateComponent } from './validate/validate.component';
+import { VerifyEmailComponent } from './verify-email/verify-email.component';
 
 const routes: Routes = [
   {
@@ -15,6 +17,14 @@ const routes: Routes = [
     component: RegisterComponent
   },
   {
+    path: 'validate',
+    component: ValidateComponent
+  },
+  {
+    path: 'verify-email',
+    component: VerifyEmailComponent
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'
@@ -24,7 +34,9 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     LoginComponent,
-    RegisterComponent
+    RegisterComponent,
+    ValidateComponent,
+    VerifyEmailComponent
   ],
   imports: [
     CommonModule,

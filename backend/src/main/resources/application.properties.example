@@ -7,17 +7,26 @@ server.error.include-stacktrace=never
 server.error.include-exception=false
 
 # Database Configuration
-spring.datasource.url=jdbc:postgresql://localhost:5432/electricity_business
+spring.datasource.url=jdbc:postgresql://localhost:5432/electricity
 spring.datasource.username=postgres
 spring.datasource.password=postgres
 spring.datasource.driver-class-name=org.postgresql.Driver
 
+# HikariCP Connection Pool Configuration
+spring.datasource.hikari.connection-timeout=30000
+spring.datasource.hikari.maximum-pool-size=10
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.idle-timeout=600000
+spring.datasource.hikari.max-lifetime=1800000
+spring.datasource.hikari.connection-test-query=SELECT 1
+
 # JWT Configuration
 app.jwt.secret=your-256-bit-secret-key-32-characters-minimum
 app.jwt.expiration-ms=86400000
+app.jwt.refresh-expiration-ms=604800000
 
 # JPA/Hibernate Configuration
-spring.jpa.hibernate.ddl-auto=create-drop
+spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
@@ -25,13 +34,14 @@ spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
 spring.jpa.open-in-view=false
 
 
-# Email Configuration (replace with actual SMTP details)
-spring.mail.host=smtp.gmail.com
-spring.mail.port=587
-spring.mail.username=your-email@gmail.com
-spring.mail.password=your-app-password
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true
+# Brevo Email API Configuration
+# Get your API key from: https://app.brevo.com/settings/keys/api
+brevo.api.key=YOUR_BREVO_API_KEY_HERE
+brevo.sender.email=your-email@example.com
+brevo.sender.name=Your Name
+
+# Email verification settings
+email.verification.code.expiry-minutes=15
 
 # File Storage Configuration
 file.storage.path=./storage
@@ -47,16 +57,13 @@ logging.level.com.eb.electricitybusiness=DEBUG
 logging.level.com.electriccharge.app=DEBUG
 # Ajout pour debug Spring Security
 logging.level.org.springframework.security=DEBUG
+# Ajout pour debug EmailService
+logging.level.com.electriccharge.app.service.impl.EmailServiceImpl=DEBUG
 
 # Max file size for uploads
 spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=10MB
 spring.servlet.multipart.enabled=true
-
-# Spring Security Configuration - SUPPRIMÉ LES CONFLITS
-# Ces lignes peuvent empêcher votre configuration custom de fonctionner
-# spring.security.filter.order=10
-# spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
 
 # Actuator Configuration
 management.endpoints.web.exposure.include=health,info

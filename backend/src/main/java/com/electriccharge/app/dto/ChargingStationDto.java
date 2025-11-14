@@ -9,6 +9,7 @@ import java.util.List;
 
 public class ChargingStationDto {
     private Long id;
+    private Long idBorne; // Alias pour compatibilité frontend
 
     @NotBlank(message = "Le numéro est obligatoire")
     private String numero;
@@ -37,6 +38,8 @@ public class ChargingStationDto {
     private String instructionSurPied;
     private String connectorType;
     private String description;
+    private String type; // NORMALE ou RAPIDE (calculé côté serveur)
+    private BigDecimal prix; // Alias de hourlyRate pour frontend
 
     @NotBlank(message = "L'état est obligatoire")
     private String etat;
@@ -187,5 +190,33 @@ public class ChargingStationDto {
 
     public void setHourlyRate(BigDecimal hourlyRate) {
         this.hourlyRate = hourlyRate;
+    }
+
+    // Getters/Setters pour compatibilité frontend
+    public Long getIdBorne() {
+        return idBorne != null ? idBorne : id;
+    }
+
+    public void setIdBorne(Long idBorne) {
+        this.idBorne = idBorne;
+        if (this.id == null) {
+            this.id = idBorne;
+        }
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public BigDecimal getPrix() {
+        return prix != null ? prix : hourlyRate;
+    }
+
+    public void setPrix(BigDecimal prix) {
+        this.prix = prix;
     }
 }

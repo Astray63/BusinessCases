@@ -42,6 +42,79 @@
     </div>
   </section>
 
+  <!-- Section Carte publique des bornes -->
+  <section class="public-map">
+    <h2 class="section-title">Bornes disponibles autour de vous</h2>
+    <p class="section-subtitle">Découvrez les bornes de recharge disponibles sans avoir besoin de créer un compte</p>
+    
+    <!-- Carte interactive Leaflet -->
+    <div class="map-wrapper">
+      <div id="public-map" class="map-display"></div>
+      
+      <div *ngIf="isLoading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Chargement des bornes...</p>
+      </div>
+    </div>
+
+    <!-- Liste des bornes sous la carte -->
+    <div class="bornes-section" *ngIf="!isLoading && bornesPubliques.length > 0">
+      <h3>{{ bornesPubliques.length }} borne(s) disponible(s)</h3>
+      <div class="bornes-grid">
+        <div *ngFor="let borne of bornesPubliques" class="borne-card">
+          <div class="borne-header">
+            <h3>{{ borne.localisation }}</h3>
+            <span class="borne-status" [ngClass]="{
+              'disponible': borne.etat === 'DISPONIBLE',
+              'occupee': borne.etat === 'OCCUPE',
+              'hors-service': borne.etat !== 'DISPONIBLE' && borne.etat !== 'OCCUPE'
+            }">
+              {{ borne.etat === 'DISPONIBLE' ? 'Disponible' : (borne.etat === 'OCCUPE' ? 'Occupée' : 'Hors service') }}
+            </span>
+          </div>
+          
+          <div class="borne-details">
+            <div class="detail-row">
+              <span class="icon">⚡</span>
+              <span>{{ borne.type }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="icon">🔌</span>
+              <span>{{ borne.puissance }} kW</span>
+            </div>
+            <div class="detail-row">
+              <span class="icon">💰</span>
+              <span>{{ borne.prix }}€/heure</span>
+            </div>
+            <div class="detail-row" *ngIf="borne.latitude && borne.longitude && userLocation">
+              <span class="icon">📍</span>
+              <span>{{ calculateDistance(borne.latitude, borne.longitude) | number:'1.1-1' }} km</span>
+            </div>
+          </div>
+
+          <div class="borne-footer">
+            <button 
+              class="btn btn-primary btn-sm" 
+              (click)="navigateToReservation(borne)"
+              [disabled]="borne.etat !== 'DISPONIBLE'">
+              <i class="bi bi-calendar-check"></i> Réserver
+            </button>
+            <button 
+              class="btn btn-outline btn-sm" 
+              (click)="centerMapOnBorne(borne)">
+              <i class="bi bi-geo-alt"></i> Voir sur la carte
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="!isLoading && bornesPubliques.length === 0">
+      <i class="bi bi-lightning-charge" style="font-size: 48px; color: #ccc;"></i>
+      <p>Aucune borne disponible pour le moment</p>
+    </div>
+  </section>
+
   <!-- Section Fonctionnalités -->
   <section class="features">
     <h2 class="section-title">Nos services</h2>
@@ -53,15 +126,6 @@
         <h3>Trouvez des bornes</h3>
         <p>Localisez facilement les bornes de recharge près de chez vous</p>
         <a routerLink="/bornes" class="btn btn-primary">Voir les bornes</a>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">
-          <img src="https://images.unsplash.com/photo-1617886322168-72b886573c35?ixlib=rb-4.0.1&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="Véhicule électrique" class="feature-image">
-        </div>
-        <h3>Gérez vos véhicules</h3>
-        <p>Ajoutez et gérez vos véhicules électriques</p>
-        <a routerLink="/vehicules" class="btn btn-primary">Mes véhicules</a>
       </div>
       
       <div class="feature-card">

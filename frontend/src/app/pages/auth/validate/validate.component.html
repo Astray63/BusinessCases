@@ -1,0 +1,59 @@
+<div class="validate-container">
+  <div class="validate-card">
+    <div class="validate-header">
+      <h2>Validation de votre compte</h2>
+      <p>Un code de validation a été envoyé à <strong>{{ email }}</strong></p>
+    </div>
+
+    <form [formGroup]="validateForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="code">Code de validation</label>
+        <input 
+          type="text" 
+          id="code" 
+          formControlName="code" 
+          class="form-control"
+          [class.is-invalid]="submitted && f['code'].errors"
+          placeholder="Entrez le code à 6 chiffres"
+          maxlength="6"
+          pattern="[0-9]*"
+        >
+        <div *ngIf="submitted && f['code'].errors" class="invalid-feedback">
+          <div *ngIf="f['code'].errors['required']">Le code est requis</div>
+          <div *ngIf="f['code'].errors['minlength'] || f['code'].errors['maxlength']">
+            Le code doit contenir 6 caractères
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+
+      <button 
+        type="submit" 
+        class="btn btn-primary btn-block"
+        [disabled]="loading"
+      >
+        <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+        Valider mon compte
+      </button>
+    </form>
+
+    <div class="resend-section">
+      <p>Vous n'avez pas reçu le code ?</p>
+      <button 
+        type="button" 
+        class="btn btn-link"
+        (click)="resendCode()"
+        [disabled]="loading"
+      >
+        Renvoyer le code
+      </button>
+    </div>
+
+    <div class="back-to-login">
+      <a routerLink="/auth/login">Retour à la connexion</a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,64 @@
+<div class="verify-email-container">
+  <div class="verify-email-card">
+    <div class="header">
+      <h1>Validation de votre compte</h1>
+      <p class="subtitle">
+        Un code de validation a été envoyé à<br>
+        <strong class="email">{{ email }}</strong>
+      </p>
+    </div>
+
+    <form [formGroup]="verificationForm" (ngSubmit)="onSubmit()" class="verification-form">
+      <div class="form-group">
+        <label for="code">Code de validation</label>
+        <input
+          type="text"
+          id="code"
+          formControlName="code"
+          class="form-control"
+          placeholder="Entrez le code à 6 chiffres"
+          maxlength="6"
+          (input)="onCodeInput($event)"
+          [class.is-invalid]="verificationForm.get('code')?.invalid && verificationForm.get('code')?.touched"
+        />
+        <div class="invalid-feedback" *ngIf="verificationForm.get('code')?.invalid && verificationForm.get('code')?.touched">
+          <span *ngIf="verificationForm.get('code')?.errors?.['required']">Le code est obligatoire</span>
+          <span *ngIf="verificationForm.get('code')?.errors?.['pattern']">Le code doit contenir 6 chiffres</span>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary btn-block"
+        [disabled]="verificationForm.invalid || isLoading"
+      >
+        <span *ngIf="!isLoading">Valider mon compte</span>
+        <span *ngIf="isLoading">
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          Vérification...
+        </span>
+      </button>
+    </form>
+
+    <div class="footer-actions">
+      <p class="resend-text">Vous n'avez pas reçu le code ?</p>
+      <button
+        type="button"
+        class="btn btn-link"
+        (click)="resendCode()"
+        [disabled]="isResending"
+      >
+        <span *ngIf="!isResending">Renvoyer le code</span>
+        <span *ngIf="isResending">Envoi en cours...</span>
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-link back-to-login"
+        (click)="backToLogin()"
+      >
+        Retour à la connexion
+      </button>
+    </div>
+  </div>
+</div>

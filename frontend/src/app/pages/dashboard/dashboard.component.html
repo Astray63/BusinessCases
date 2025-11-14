@@ -1,0 +1,196 @@
+<div class="dashboard-container" *ngIf="currentUser">
+  <div class="dashboard-header">
+    <h1>Bienvenue, {{ currentUser.prenom }} {{ currentUser.nom }}</h1>
+    <p class="user-role">
+      <span class="role-badge" [ngClass]="'badge-' + currentUser.role">
+        {{ currentUser.role === 'admin' ? 'Administrateur' : currentUser.role === 'proprietaire' ? 'Propriétaire' : 'Client' }}
+      </span>
+    </p>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-grid">
+    <div class="stat-card" *ngIf="currentUser.role === 'proprietaire' || currentUser.role === 'admin'">
+      <div class="stat-icon bornes-icon"></div>
+      <div class="stat-content">
+        <h3>{{ stats.totalBornes }}</h3>
+        <p>Bornes enregistrées</p>
+        <small>{{ stats.bornesActives }} actives</small>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon reservations-icon"></div>
+      <div class="stat-content">
+        <h3>{{ stats.totalReservations }}</h3>
+        <p>Réservations totales</p>
+        <small>{{ stats.reservationsEnCours }} en cours</small>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon upcoming-icon"></div>
+      <div class="stat-content">
+        <h3>{{ reservationsEnCours.length }}</h3>
+        <p>Réservations à venir</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon completed-icon"></div>
+      <div class="stat-content">
+        <h3>{{ reservationsPassees.length }}</h3>
+        <p>Réservations passées</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Chargement de vos données...</p>
+  </div>
+
+  <!-- Mes bornes (si propriétaire) -->
+  <div class="section" *ngIf="(currentUser.role === 'proprietaire' || currentUser.role === 'admin') && !loading">
+    <div class="section-header">
+      <h2>Mes bornes de recharge</h2>
+      <button class="btn-primary" (click)="ajouterBorne()">
+        + Ajouter une borne
+      </button>
+    </div>
+
+    <div class="alert alert-info" *ngIf="mesBornes.length === 0">
+      Vous n'avez pas encore ajouté de borne de recharge. Cliquez sur "Ajouter une borne" pour commencer.
+    </div>
+
+    <div class="bornes-grid" *ngIf="mesBornes.length > 0">
+      <div class="borne-card" *ngFor="let borne of mesBornes">
+        <div class="borne-header">
+          <h3>Borne #{{ borne.idBorne }}</h3>
+          <span class="status-badge" [ngClass]="getEtatClass(borne.etat)">
+            {{ borne.etat }}
+          </span>
+        </div>
+        <div class="borne-body">
+          <p><strong>Localisation:</strong> {{ borne.localisation }}</p>
+          <p><strong>Puissance:</strong> {{ borne.puissance }}kW</p>
+          <p><strong>Prix:</strong> {{ borne.prix | currency:'EUR':'symbol':'1.2-2' }}/h</p>
+          <button class="btn-secondary" (click)="modifierBorne(borne.idBorne)">
+            Modifier
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mes réservations -->
+  <div class="section" *ngIf="!loading">
+    <div class="section-header">
+      <h2>Mes réservations</h2>
+      <button class="btn-primary" (click)="reserverBorne()">
+        + Nouvelle réservation
+      </button>
+    </div>
+
+    <div class="alert alert-info" *ngIf="mesReservations.length === 0">
+      Vous n'avez pas encore de réservation. Cliquez sur "Nouvelle réservation" pour réserver une borne.
+    </div>
+
+    <!-- Réservations en cours -->
+    <div class="subsection" *ngIf="reservationsEnCours.length > 0">
+      <h3>Réservations en cours</h3>
+      <div class="reservations-list">
+        <div class="reservation-card" *ngFor="let reservation of reservationsEnCours">
+          <div class="reservation-header">
+            <span class="statut-badge" [ngClass]="getStatutClass(reservation.statut)">
+              {{ reservation.statut }}
+            </span>
+            <span class="reservation-id">#{{ reservation.idReservation }}</span>
+          </div>
+          <div class="reservation-body">
+            <div class="reservation-info">
+              <p><strong>Borne:</strong> {{ reservation.borne.localisation || 'N/A' }}</p>
+              <p><strong>Début:</strong> {{ reservation.dateDebut | date:'dd/MM/yyyy HH:mm' }}</p>
+              <p><strong>Fin:</strong> {{ reservation.dateFin | date:'dd/MM/yyyy HH:mm' }}</p>
+              <p><strong>Prix total:</strong> {{ reservation.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</p>
+            </div>
+            <div class="reservation-actions">
+              <button class="btn-danger" (click)="annulerReservation(reservation.idReservation)">
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Réservations passées -->
+    <div class="subsection" *ngIf="reservationsPassees.length > 0">
+      <h3>Réservations passées</h3>
+      <div class="reservations-list">
+        <div class="reservation-card past" *ngFor="let reservation of reservationsPassees">
+          <div class="reservation-header">
+            <span class="statut-badge" [ngClass]="getStatutClass(reservation.statut)">
+              {{ reservation.statut }}
+            </span>
+            <span class="reservation-id">#{{ reservation.idReservation }}</span>
+          </div>
+          <div class="reservation-body">
+            <div class="reservation-info">
+              <p><strong>Borne:</strong> {{ reservation.borne.localisation || 'N/A' }}</p>
+              <p><strong>Date:</strong> {{ reservation.dateDebut | date:'dd/MM/yyyy HH:mm' }}</p>
+              <p><strong>Prix total:</strong> {{ reservation.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="quick-actions">
+    <h2>Actions rapides</h2>
+    <div class="actions-grid">
+      <a routerLink="/lieux" class="action-card action-lieu">
+        <div class="action-icon lieu-icon">
+          <i class="bi bi-geo-alt-fill"></i>
+        </div>
+        <h3>Ajouter un lieu de recharge</h3>
+        <p>Enregistrer un nouveau lieu (maison, bureau...)</p>
+      </a>
+      
+      <a routerLink="/bornes/ajouter" class="action-card action-borne" *ngIf="currentUser.role === 'proprietaire' || currentUser.role === 'admin'">
+        <div class="action-icon borne-icon">
+          <i class="bi bi-lightning-charge-fill"></i>
+        </div>
+        <h3>Ajouter une borne de recharge</h3>
+        <p>Mettre à disposition une borne de recharge</p>
+      </a>
+      
+      <a routerLink="/bornes" class="action-card action-search">
+        <div class="action-icon search-icon">
+          <i class="bi bi-search"></i>
+        </div>
+        <h3>Trouver une borne autour de moi</h3>
+        <p>Rechercher des bornes disponibles à proximité</p>
+      </a>
+
+      <a routerLink="/profile" class="action-card action-profile">
+        <div class="action-icon profile-icon">
+          <i class="bi bi-person-fill"></i>
+        </div>
+        <h3>Mon profil</h3>
+        <p>Gérer mes informations personnelles</p>
+      </a>
+      
+      <a routerLink="/reservation" class="action-card action-reservation">
+        <div class="action-icon reservation-icon">
+          <i class="bi bi-calendar-check-fill"></i>
+        </div>
+        <h3>Mes réservations</h3>
+        <p>Consulter et gérer mes réservations</p>
+      </a>
+    </div>
+  </div>
+</div>

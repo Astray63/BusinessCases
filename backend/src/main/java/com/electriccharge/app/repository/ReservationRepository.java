@@ -31,4 +31,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     
     @Query("SELECT r FROM Reservation r JOIN FETCH r.utilisateur JOIN FETCH r.chargingStation WHERE r.numeroReservation = :id")
     Optional<Reservation> findWithDetails(Long id);
+    
+    @Query("SELECT COUNT(r) > 0 FROM Reservation r WHERE r.chargingStation.idBorne = :borneId AND r.etat IN ('EN_COURS', 'CONFIRMEE') AND r.dateFin >= CURRENT_TIMESTAMP")
+    boolean hasActiveReservations(Long borneId);
 }

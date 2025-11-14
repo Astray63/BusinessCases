@@ -1,6 +1,7 @@
 package com.electriccharge.app.service;
 
 import com.electriccharge.app.dto.ChargingStationDto;
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ChargingStationService {
@@ -16,4 +17,7 @@ public interface ChargingStationService {
     List<ChargingStationDto> getProches(Double latitude, Double longitude, Double distance);
     ChargingStationDto toggleOccupation(Long id, Boolean occupee);
     ChargingStationDto changerEtat(Long id, String nouvelEtat);
+    List<ChargingStationDto> searchAdvanced(Double latitude, Double longitude, Double distance, 
+                                             BigDecimal prixMin, BigDecimal prixMax, 
+                                             Integer puissanceMin, String etat, Boolean disponible);
 }

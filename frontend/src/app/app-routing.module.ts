@@ -10,13 +10,18 @@ const routes: Routes = [
   // Lazy-loaded routes
   { path: 'home', loadChildren: () => import('./pages/home/home.module').then(m => m.HomeModule) },
   { 
+    path: 'dashboard', 
+    loadChildren: () => import('./pages/dashboard/dashboard.module').then(m => m.DashboardModule),
+    canActivate: [AuthGuard]
+  },
+  { 
     path: 'bornes', 
     loadChildren: () => import('./pages/bornes/bornes.module').then(m => m.BornesModule),
     canActivate: [AuthGuard]
   },
   { 
-    path: 'vehicules', 
-    loadChildren: () => import('./pages/vehicules/vehicules.module').then(m => m.VehiculesModule),
+    path: 'lieux', 
+    loadChildren: () => import('./pages/lieux/lieux.module').then(m => m.LieuxModule),
     canActivate: [AuthGuard]
   },
   { 
@@ -26,6 +31,11 @@ const routes: Routes = [
   },
   { 
     path: 'reservation', 
+    loadChildren: () => import('./pages/reservation/reservation.module').then(m => m.ReservationModule),
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'reservations', 
     loadChildren: () => import('./pages/reservation/reservation.module').then(m => m.ReservationModule),
     canActivate: [AuthGuard]
   },

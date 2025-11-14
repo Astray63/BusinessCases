@@ -9,22 +9,15 @@ import { LoadingSpinnerComponent } from './components/loading-spinner/loading-sp
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [
-    RouterOutlet,
-    HeaderComponent,
-    FooterComponent,
-    ToastComponent,
-    LoadingSpinnerComponent
-  ],
+  standalone: false,
   template: `
-    <app-header />
+    <app-header></app-header>
     <main class="container py-4">
-      <router-outlet />
+      <router-outlet></router-outlet>
     </main>
-    <app-footer />
-    <app-toast />
-    <app-loading-spinner />
+    <app-footer></app-footer>
+    <app-toast></app-toast>
+    <app-loading-spinner></app-loading-spinner>
   `,
   styles: [`
     main {

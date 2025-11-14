@@ -1,27 +1,200 @@
 <div class="profile-container">
   <h1>Mon Profil</h1>
   
-  <div class="profile-card">
+  <!-- Messages de succès/erreur -->
+  <div class="message success-message" *ngIf="successMessage">
+    <i class="icon-success">✓</i> {{ successMessage }}
+  </div>
+  <div class="message error-message" *ngIf="errorMessage">
+    <i class="icon-error">✕</i> {{ errorMessage }}
+  </div>
+
+  <div class="profile-card" *ngIf="currentUser">
+    <!-- Section Informations personnelles -->
     <div class="profile-info">
-      <h2>Informations personnelles</h2>
-      <div class="info-row">
-        <span class="label">Nom:</span>
-        <span class="value">Dupont</span>
+      <div class="section-header">
+        <h2>Informations personnelles</h2>
+        <span class="role-badge" [ngClass]="getRoleBadgeClass()">{{ getRoleLabel() }}</span>
       </div>
-      <div class="info-row">
-        <span class="label">Prénom:</span>
-        <span class="value">Jean</span>
-      </div>
-      <div class="info-row">
-        <span class="label">Email:</span>
-        <span class="value">jean.dupont@example.com</span>
-      </div>
-      <button class="btn-edit">Modifier mes informations</button>
+
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <div class="info-row">
+          <span class="label">Pseudo:</span>
+          <span class="value">{{ currentUser.pseudo }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Nom:</span>
+          <input 
+            *ngIf="editMode" 
+            type="text" 
+            formControlName="nom" 
+            class="form-input"
+            [class.error]="profileForm.get('nom')?.invalid && profileForm.get('nom')?.touched"
+          />
+          <span *ngIf="!editMode" class="value">{{ currentUser.nom }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Prénom:</span>
+          <input 
+            *ngIf="editMode" 
+            type="text" 
+            formControlName="prenom" 
+            class="form-input"
+            [class.error]="profileForm.get('prenom')?.invalid && profileForm.get('prenom')?.touched"
+          />
+          <span *ngIf="!editMode" class="value">{{ currentUser.prenom }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Email:</span>
+          <input 
+            *ngIf="editMode" 
+            type="email" 
+            formControlName="email" 
+            class="form-input"
+            [class.error]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
+          />
+          <span *ngIf="!editMode" class="value">{{ currentUser.email }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Compte:</span>
+          <span class="value" [class.active]="currentUser.actif" [class.inactive]="!currentUser.actif">
+            {{ currentUser.actif ? 'Actif' : 'Inactif' }}
+          </span>
+        </div>
+
+        <div class="info-row" *ngIf="currentUser.dateCreation">
+          <span class="label">Membre depuis:</span>
+          <span class="value">{{ currentUser.dateCreation | date: 'dd/MM/yyyy' }}</span>
+        </div>
+
+        <div class="button-group">
+          <button 
+            *ngIf="!editMode" 
+            type="button" 
+            class="btn-edit" 
+            (click)="toggleEditMode()"
+          >
+            Modifier mes informations
+          </button>
+
+          <ng-container *ngIf="editMode">
+            <button 
+              type="submit" 
+              class="btn-save" 
+              [disabled]="profileForm.invalid || loading"
+            >
+              {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+            </button>
+            <button 
+              type="button" 
+              class="btn-cancel" 
+              (click)="toggleEditMode()"
+              [disabled]="loading"
+            >
+              Annuler
+            </button>
+          </ng-container>
+        </div>
+      </form>
     </div>
-    
+
+    <!-- Section Sécurité -->
     <div class="password-section">
       <h2>Sécurité</h2>
-      <button class="btn-change-password">Changer mon mot de passe</button>
+
+      <button 
+        *ngIf="!changePasswordMode" 
+        type="button" 
+        class="btn-change-password" 
+        (click)="toggleChangePasswordMode()"
+      >
+        Changer mon mot de passe
+      </button>
+
+      <form 
+        *ngIf="changePasswordMode" 
+        [formGroup]="passwordForm" 
+        (ngSubmit)="changePassword()"
+      >
+        <div class="form-group">
+          <label for="ancienMotDePasse">Mot de passe actuel</label>
+          <input 
+            type="password" 
+            id="ancienMotDePasse" 
+            formControlName="ancienMotDePasse" 
+            class="form-input"
+            [class.error]="passwordForm.get('ancienMotDePasse')?.invalid && passwordForm.get('ancienMotDePasse')?.touched"
+          />
+          <span 
+            class="error-text" 
+            *ngIf="passwordForm.get('ancienMotDePasse')?.invalid && passwordForm.get('ancienMotDePasse')?.touched"
+          >
+            Le mot de passe doit contenir au moins 6 caractères
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="nouveauMotDePasse">Nouveau mot de passe</label>
+          <input 
+            type="password" 
+            id="nouveauMotDePasse" 
+            formControlName="nouveauMotDePasse" 
+            class="form-input"
+            [class.error]="passwordForm.get('nouveauMotDePasse')?.invalid && passwordForm.get('nouveauMotDePasse')?.touched"
+          />
+          <span 
+            class="error-text" 
+            *ngIf="passwordForm.get('nouveauMotDePasse')?.invalid && passwordForm.get('nouveauMotDePasse')?.touched"
+          >
+            Le mot de passe doit contenir au moins 6 caractères
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmMotDePasse">Confirmer le nouveau mot de passe</label>
+          <input 
+            type="password" 
+            id="confirmMotDePasse" 
+            formControlName="confirmMotDePasse" 
+            class="form-input"
+            [class.error]="passwordForm.errors?.['passwordMismatch'] && passwordForm.get('confirmMotDePasse')?.touched"
+          />
+          <span 
+            class="error-text" 
+            *ngIf="passwordForm.errors?.['passwordMismatch'] && passwordForm.get('confirmMotDePasse')?.touched"
+          >
+            Les mots de passe ne correspondent pas
+          </span>
+        </div>
+
+        <div class="button-group">
+          <button 
+            type="submit" 
+            class="btn-save" 
+            [disabled]="passwordForm.invalid || loading"
+          >
+            {{ loading ? 'Changement...' : 'Changer le mot de passe' }}
+          </button>
+          <button 
+            type="button" 
+            class="btn-cancel" 
+            (click)="toggleChangePasswordMode()"
+            [disabled]="loading"
+          >
+            Annuler
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
+
+  <!-- Message si pas connecté -->
+  <div class="no-user-message" *ngIf="!currentUser">
+    <p>Vous devez être connecté pour accéder à votre profil.</p>
+    <a routerLink="/auth/login" class="btn-login">Se connecter</a>
   </div>
 </div> 

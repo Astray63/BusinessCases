@@ -10,7 +10,8 @@ import java.util.List;
 
 @Repository
 public interface ChargingStationRepository extends JpaRepository<ChargingStation, Long> {
-    List<ChargingStation> findByEtat(String etat);
+    @Query("SELECT cs FROM ChargingStation cs LEFT JOIN FETCH cs.owner WHERE cs.etat = :etat")
+    List<ChargingStation> findByEtat(@Param("etat") String etat);
     
     List<ChargingStation> findByOwner_IdUtilisateur(Long ownerId);
     

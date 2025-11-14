@@ -112,6 +112,36 @@ public class BorneController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @GetMapping("/disponibles")
+    public ResponseEntity<ApiResponse<?>> getBornesDisponibles(
+            @RequestParam(required = false) Double latitude,
+            @RequestParam(required = false) Double longitude,
+            @RequestParam(required = false) Double distance,
+            @RequestParam(required = false) java.math.BigDecimal prixMin,
+            @RequestParam(required = false) java.math.BigDecimal prixMax,
+            @RequestParam(required = false) Integer puissanceMin,
+            @RequestParam(required = false) String etat,
+            @RequestParam(required = false) Boolean disponible) {
+        try {
+            // Si aucun filtre n'est fourni, retourner toutes les bornes disponibles
+            if (latitude == null && longitude == null && prixMin == null && 
+                prixMax == null && puissanceMin == null && etat == null && disponible == null) {
+                List<ChargingStationDto> bornes = chargingStationService.getByDisponibilite(true);
+                return new ResponseEntity<>(ApiResponse.success(bornes), HttpStatus.OK);
+            }
+            
+            // Sinon utiliser la recherche avancée
+            List<ChargingStationDto> bornes = chargingStationService.searchAdvanced(
+                latitude, longitude, distance, prixMin, prixMax, puissanceMin, etat, disponible
+            );
+            return new ResponseEntity<>(ApiResponse.success(bornes),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/etat/{etat}")
     public ResponseEntity<ApiResponse<?>> getBornesByEtat(@PathVariable String etat) {
@@ -174,6 +204,40 @@ public class BorneController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/utilisateur/{userId}")
+    public ResponseEntity<ApiResponse<?>> getBornesByUtilisateur(@PathVariable Long userId) {
+        try {
+            List<ChargingStationDto> bornes = chargingStationService.getByOwner(userId);
+            return new ResponseEntity<>(ApiResponse.success(bornes),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<?>> searchBornes(
+            @RequestParam(required = false) Double latitude,
+            @RequestParam(required = false) Double longitude,
+            @RequestParam(required = false) Double distance,
+            @RequestParam(required = false) java.math.BigDecimal prixMin,
+            @RequestParam(required = false) java.math.BigDecimal prixMax,
+            @RequestParam(required = false) Integer puissanceMin,
+            @RequestParam(required = false) String etat,
+            @RequestParam(required = false) Boolean disponible) {
+        try {
+            List<ChargingStationDto> bornes = chargingStationService.searchAdvanced(
+                latitude, longitude, distance, prixMin, prixMax, puissanceMin, etat, disponible
+            );
+            return new ResponseEntity<>(ApiResponse.success(bornes),
+                    HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);

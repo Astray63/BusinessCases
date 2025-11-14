@@ -43,6 +43,31 @@ export class BorneService {
   getAllBornes(): Observable<ApiResponse<Borne[]>> {
     return this.http.get<ApiResponse<Borne[]>>(this.apiUrl);
   }
+  
+  getBornesByUtilisateur(userId: number): Observable<ApiResponse<Borne[]>> {
+    return this.http.get<ApiResponse<Borne[]>>(`${this.apiUrl}/utilisateur/${userId}`);
+  }
+  
+  searchBornesAdvanced(params: {
+    latitude?: number;
+    longitude?: number;
+    distance?: number;
+    prixMin?: number;
+    prixMax?: number;
+    puissanceMin?: number;
+    etat?: string;
+    disponible?: boolean;
+  }): Observable<ApiResponse<Borne[]>> {
+    let httpParams = new HttpParams();
+    
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        httpParams = httpParams.set(key, value.toString());
+      }
+    });
+    
+    return this.http.get<ApiResponse<Borne[]>>(`${this.apiUrl}/search`, { params: httpParams });
+  }
 
   createBorne(borne: Partial<Borne>): Observable<ApiResponse<Borne>> {
     return this.http.post<ApiResponse<Borne>>(this.apiUrl, borne);

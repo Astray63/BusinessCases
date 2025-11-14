@@ -173,7 +173,8 @@ export class ReservationsAdminComponent implements OnInit, OnDestroy {
       'EN_ATTENTE': 'badge bg-warning',
       'CONFIRMEE': 'badge bg-success',
       'ANNULEE': 'badge bg-danger',
-      'TERMINEE': 'badge bg-secondary'
+      'TERMINEE': 'badge bg-secondary',
+      'REFUSEE': 'badge bg-danger'
     };
     return classes[status];
   }

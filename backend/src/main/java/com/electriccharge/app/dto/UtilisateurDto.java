@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record UtilisateurDto(
     Long idUtilisateur,
@@ -28,6 +29,9 @@ public record UtilisateurDto(
     String iban,
     String adressePhysique,
     String medias,
-    Long idAdresse
+    Long idAdresse,
+    Boolean actif,
+    LocalDateTime dateCreation,
+    LocalDateTime dateModification
 ) {
 }

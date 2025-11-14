@@ -55,7 +55,10 @@ class UtilisateurServiceTest {
             "FR123456789", // iban
             "123 Main St", // adressePhysique
             "avatar.jpg", // medias
-            1L // idAdresse
+            1L, // idAdresse
+            true, // actif
+            null, // dateCreation
+            null  // dateModification
         );
 
         when(utilisateurRepository.existsByEmail(dto.email())).thenReturn(false);
@@ -91,7 +94,10 @@ class UtilisateurServiceTest {
             "FR123456789",
             "123 Main St",
             "profile.jpg",
-            1L
+            1L,
+            true,
+            null,
+            null
         );
 
         when(utilisateurRepository.existsByEmail(dto.email())).thenReturn(true);
