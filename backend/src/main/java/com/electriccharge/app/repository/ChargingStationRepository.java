@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface ChargingStationRepository extends JpaRepository<ChargingStation, Long> {
     @Query("SELECT cs FROM ChargingStation cs LEFT JOIN FETCH cs.owner WHERE cs.etat = :etat")
-    List<ChargingStation> findByEtat(@Param("etat") String etat);
+    List<ChargingStation> findByEtat(@Param("etat") ChargingStation.Etat etat);
     
     List<ChargingStation> findByOwner_IdUtilisateur(Long ownerId);
     
@@ -19,7 +19,8 @@ public interface ChargingStationRepository extends JpaRepository<ChargingStation
     
     @Query(value = 
         "SELECT * FROM charging_stations cs " +
-        "WHERE (6371 * acos(" +
+        "WHERE cs.latitude IS NOT NULL AND cs.longitude IS NOT NULL " +
+        "AND (6371 * acos(" +
         "cos(radians(:latitude)) * cos(radians(cs.latitude)) * cos(radians(cs.longitude) - radians(:longitude)) + " +
         "sin(radians(:latitude)) * sin(radians(cs.latitude))" +
         ")) < :distance", nativeQuery = true)

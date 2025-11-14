@@ -34,7 +34,7 @@ VALUES
 ('Moreau', 'Marie', 'mariem', '$2a$10$3L7S.RV.GHLQv7lM3QFQveKpLlhDiRjQ5.gv.Z9TELXg4WGz9pnxu', 'client', 'marie.moreau@example.com', '78 Cours Julien, 13006 Marseille', '1993-06-18', 31, false, true);
 
 -- Insert medias pour utilisateurs
-INSERT INTO utilisateur_medias (utilisateur_id, media_url)
+INSERT INTO utilisateur_medias (utilisateur_id, medias)
 VALUES
 (1, 'profile1.jpg'),
 (1, 'car1.jpg'),

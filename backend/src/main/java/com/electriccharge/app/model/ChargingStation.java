@@ -46,7 +46,7 @@ public class ChargingStation {
     @Column(name = "puissance", nullable = false)
     private Integer puissance;
     
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
         name = "borne_medias",
         joinColumns = @JoinColumn(name = "borne_id")
@@ -76,7 +76,9 @@ public class ChargingStation {
     @Column(name = "description")
     private String description;
     
+    @Basic(fetch = FetchType.LAZY)
     @Column(name = "geom", columnDefinition = "geometry(Point,4326)")
+    @JsonIgnore
     private Point geom;
     
     @CreationTimestamp

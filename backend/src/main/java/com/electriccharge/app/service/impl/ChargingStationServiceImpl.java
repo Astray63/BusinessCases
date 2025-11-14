@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -108,7 +109,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Transactional(readOnly = true)
     public List<ChargingStationDto> getByDisponibilite(Boolean disponible) {
         try {
-            String etat = disponible ? "DISPONIBLE" : "OCCUPEE";
+            ChargingStation.Etat etat = disponible ? ChargingStation.Etat.DISPONIBLE : ChargingStation.Etat.OCCUPEE;
             List<ChargingStation> stations = chargingStationRepository.findByEtat(etat);
             return stations.stream()
                     .map(station -> {
@@ -132,7 +133,8 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional(readOnly = true)
     public List<ChargingStationDto> getByEtat(String etat) {
-        List<ChargingStation> stations = chargingStationRepository.findByEtat(etat);
+        ChargingStation.Etat etatEnum = parseEtat(etat);
+        List<ChargingStation> stations = chargingStationRepository.findByEtat(etatEnum);
         return stations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -237,7 +239,16 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         dto.setLatitude(station.getLatitude());
         dto.setLongitude(station.getLongitude());
         dto.setPuissance(station.getPuissance());
-        dto.setMedias(station.getMedias() != null ? station.getMedias() : List.of());
+        
+        // Charger les medias de manière sûre (lazy loading)
+        try {
+            List<String> medias = station.getMedias();
+            dto.setMedias(medias != null ? new ArrayList<>(medias) : List.of());
+        } catch (Exception e) {
+            System.err.println("Could not load medias for station " + station.getIdBorne() + ": " + e.getMessage());
+            dto.setMedias(List.of());
+        }
+        
         dto.setInstructionSurPied(station.getInstructionSurPied());
         dto.setEtat(convertEtatToString(station.getEtat()));
         dto.setOccupee(station.getOccupee());
