@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   db:
-    image: postgres:15
+    image: postgis/postgis:15-3.3
     environment:
       POSTGRES_DB: electricity
       POSTGRES_USER: postgres
@@ -25,7 +25,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/electricity
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
     ports:
       - "8080:8080"
     depends_on:

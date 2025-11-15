@@ -74,11 +74,11 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
         utilisateur.setPseudo(utilisateurDto.pseudo());
         utilisateur.setEmail(utilisateurDto.email());
         utilisateur.setMotDePasse(passwordEncoder.encode(motDePasse));
-        utilisateur.setRole(Utilisateur.Role.valueOf(utilisateurDto.role()));
+        utilisateur.setRole(Utilisateur.Role.valueOf(utilisateurDto.role() != null ? utilisateurDto.role() : "client"));
         utilisateur.setDateNaissance(utilisateurDto.dateNaissance());
         utilisateur.setIban(utilisateurDto.iban());
         utilisateur.setAdressePhysique(utilisateurDto.adressePhysique());
-        utilisateur.setMedias(List.of(utilisateurDto.medias().split(",")));
+        utilisateur.setMedias(utilisateurDto.medias() != null ? List.of(utilisateurDto.medias().split(",")) : List.of());
         utilisateur.setEstBanni(false);
         
         // Générer un code de vérification à 6 chiffres
