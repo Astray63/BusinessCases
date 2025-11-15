@@ -76,7 +76,6 @@ public class ChargingStation {
     @Column(name = "description")
     private String description;
     
-    @Basic(fetch = FetchType.LAZY)
     @Column(name = "geom", columnDefinition = "geometry(Point,4326)")
     @JsonIgnore
     private Point geom;

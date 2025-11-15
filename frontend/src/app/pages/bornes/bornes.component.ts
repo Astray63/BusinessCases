@@ -62,56 +62,85 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
-          this.initMap();
-          this.searchBornes();
+          this.initMapAndLoadData();
         },
         (error) => {
           console.error('Erreur de géolocalisation', error);
           // Position par défaut (Paris)
           this.userLocation = { lat: 48.8566, lng: 2.3522 };
-          this.initMap();
-          this.searchBornes();
+          this.initMapAndLoadData();
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
         }
       );
     } else {
       this.userLocation = { lat: 48.8566, lng: 2.3522 };
-      this.initMap();
-      this.searchBornes();
+      this.initMapAndLoadData();
     }
   }
 
-  private initMap(): void {
-    if (!this.userLocation) return;
+  private initMapAndLoadData(): void {
+    this.initMap().then(() => {
+      // Charger les bornes seulement après que la carte soit initialisée
+      this.searchBornes();
+    });
+  }
 
-    // Attendre que le DOM soit prêt
-    setTimeout(() => {
-      this.map = L.map('map').setView(
-        [this.userLocation!.lat, this.userLocation!.lng],
-        12
-      );
+  private initMap(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!this.userLocation) {
+        resolve();
+        return;
+      }
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-      }).addTo(this.map);
+      // Attendre que le DOM soit prêt
+      setTimeout(() => {
+        const mapElement = document.getElementById('map');
+        if (!mapElement) {
+          console.error('Élément #map introuvable');
+          resolve();
+          return;
+        }
 
-      // Icône personnalisée pour l'utilisateur
-      const userIcon = L.divIcon({
-        html: '<i class="bi bi-geo-alt-fill text-primary" style="font-size: 32px;"></i>',
-        className: 'custom-marker',
-        iconSize: [32, 32],
-        iconAnchor: [16, 32]
-      });
+        // Supprimer l'ancienne carte si elle existe
+        if (this.map) {
+          this.map.remove();
+        }
 
-      // Marqueur position utilisateur
-      this.userMarker = L.marker([this.userLocation!.lat, this.userLocation!.lng], { icon: userIcon })
-        .addTo(this.map)
-        .bindPopup('<strong>Votre position</strong>')
-        .openPopup();
+        this.map = L.map('map').setView(
+          [this.userLocation!.lat, this.userLocation!.lng],
+          12
+        );
 
-      // Cercle de rayon
-      this.updateRadiusCircle();
-    }, 100);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap'
+        }).addTo(this.map);
+
+        // Icône personnalisée pour l'utilisateur
+        const userIcon = L.divIcon({
+          html: '<i class="bi bi-geo-alt-fill text-primary" style="font-size: 32px;"></i>',
+          className: 'custom-marker',
+          iconSize: [32, 32],
+          iconAnchor: [16, 32]
+        });
+
+        // Marqueur position utilisateur
+        this.userMarker = L.marker([this.userLocation!.lat, this.userLocation!.lng], { icon: userIcon })
+          .addTo(this.map)
+          .bindPopup('<strong>Votre position</strong>')
+          .openPopup();
+
+        // Cercle de rayon
+        this.updateRadiusCircle();
+        
+        // Résoudre la promesse une fois la carte initialisée
+        resolve();
+      }, 100);
+    });
   }
 
   private updateRadiusCircle(): void {
@@ -168,24 +197,64 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private applyLocalFilters(): void {
+    console.log('🔍 Application des filtres locaux...');
+    console.log('   Recherche:', this.searchQuery);
+    console.log('   Bornes totales:', this.bornes.length);
+    
+    // Afficher les localisations disponibles
+    if (this.bornes.length > 0) {
+      console.log('   📍 Localisations disponibles:');
+      this.bornes.forEach((borne, index) => {
+        console.log(`      ${index + 1}. "${borne.localisation}"`);
+      });
+    }
+    
     this.filteredBornes = this.bornes.filter(borne => {
-      const matchesSearch = !this.searchQuery || 
-        borne.localisation?.toLowerCase().includes(this.searchQuery.toLowerCase());
+      if (!this.searchQuery) {
+        return true; // Pas de recherche, on garde tout
+      }
       
-      return matchesSearch;
+      const searchLower = this.searchQuery.toLowerCase();
+      const localisationLower = borne.localisation?.toLowerCase() || '';
+      const matches = localisationLower.includes(searchLower);
+      
+      if (!matches) {
+        console.log(`   ✗ Borne ${borne.idBorne} exclue: "${borne.localisation}" ne contient pas "${this.searchQuery}"`);
+      } else {
+        console.log(`   ✓ Borne ${borne.idBorne} incluse: "${borne.localisation}" contient "${this.searchQuery}"`);
+      }
+      
+      return matches;
     });
+    
+    console.log('   ✓ Bornes filtrées:', this.filteredBornes.length);
   }
 
   onFilterChange(): void {
+    console.log('📊 onFilterChange appelé');
+    console.log('   Distance:', this.distance);
+    console.log('   Prix:', this.prixMin, '-', this.prixMax);
+    console.log('   Puissance min:', this.puissanceMin);
+    console.log('   État sélectionné:', this.selectedEtat);
+    console.log('   Disponible seulement:', this.disponibleOnly);
+    
     this.updateRadiusCircle();
     this.searchBornes();
   }
 
   onSearchChange(): void {
+    console.log('🔎 onSearchChange appelé - Recherche:', this.searchQuery);
     this.applyLocalFilters();
+    this.updateMarkers();
   }
 
   private updateMarkers(): void {
+    // Vérifier si la carte est initialisée
+    if (!this.map) {
+      console.warn('⚠ updateMarkers: Carte non initialisée, impossible d\'ajouter des marqueurs');
+      return;
+    }
+
     // Supprimer anciens marqueurs
     this.markers.forEach(marker => marker.remove());
     this.markers = [];
@@ -208,8 +277,8 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     // Ajuster la vue pour montrer tous les marqueurs
-    if (this.markers.length > 0) {
-      const group = L.featureGroup([...this.markers, this.userMarker!]);
+    if (this.markers.length > 0 && this.userMarker) {
+      const group = L.featureGroup([...this.markers, this.userMarker]);
       this.map.fitBounds(group.getBounds().pad(0.1));
     }
   }

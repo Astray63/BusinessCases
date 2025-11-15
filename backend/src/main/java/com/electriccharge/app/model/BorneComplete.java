@@ -60,7 +60,6 @@ public class BorneComplete {
     @Column(name = "owner_id")
     private Long ownerId;
     
-    @Basic(fetch = FetchType.LAZY)
     @Column(name = "geom", columnDefinition = "geometry(Point,4326)")
     @JsonIgnore
     private Point geom;

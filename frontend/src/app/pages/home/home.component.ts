@@ -31,65 +31,116 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log('=== HOME COMPONENT: ngOnInit ===');
     this.isLoggedIn = this.authService.isLoggedIn();
     console.log('User logged in:', this.isLoggedIn);
-    this.getUserLocation();
+    // Lancer la géolocalisation immédiatement
+    this.getUserLocationAsync();
   }
 
   ngAfterViewInit(): void {
     console.log('=== HOME COMPONENT: ngAfterViewInit ===');
-    // Attendre que la géolocalisation soit obtenue, puis initialiser la carte et charger les bornes
-    let attempts = 0;
-    const checkLocation = setInterval(() => {
-      attempts++;
-      console.log(`Tentative ${attempts}: vérification de la géolocalisation...`);
-      if (this.userLocation) {
-        console.log('Géolocalisation obtenue:', this.userLocation);
-        clearInterval(checkLocation);
-        this.initMap();
-        this.loadBornesPubliques();
-      }
-    }, 100);
+    // La carte sera initialisée une fois la géolocalisation obtenue
+  }
+
+  private async getUserLocationAsync(): Promise<void> {
+    console.log('=== getUserLocationAsync: Début ===');
+    console.log('🌍 Tentative de récupération de votre localisation réelle...');
     
-    // Timeout de sécurité après 5 secondes
-    setTimeout(() => {
-      clearInterval(checkLocation);
-      if (!this.userLocation) {
-        console.warn('Timeout géolocalisation - utilisation position par défaut');
-        this.userLocation = { lat: 48.8566, lng: 2.3522 };
-        this.initMap();
-        this.loadBornesPubliques();
+    try {
+      this.userLocation = await this.requestGeolocation();
+      console.log('✅ GÉOLOCALISATION RÉUSSIE!');
+      console.log('📍 Votre position:', this.userLocation);
+      console.log('   Latitude:', this.userLocation.lat);
+      console.log('   Longitude:', this.userLocation.lng);
+      
+      // Vérifier si c'est vraiment Paris (valeur par défaut)
+      const isParis = Math.abs(this.userLocation.lat - 48.8566) < 0.01 && 
+                      Math.abs(this.userLocation.lng - 2.3522) < 0.01;
+      
+      if (isParis) {
+        console.warn('⚠️ ATTENTION: La position obtenue semble être Paris (valeur par défaut)');
+        console.warn('   Cela peut signifier que:');
+        console.warn('   1. Vous êtes réellement à Paris');
+        console.warn('   2. La géolocalisation précise a échoué');
+        console.warn('   3. Le navigateur utilise une localisation IP approximative');
       }
-    }, 5000);
-  }
-
-  ngOnDestroy(): void {
-    if (this.map) {
-      this.map.remove();
+    } catch (error: any) {
+      console.error('❌ GÉOLOCALISATION ÉCHOUÉE');
+      console.error('   Raison:', error.message);
+      console.warn('   → Utilisation position par défaut (Paris: 48.8566, 2.3522)');
+      this.userLocation = { lat: 48.8566, lng: 2.3522 };
     }
+    
+    // Initialiser la carte une fois la position obtenue (réelle ou par défaut)
+    this.initMap();
+    this.loadBornesPubliques();
   }
 
-  getUserLocation(): void {
-    console.log('=== getUserLocation: Demande de géolocalisation ===');
-    if (navigator.geolocation) {
-      console.log('Navigateur supporte la géolocalisation');
+  private requestGeolocation(): Promise<{ lat: number; lng: number }> {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        console.warn('❌ Navigateur ne supporte pas la géolocalisation');
+        reject(new Error('Géolocalisation non supportée'));
+        return;
+      }
+
+      console.log('📡 Demande de géolocalisation au navigateur...');
+      console.log('   Options: enableHighAccuracy=true, timeout=5000ms');
+      
+      const startTime = Date.now();
+      
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          this.userLocation = {
+          const elapsed = Date.now() - startTime;
+          const location = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
           };
-          console.log('✓ Géolocalisation réussie:', this.userLocation);
+          
+          console.log('✅ Position reçue du navigateur (en ' + elapsed + 'ms):');
+          console.log('   📍 Latitude:', location.lat);
+          console.log('   📍 Longitude:', location.lng);
+          console.log('   🎯 Précision:', position.coords.accuracy, 'mètres');
+          console.log('   ⏱️  Timestamp:', new Date(position.timestamp).toLocaleString());
+          
+          if (position.coords.accuracy > 1000) {
+            console.warn('⚠️  Précision faible (>' + position.coords.accuracy + 'm)');
+            console.warn('   La position peut être approximative (basée sur IP)');
+          }
+          
+          resolve(location);
         },
         (error) => {
-          console.warn('✗ Erreur géolocalisation:', error);
-          console.warn('Utilisation position par défaut (Paris)');
-          // Position par défaut (Paris)
-          this.userLocation = { lat: 48.8566, lng: 2.3522 };
+          const elapsed = Date.now() - startTime;
+          console.error('❌ Erreur géolocalisation (après ' + elapsed + 'ms):');
+          console.error('   Code:', error.code);
+          console.error('   Message:', error.message);
+          
+          if (error.code === 1) {
+            console.error('   🚫 PERMISSION REFUSÉE');
+            console.error('   → L\'utilisateur a refusé l\'accès à la localisation');
+            console.error('   → Vérifiez les paramètres de votre navigateur');
+          } else if (error.code === 2) {
+            console.error('   📍 POSITION INDISPONIBLE');
+            console.error('   → Le système n\'a pas pu déterminer votre position');
+            console.error('   → Services de localisation peut-être désactivés');
+          } else if (error.code === 3) {
+            console.error('   ⏱️  TIMEOUT');
+            console.error('   → La demande de localisation a pris trop de temps');
+          }
+          
+          reject(error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000, // Augmenté à 10 secondes
+          maximumAge: 0
         }
       );
-    } else {
-      console.warn('Navigateur ne supporte pas la géolocalisation');
-      this.userLocation = { lat: 48.8566, lng: 2.3522 };
-    }
+    });
+  }
+
+  getUserLocation(): void {
+    // Méthode conservée pour compatibilité, mais non utilisée
+    console.warn('getUserLocation() deprecated - using getUserLocationAsync() instead');
   }
 
   initMap(): void {
@@ -355,6 +406,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.router.navigate(['/dashboard']);
     } else {
       this.router.navigate(['/auth/register']);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.map) {
+      this.map.remove();
     }
   }
 

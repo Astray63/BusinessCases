@@ -57,7 +57,6 @@ public class Lieu {
     @Column(name = "longitude")
     private Double longitude;
     
-    @Basic(fetch = FetchType.LAZY)
     @Column(name = "geom", columnDefinition = "geometry(Point,4326)")
     @JsonIgnore
     private Point geom;

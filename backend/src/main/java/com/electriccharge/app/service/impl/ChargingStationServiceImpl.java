@@ -195,23 +195,76 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     public List<ChargingStationDto> searchAdvanced(Double latitude, Double longitude, Double distance,
                                                      java.math.BigDecimal prixMin, java.math.BigDecimal prixMax,
                                                      Integer puissanceMin, String etat, Boolean disponible) {
+        System.out.println("=== SEARCH ADVANCED ===");
+        System.out.println("Latitude: " + latitude);
+        System.out.println("Longitude: " + longitude);
+        System.out.println("Distance: " + distance + " km");
+        System.out.println("Prix min: " + prixMin);
+        System.out.println("Prix max: " + prixMax);
+        System.out.println("Puissance min: " + puissanceMin);
+        System.out.println("État: " + etat);
+        System.out.println("Disponible seulement: " + disponible);
+        
         // D'abord filtrer par distance si coordonnées fournies
         List<ChargingStation> stations;
         if (latitude != null && longitude != null && distance != null) {
+            System.out.println("Recherche par distance...");
             stations = chargingStationRepository.findByDistance(latitude, longitude, distance);
+            System.out.println("Trouvé " + stations.size() + " bornes dans le rayon");
         } else {
+            System.out.println("Recherche globale...");
             stations = chargingStationRepository.findAll();
+            System.out.println("Total bornes: " + stations.size());
         }
         
         // Appliquer les filtres supplémentaires
-        return stations.stream()
-                .filter(s -> prixMin == null || (s.getHourlyRate() != null && s.getHourlyRate().compareTo(prixMin) >= 0))
-                .filter(s -> prixMax == null || (s.getHourlyRate() != null && s.getHourlyRate().compareTo(prixMax) <= 0))
-                .filter(s -> puissanceMin == null || (s.getPuissance() != null && s.getPuissance() >= puissanceMin))
-                .filter(s -> etat == null || (s.getEtat() != null && s.getEtat().name().equals(etat.toUpperCase())))
-                .filter(s -> disponible == null || (disponible && !s.getOccupee()) || (!disponible && s.getOccupee()))
+        List<ChargingStationDto> results = stations.stream()
+                .filter(s -> {
+                    if (prixMin != null && s.getHourlyRate() != null) {
+                        boolean matches = s.getHourlyRate().compareTo(prixMin) >= 0;
+                        if (!matches) System.out.println("  Borne " + s.getIdBorne() + " exclue (prix " + s.getHourlyRate() + " < min " + prixMin + ")");
+                        return matches;
+                    }
+                    return true;
+                })
+                .filter(s -> {
+                    if (prixMax != null && s.getHourlyRate() != null) {
+                        boolean matches = s.getHourlyRate().compareTo(prixMax) <= 0;
+                        if (!matches) System.out.println("  Borne " + s.getIdBorne() + " exclue (prix " + s.getHourlyRate() + " > max " + prixMax + ")");
+                        return matches;
+                    }
+                    return true;
+                })
+                .filter(s -> {
+                    if (puissanceMin != null && s.getPuissance() != null) {
+                        boolean matches = s.getPuissance() >= puissanceMin;
+                        if (!matches) System.out.println("  Borne " + s.getIdBorne() + " exclue (puissance " + s.getPuissance() + " < min " + puissanceMin + ")");
+                        return matches;
+                    }
+                    return true;
+                })
+                .filter(s -> {
+                    if (etat != null && s.getEtat() != null) {
+                        boolean matches = s.getEtat().name().equalsIgnoreCase(etat);
+                        if (!matches) System.out.println("  Borne " + s.getIdBorne() + " exclue (état " + s.getEtat() + " != " + etat + ")");
+                        return matches;
+                    }
+                    return true;
+                })
+                .filter(s -> {
+                    if (disponible != null && disponible) {
+                        // Si "disponible seulement" est coché, ne garder que les bornes non occupées
+                        boolean matches = !Boolean.TRUE.equals(s.getOccupee());
+                        if (!matches) System.out.println("  Borne " + s.getIdBorne() + " exclue (occupée)");
+                        return matches;
+                    }
+                    return true;
+                })
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
+        
+        System.out.println("Résultats après filtres: " + results.size() + " bornes");
+        return results;
     }
 
     private ChargingStation.Etat parseEtat(String etatStr) {
