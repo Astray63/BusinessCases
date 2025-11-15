@@ -2,10 +2,15 @@ package com.electriccharge.app.controller;
 
 import com.electriccharge.app.dto.ApiResponse;
 import com.electriccharge.app.dto.ReservationDto;
+import com.electriccharge.app.model.Utilisateur;
 import com.electriccharge.app.service.ReservationService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +18,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/reservations")
 public class ReservationController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(ReservationController.class);
 
     private final ReservationService reservationService;
 
@@ -58,11 +65,41 @@ public class ReservationController {
     }
 
     @PutMapping("/{id}/cancel")
-    public ResponseEntity<ApiResponse<?>> cancel(@PathVariable Long id, @RequestParam Long requesterId) {
+    public ResponseEntity<ApiResponse<?>> cancel(
+            @PathVariable Long id, 
+            @RequestParam(required = false) Long requesterId) {
         try {
-            ReservationDto dto = reservationService.cancel(id, requesterId);
+            logger.debug("Demande d'annulation de la réservation {} avec requesterId: {}", id, requesterId);
+            
+            // Si requesterId n'est pas fourni, essayer de l'obtenir depuis le contexte d'authentification
+            Long actualRequesterId = requesterId;
+            if (actualRequesterId == null) {
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                logger.debug("Authentication: {}, Principal: {}", 
+                    authentication != null ? authentication.getName() : "null",
+                    authentication != null ? authentication.getPrincipal().getClass().getSimpleName() : "null");
+                    
+                if (authentication != null && authentication.getPrincipal() instanceof Utilisateur) {
+                    Utilisateur user = (Utilisateur) authentication.getPrincipal();
+                    actualRequesterId = user.getIdUtilisateur();
+                    logger.debug("RequesterId extrait du contexte d'authentification: {}", actualRequesterId);
+                }
+            }
+            
+            // Si toujours null, retourner une erreur
+            if (actualRequesterId == null) {
+                logger.warn("Impossible d'identifier l'utilisateur pour l'annulation de la réservation {}", id);
+                return new ResponseEntity<>(
+                    ApiResponse.error("Impossible d'identifier l'utilisateur. Veuillez vous reconnecter."), 
+                    HttpStatus.UNAUTHORIZED
+                );
+            }
+            
+            logger.info("Annulation de la réservation {} par l'utilisateur {}", id, actualRequesterId);
+            ReservationDto dto = reservationService.cancel(id, actualRequesterId);
             return ResponseEntity.ok(ApiResponse.success("Réservation annulée", dto));
         } catch (Exception ex) {
+            logger.error("Erreur lors de l'annulation de la réservation {}: {}", id, ex.getMessage());
             return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }

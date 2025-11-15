@@ -147,6 +147,64 @@ public class ReservationServiceImpl implements ReservationService {
         dto.setEtat(reservation.getEtat() != null ? reservation.getEtat().name() : null);
         dto.setPrixALaMinute(reservation.getPrixALaMinute());
         dto.setTotalPrice(reservation.getTotalPrice());
+        
+        // Populate nested objects
+        if (reservation.getChargingStation() != null) {
+            dto.setBorne(convertBorneToDto(reservation.getChargingStation()));
+        }
+        
+        if (reservation.getUtilisateur() != null) {
+            dto.setUtilisateur(convertUtilisateurToSimpleDto(reservation.getUtilisateur()));
+        }
+        
+        return dto;
+    }
+    
+    private com.electriccharge.app.dto.BorneDto convertBorneToDto(ChargingStation station) {
+        com.electriccharge.app.dto.BorneDto dto = new com.electriccharge.app.dto.BorneDto();
+        dto.setId(station.getIdBorne());
+        dto.setNumero(station.getNumero());
+        dto.setNom(station.getNom());
+        dto.setLocalisation(station.getLocalisation());
+        dto.setLatitude(station.getLatitude());
+        dto.setLongitude(station.getLongitude());
+        dto.setPrixALaMinute(station.getPrixALaMinute());
+        dto.setPuissance(station.getPuissance());
+        dto.setInstructionSurPied(station.getInstructionSurPied());
+        dto.setConnectorType(station.getConnectorType());
+        dto.setDescription(station.getDescription());
+        dto.setEtat(station.getEtat() != null ? station.getEtat().name() : null);
+        dto.setOccupee(station.getOccupee());
+        
+        try {
+            if (station.getOwner() != null) {
+                dto.setOwnerId(station.getOwner().getIdUtilisateur());
+            }
+        } catch (Exception e) {
+            logger.warn("Could not load owner for station {}", station.getIdBorne());
+        }
+        
+        return dto;
+    }
+    
+    private com.electriccharge.app.dto.UtilisateurSimpleDto convertUtilisateurToSimpleDto(Utilisateur utilisateur) {
+        com.electriccharge.app.dto.UtilisateurSimpleDto dto = new com.electriccharge.app.dto.UtilisateurSimpleDto();
+        dto.setIdUtilisateur(utilisateur.getIdUtilisateur());
+        dto.setNom(utilisateur.getNom());
+        dto.setPrenom(utilisateur.getPrenom());
+        dto.setPseudo(utilisateur.getPseudo());
+        dto.setEmail(utilisateur.getEmail());
+        dto.setDateNaissance(utilisateur.getDateNaissance());
+        dto.setRole(utilisateur.getRole() != null ? utilisateur.getRole().name() : null);
+        dto.setIban(utilisateur.getIban());
+        dto.setAdressePhysique(utilisateur.getAdressePhysique());
+        
+        // Convert List<String> to String (comma-separated or first element)
+        if (utilisateur.getMedias() != null && !utilisateur.getMedias().isEmpty()) {
+            dto.setMedias(String.join(",", utilisateur.getMedias()));
+        }
+        
+        dto.setAccountLocked(!utilisateur.isAccountNonLocked());
         return dto;
     }
 } 

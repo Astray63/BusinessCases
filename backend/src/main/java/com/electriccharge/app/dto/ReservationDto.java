@@ -1,6 +1,5 @@
 package com.electriccharge.app.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
@@ -16,16 +15,18 @@ public class ReservationDto {
     private Long chargingStationId;
 
     @NotNull(message = "La date de début est obligatoire")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dateDebut;
 
     @NotNull(message = "La date de fin est obligatoire")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dateFin;
 
     private String etat; // ACTIVE, TERMINEE, ANNULEE
     private BigDecimal prixALaMinute;
     private BigDecimal totalPrice;
+    
+    // Nested objects for frontend consumption
+    private BorneDto borne;
+    private UtilisateurSimpleDto utilisateur;
 
     public Long getId() {
         return id;
@@ -89,5 +90,21 @@ public class ReservationDto {
 
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public BorneDto getBorne() {
+        return borne;
+    }
+
+    public void setBorne(BorneDto borne) {
+        this.borne = borne;
+    }
+
+    public UtilisateurSimpleDto getUtilisateur() {
+        return utilisateur;
+    }
+
+    public void setUtilisateur(UtilisateurSimpleDto utilisateur) {
+        this.utilisateur = utilisateur;
     }
 } 

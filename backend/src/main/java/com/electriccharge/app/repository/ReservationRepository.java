@@ -11,8 +11,10 @@ import java.util.Optional;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     
+    @Query("SELECT r FROM Reservation r JOIN FETCH r.utilisateur JOIN FETCH r.chargingStation WHERE r.utilisateur.idUtilisateur = :idUtilisateur")
     List<Reservation> findByUtilisateur_IdUtilisateur(Long idUtilisateur);
     
+    @Query("SELECT r FROM Reservation r JOIN FETCH r.utilisateur JOIN FETCH r.chargingStation WHERE r.chargingStation.idBorne = :idBorne")
     List<Reservation> findByChargingStation_IdBorne(Long idBorne);
     
     List<Reservation> findByEtat(String etat);
