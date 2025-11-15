@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { UserContextService } from '../../services/user-context.service';
 import { BorneService } from '../../services/borne.service';
 import { ReservationService } from '../../services/reservation.service';
 import { Utilisateur } from '../../models/utilisateur.model';
@@ -14,6 +15,8 @@ import { Reservation } from '../../models/reservation.model';
 })
 export class DashboardComponent implements OnInit {
   currentUser: Utilisateur | null = null;
+  isProprietaire = false;
+  nombreBornes = 0;
   mesBornes: Borne[] = [];
   mesReservations: Reservation[] = [];
   reservationsEnCours: Reservation[] = [];
@@ -29,6 +32,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private userContextService: UserContextService,
     private borneService: BorneService,
     private reservationService: ReservationService,
     private router: Router
@@ -42,6 +46,15 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
+    // Écouter le statut propriétaire
+    this.userContextService.isProprietaire$.subscribe(isProprietaire => {
+      this.isProprietaire = isProprietaire;
+    });
+
+    this.userContextService.nombreBornes$.subscribe(nombreBornes => {
+      this.nombreBornes = nombreBornes;
+    });
+
     this.loadDashboardData();
   }
 
@@ -49,7 +62,7 @@ export class DashboardComponent implements OnInit {
     this.loading = true;
 
     // Charger les bornes de l'utilisateur (si propriétaire)
-    if (this.currentUser?.role === 'proprietaire' || this.currentUser?.role === 'admin') {
+    if (this.isProprietaire) {
       this.loadMesBornes();
     }
 
@@ -107,20 +120,29 @@ export class DashboardComponent implements OnInit {
   }
 
   ajouterBorne(): void {
-    this.router.navigate(['/bornes/nouvelle']);
+    this.router.navigate(['/mes-bornes/bornes']);
   }
 
-  modifierBorne(idBorne: number): void {
-    this.router.navigate(['/bornes', idBorne, 'modifier']);
+  modifierBorne(idBorne: number | undefined): void {
+    if (!idBorne) {
+      console.error('ID de borne invalide');
+      return;
+    }
+    this.router.navigate(['/mes-bornes/bornes']);
   }
 
   reserverBorne(): void {
-    this.router.navigate(['/bornes']);
+    this.router.navigate(['/client/recherche']);
   }
 
   annulerReservation(idReservation: number): void {
+    if (!this.currentUser) {
+      alert('Utilisateur non connecté');
+      return;
+    }
+    
     if (confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')) {
-      this.reservationService.cancelReservation(idReservation).subscribe({
+      this.reservationService.cancelReservation(idReservation, this.currentUser.idUtilisateur).subscribe({
         next: (response) => {
           if (response.result === 'SUCCESS') {
             alert('Réservation annulée avec succès');

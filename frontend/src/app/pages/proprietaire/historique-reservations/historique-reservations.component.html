@@ -1,0 +1,149 @@
+<div class="historique-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Historique des Réservations</h1>
+      <p class="subtitle">Consultez toutes les réservations de vos bornes</p>
+    </div>
+    <button class="btn btn-secondary" routerLink="/proprietaire">
+      ← Retour au dashboard
+    </button>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filtres-section">
+    <h3>Filtrer les réservations</h3>
+    <form [formGroup]="filtreForm" class="filtres-form">
+      <div class="filtre-group">
+        <label>Statut</label>
+        <select formControlName="statut" class="form-control">
+          <option value="">Tous</option>
+          <option value="EN_ATTENTE">En attente</option>
+          <option value="CONFIRMEE">Confirmée</option>
+          <option value="TERMINEE">Terminée</option>
+          <option value="ANNULEE">Annulée</option>
+          <option value="REFUSEE">Refusée</option>
+        </select>
+      </div>
+
+      <div class="filtre-group">
+        <label>Borne</label>
+        <select formControlName="borneId" class="form-control">
+          <option value="">Toutes</option>
+          <option *ngFor="let borne of getBornesUniques()" [value]="borne.idBorne">
+            {{ borne.localisation }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filtre-group">
+        <label>Date début</label>
+        <input type="date" formControlName="dateDebut" class="form-control">
+      </div>
+
+      <div class="filtre-group">
+        <label>Date fin</label>
+        <input type="date" formControlName="dateFin" class="form-control">
+      </div>
+
+      <div class="filtre-actions">
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          (click)="appliquerFiltre()">
+          Filtrer
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="reinitialiserFiltre()"
+          *ngIf="filtreActif">
+          Réinitialiser
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Chargement de l'historique...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && reservationsFiltrees.length === 0">
+    <div class="empty-icon">📚</div>
+    <h2>{{ filtreActif ? 'Aucun résultat' : 'Aucune réservation' }}</h2>
+    <p>{{ filtreActif ? 'Essayez de modifier vos critères de recherche' : 'Vous n\'avez pas encore de réservations' }}</p>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-bar" *ngIf="!isLoading && reservationsFiltrees.length > 0">
+    <div class="stat-item">
+      <span class="stat-value">{{ reservationsFiltrees.length }}</span>
+      <span class="stat-label">réservations</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ compterReservationsValidees() }}</span>
+      <span class="stat-label">validées</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">{{ calculerRevenusFiltres() | currency:'EUR':'symbol':'1.0-0' }}</span>
+      <span class="stat-label">revenus</span>
+    </div>
+  </div>
+
+  <!-- Tableau des réservations -->
+  <div class="reservations-table-container" *ngIf="!isLoading && reservationsFiltrees.length > 0">
+    <table class="reservations-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Client</th>
+          <th>Borne</th>
+          <th>Date & Heure</th>
+          <th>Durée</th>
+          <th>Statut</th>
+          <th>Montant</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let reservation of reservationsFiltrees">
+          <td><strong>#{{ reservation.idReservation }}</strong></td>
+          <td>
+            <div class="client-cell">
+              <div>{{ reservation.utilisateur.prenom }} {{ reservation.utilisateur.nom }}</div>
+              <small>{{ reservation.utilisateur.email }}</small>
+            </div>
+          </td>
+          <td>
+            <div class="borne-cell">
+              <div>{{ reservation.borne?.localisation || 'N/A' }}</div>
+              <small>{{ reservation.borne?.type || 'N/A' }} - {{ reservation.borne?.puissance || 0 }} kW</small>
+            </div>
+          </td>
+          <td>
+            <div class="date-cell">
+              <div>{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</div>
+              <small>{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</small>
+            </div>
+          </td>
+          <td>{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</td>
+          <td>
+            <span class="badge" [ngClass]="getStatutClass(reservation.statut)">
+              {{ getStatutLabel(reservation.statut) }}
+            </span>
+            <div *ngIf="reservation.motifRefus" class="motif-refus">
+              <small>{{ reservation.motifRefus }}</small>
+            </div>
+          </td>
+          <td>
+            <strong *ngIf="reservation.montantTotal">
+              {{ reservation.montantTotal | currency:'EUR':'symbol':'1.2-2' }}
+            </strong>
+            <span *ngIf="!reservation.montantTotal">-</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

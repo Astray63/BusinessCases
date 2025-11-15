@@ -3,12 +3,10 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BorneService } from '../../../services/borne.service';
 import { ToastService } from '../../../services/toast.service';
 import { PageTitleService } from '../../../services/page-title.service';
-import { Borne } from '../../../models/borne.model';
+import { Borne, BorneStatus } from '../../../models/borne.model';
 import { BorneFormModalComponent } from './borne-form-modal/borne-form-modal.component';
 import { BreadcrumbComponent } from '../components/breadcrumb/breadcrumb.component';
 import { CommonModule } from '@angular/common';
-
-type BorneStatus = 'DISPONIBLE' | 'OCCUPE' | 'HORS_SERVICE';
 
 @Component({
   selector: 'app-admin-bornes',
@@ -182,6 +180,11 @@ export class BornesAdminComponent implements OnInit, OnDestroy {
   }
 
   updateBorne(borne: Borne): void {
+    if (!borne.idBorne) {
+      this.toastService.showError('ID de borne invalide');
+      return;
+    }
+    
     this.actionInProgress = true;
     this.borneService.updateBorne(borne.idBorne, borne).subscribe({
       next: (response) => {
@@ -201,6 +204,11 @@ export class BornesAdminComponent implements OnInit, OnDestroy {
   }
 
   deleteBorne(borne: Borne): void {
+    if (!borne.idBorne) {
+      this.toastService.showError('ID de borne invalide');
+      return;
+    }
+    
     if (confirm('Êtes-vous sûr de vouloir supprimer cette borne ?')) {
       this.actionInProgress = true;
       this.borneService.deleteBorne(borne.idBorne).subscribe({
@@ -222,6 +230,11 @@ export class BornesAdminComponent implements OnInit, OnDestroy {
   }
 
   toggleBorneStatus(borne: Borne): void {
+    if (!borne.idBorne) {
+      this.toastService.showError('ID de borne invalide');
+      return;
+    }
+    
     const action = borne.etat === 'DISPONIBLE' ? 'mettre hors service' : 'remettre en service';
     if (confirm(`Êtes-vous sûr de vouloir ${action} cette borne ?`)) {
       this.actionInProgress = true;
@@ -248,8 +261,9 @@ export class BornesAdminComponent implements OnInit, OnDestroy {
     const classes: Record<BorneStatus, string> = {
       'DISPONIBLE': 'badge bg-success',
       'OCCUPE': 'badge bg-warning',
-      'HORS_SERVICE': 'badge bg-danger'
+      'HORS_SERVICE': 'badge bg-danger',
+      'MAINTENANCE': 'badge bg-info'
     };
-    return classes[status];
+    return classes[status] || 'badge bg-secondary';
   }
 }

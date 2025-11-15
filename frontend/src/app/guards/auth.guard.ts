@@ -5,6 +5,8 @@ import {
   ActivatedRouteSnapshot,
   RouterStateSnapshot
 } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { catchError, map, take } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
@@ -13,14 +15,24 @@ import { AuthService } from '../services/auth.service';
 export class AuthGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    if (this.authService.isLoggedIn()) {
-      return true;
-    }
-
-    this.router.navigate(['/auth/login'], {
-      queryParams: { returnUrl: state.url }
-    });
-    return false;
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+    return this.authService.ensureValidSession().pipe(
+      take(1),
+      map(isValid => {
+        if (isValid) {
+          return true;
+        }
+        this.router.navigate(['/auth/login'], {
+          queryParams: { returnUrl: state.url }
+        });
+        return false;
+      }),
+      catchError(() => {
+        this.router.navigate(['/auth/login'], {
+          queryParams: { returnUrl: state.url }
+        });
+        return of(false);
+      })
+    );
   }
 }

@@ -181,8 +181,7 @@ export class ProfileComponent implements OnInit {
   getRoleBadgeClass(): string {
     switch (this.currentUser?.role) {
       case 'admin': return 'badge-admin';
-      case 'proprietaire': return 'badge-proprietaire';
-      case 'client': return 'badge-client';
+      case 'user': return 'badge-user';
       default: return 'badge-default';
     }
   }
@@ -190,8 +189,7 @@ export class ProfileComponent implements OnInit {
   getRoleLabel(): string {
     switch (this.currentUser?.role) {
       case 'admin': return 'Administrateur';
-      case 'proprietaire': return 'Propriétaire';
-      case 'client': return 'Client';
+      case 'user': return 'Utilisateur';
       default: return 'Utilisateur';
     }
   }

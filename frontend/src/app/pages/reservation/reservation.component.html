@@ -174,8 +174,8 @@
             <div class="info-row">
               <span class="icon">📍</span>
               <div class="info-content">
-                <strong>{{ reservation.borne.localisation }}</strong>
-                <small>{{ reservation.borne.type }} - {{ reservation.borne.puissance }} kW</small>
+                <strong>{{ reservation.borne?.localisation || 'N/A' }}</strong>
+                <small>{{ reservation.borne?.type || 'N/A' }} - {{ reservation.borne?.puissance || 0 }} kW</small>
               </div>
             </div>
 
@@ -304,8 +304,8 @@
             <tr *ngFor="let reservation of reservationsPassees">
               <td>#{{ reservation.idReservation }}</td>
               <td>
-                <strong>{{ reservation.borne.localisation }}</strong><br>
-                <small>{{ reservation.borne.type }}</small>
+                <strong>{{ reservation.borne?.localisation || 'N/A' }}</strong><br>
+                <small>{{ reservation.borne?.type || 'N/A' }}</small>
               </td>
               <td>
                 {{ reservation.dateDebut | date:'dd/MM/yyyy' }}<br>
@@ -372,8 +372,8 @@
             <div class="info-row">
               <span class="icon">📍</span>
               <div class="info-content">
-                <strong>{{ reservation.borne.localisation }}</strong>
-                <small>{{ reservation.borne.type }} - {{ reservation.borne.puissance }} kW</small>
+                <strong>{{ reservation.borne?.localisation || 'N/A' }}</strong>
+                <small>{{ reservation.borne?.type || 'N/A' }} - {{ reservation.borne?.puissance || 0 }} kW</small>
               </div>
             </div>
 

@@ -91,6 +91,24 @@
               box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
             }
           }
+
+          &.nav-link-proprietaire {
+            background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(245, 124, 0, 0.3);
+            
+            &:hover {
+              background: linear-gradient(135deg, #e65100 0%, #f57c00 100%);
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(245, 124, 0, 0.4);
+            }
+
+            &.active {
+              background: linear-gradient(135deg, #e65100 0%, #f57c00 100%);
+              color: white;
+            }
+          }
         }
         
         &.dropdown {

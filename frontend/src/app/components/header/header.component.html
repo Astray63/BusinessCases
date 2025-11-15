@@ -14,11 +14,6 @@
           <span>Accueil</span>
         </a></li>
         
-        <li><a routerLink="/bornes" routerLinkActive="active">
-          <i class="bi bi-search"></i>
-          <span>Trouver une borne</span>
-        </a></li>
-        
         <ng-container *ngIf="!currentUser">
           <li><a routerLink="/auth/login" routerLinkActive="active" class="nav-link">
             <i class="bi bi-box-arrow-in-right"></i>
@@ -31,15 +26,24 @@
         </ng-container>
         
         <ng-container *ngIf="currentUser">
-          <li><a routerLink="/dashboard" routerLinkActive="active">
-            <i class="bi bi-speedometer2"></i>
-            <span>Tableau de bord</span>
+          <!-- 🔹 MODE CLIENT -->
+          <li><a routerLink="/client/recherche" routerLinkActive="active">
+            <i class="bi bi-search"></i>
+            <span>Trouver une borne</span>
           </a></li>
           
-          <li><a routerLink="/reservation" routerLinkActive="active">
+          <li><a routerLink="/client/mes-reservations" routerLinkActive="active">
             <i class="bi bi-calendar-check-fill"></i>
-            <span>Réservations</span>
+            <span>Mes réservations</span>
           </a></li>
+          
+          <!-- 🔹 MODE PROPRIÉTAIRE (si l'utilisateur possède des bornes) -->
+          <li *ngIf="isProprietaire">
+            <a routerLink="/mes-bornes" routerLinkActive="active" class="nav-link-proprietaire">
+              <i class="bi bi-lightning-charge-fill"></i>
+              <span>Mes bornes</span>
+            </a>
+          </li>
           
           <li class="dropdown" [class.open]="isDropdownOpen">
             <a class="dropdown-toggle" (click)="toggleDropdown($event)">
@@ -53,18 +57,29 @@
                 <small>{{ currentUser.email }}</small>
               </li>
               <li class="dropdown-divider"></li>
+              <li><a routerLink="/dashboard" (click)="closeDropdown()">
+                <i class="bi bi-speedometer2"></i>
+                Tableau de bord
+              </a></li>
               <li><a routerLink="/profile" (click)="closeDropdown()">
                 <i class="bi bi-person-fill"></i>
                 Mon profil
               </a></li>
-              <li><a routerLink="/lieux" (click)="closeDropdown()">
+              <li><a routerLink="/client/lieux" (click)="closeDropdown()">
                 <i class="bi bi-geo-alt-fill"></i>
-                Mes lieux
+                Explorer les lieux
               </a></li>
-              <li *ngIf="currentUser.role === 'proprietaire' || currentUser.role === 'admin'">
-                <a routerLink="/bornes/ajouter" (click)="closeDropdown()">
+              <li *ngIf="isProprietaire" class="dropdown-divider"></li>
+              <li *ngIf="isProprietaire">
+                <a routerLink="/mes-bornes/bornes" (click)="closeDropdown()">
                   <i class="bi bi-lightning-charge-fill"></i>
-                  Ajouter une borne
+                  Gérer mes bornes
+                </a>
+              </li>
+              <li *ngIf="isProprietaire">
+                <a routerLink="/mes-bornes/demandes" (click)="closeDropdown()">
+                  <i class="bi bi-inbox-fill"></i>
+                  Demandes reçues
                 </a>
               </li>
               <li *ngIf="currentUser.role === 'admin'">

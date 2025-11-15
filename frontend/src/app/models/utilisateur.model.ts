@@ -1,4 +1,4 @@
-export type UserRole = 'client' | 'proprietaire' | 'admin';
+export type UserRole = 'user' | 'admin';
 
 export interface Utilisateur {
   idUtilisateur: number;
@@ -15,6 +15,10 @@ export interface Utilisateur {
   adressePhysique?: string;
   medias?: string;
   idAdresse?: number;
+  
+  // Flag dynamique calculé côté front selon si l'utilisateur possède des bornes
+  isProprietaire?: boolean;
+  nombreBornes?: number;
 }
 
 export interface UtilisateurAuth {

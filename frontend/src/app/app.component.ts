@@ -6,6 +6,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { ToastComponent } from './components/toasts/toast.component';
 import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -29,9 +30,11 @@ import { LoadingSpinnerComponent } from './components/loading-spinner/loading-sp
 export class AppComponent implements OnInit {
   title = 'Electricity Business';
   
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
   
   ngOnInit(): void {
+    this.authService.ensureValidSession().subscribe();
+
     // Scroll to top when navigating to a new page
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))

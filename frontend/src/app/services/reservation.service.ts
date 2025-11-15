@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
-import { Reservation, ReservationFiltre, ReservationExportParams } from '../models/reservation.model';
+import { Reservation, ReservationBackend, ReservationFiltre, ReservationExportParams } from '../models/reservation.model';
 
 @Injectable({
   providedIn: 'root'
@@ -13,28 +14,78 @@ export class ReservationService {
 
   constructor(private http: HttpClient) {}
 
+  // Helper method to map backend response to frontend model
+  private mapBackendToFrontend(backend: ReservationBackend): Reservation {
+    return {
+      idReservation: backend.id,
+      utilisateur: backend.utilisateur!,
+      borne: backend.borne!,
+      dateDebut: new Date(backend.dateDebut),
+      dateFin: new Date(backend.dateFin),
+      statut: this.mapEtatToStatut(backend.etat),
+      montantTotal: backend.totalPrice
+    };
+  }
+
+  private mapEtatToStatut(etat: string): any {
+    const mapping: { [key: string]: string } = {
+      'ACTIVE': 'CONFIRMEE',
+      'TERMINEE': 'TERMINEE',
+      'ANNULEE': 'ANNULEE',
+      'CONFIRMEE': 'CONFIRMEE',
+      'EN_ATTENTE': 'EN_ATTENTE',
+      'REFUSEE': 'REFUSEE'
+    };
+    return mapping[etat] || etat;
+  }
+
   // Méthodes d'administration
   getAllReservations(): Observable<ApiResponse<Reservation[]>> {
-    return this.http.get<ApiResponse<Reservation[]>>(this.apiUrl);
+    return this.http.get<ApiResponse<ReservationBackend[]>>(this.apiUrl).pipe(
+      map(response => ({
+        ...response,
+        data: response.data ? response.data.map(r => this.mapBackendToFrontend(r)) : []
+      }))
+    );
   }
 
   // Méthodes communes
   getReservationById(id: number): Observable<ApiResponse<Reservation>> {
-    return this.http.get<ApiResponse<Reservation>>(`${this.apiUrl}/${id}`);
+    return this.http.get<ApiResponse<ReservationBackend>>(`${this.apiUrl}/${id}`).pipe(
+      map(response => ({
+        ...response,
+        data: response.data ? this.mapBackendToFrontend(response.data) : undefined
+      }))
+    );
   }
 
   // Méthodes utilisateur
   /** Réservations de l'utilisateur connecté */
   getReservationsByCurrentUser(userId: number): Observable<ApiResponse<Reservation[]>> {
-    return this.http.get<ApiResponse<Reservation[]>>(`${this.apiUrl}/utilisateur/${userId}`);
+    return this.http.get<ApiResponse<ReservationBackend[]>>(`${this.apiUrl}/utilisateur/${userId}`).pipe(
+      map(response => ({
+        ...response,
+        data: response.data ? response.data.map(r => this.mapBackendToFrontend(r)) : []
+      }))
+    );
   }
 
   getReservationsByUser(userId: number): Observable<ApiResponse<Reservation[]>> {
-    return this.http.get<ApiResponse<Reservation[]>>(`${this.apiUrl}/utilisateur/${userId}`);
+    return this.http.get<ApiResponse<ReservationBackend[]>>(`${this.apiUrl}/utilisateur/${userId}`).pipe(
+      map(response => ({
+        ...response,
+        data: response.data ? response.data.map(r => this.mapBackendToFrontend(r)) : []
+      }))
+    );
   }
 
   getReservationsByBorne(borneId: number): Observable<ApiResponse<Reservation[]>> {
-    return this.http.get<ApiResponse<Reservation[]>>(`${this.apiUrl}/borne/${borneId}`);
+    return this.http.get<ApiResponse<ReservationBackend[]>>(`${this.apiUrl}/borne/${borneId}`).pipe(
+      map(response => ({
+        ...response,
+        data: response.data ? response.data.map(r => this.mapBackendToFrontend(r)) : []
+      }))
+    );
   }
 
   createReservation(reservation: Partial<Reservation>): Observable<ApiResponse<Reservation>> {

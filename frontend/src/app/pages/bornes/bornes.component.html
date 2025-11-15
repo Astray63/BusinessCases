@@ -148,6 +148,26 @@
 
     <!-- Carte ou Liste -->
     <div class="col-lg-9">
+      <div class="p-3 pt-0">
+        <div *ngIf="locating" class="alert alert-info d-flex align-items-center gap-2">
+          <span class="spinner-border spinner-border-sm" role="status"></span>
+          <div>Recherche de votre position...</div>
+        </div>
+        <div *ngIf="geolocationStatus === 'error'" class="alert alert-warning d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2">
+          <div>
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            {{ geolocationMessage }}
+          </div>
+          <button 
+            class="btn btn-sm btn-outline-primary ms-md-auto"
+            type="button"
+            (click)="retryGeolocation()"
+            [disabled]="locating">
+            <i class="bi bi-arrow-repeat me-1"></i>
+            Réessayer
+          </button>
+        </div>
+      </div>
       <!-- Vue Carte -->
       <div *ngIf="showMap" id="map" class="map-container"></div>
 

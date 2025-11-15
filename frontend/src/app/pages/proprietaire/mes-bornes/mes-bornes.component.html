@@ -1,0 +1,215 @@
+<div class="mes-bornes-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Mes Bornes de Recharge</h1>
+      <p class="subtitle">Gérez vos bornes électriques</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" routerLink="/proprietaire">
+        ← Retour au dashboard
+      </button>
+      <button class="btn btn-primary" (click)="ouvrirModalAjout()">
+        <i class="icon-plus"></i> Ajouter une borne
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="isLoading && !showModal">
+    <div class="spinner"></div>
+    <p>Chargement de vos bornes...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && mesBornes.length === 0">
+    <div class="empty-icon">⚡</div>
+    <h2>Aucune borne enregistrée</h2>
+    <p>Commencez par ajouter votre première borne de recharge</p>
+    <button class="btn btn-primary" (click)="ouvrirModalAjout()">
+      <i class="icon-plus"></i> Ajouter ma première borne
+    </button>
+  </div>
+
+  <!-- Bornes Grid -->
+  <div class="bornes-grid" *ngIf="!isLoading && mesBornes.length > 0">
+    <div class="borne-card" *ngFor="let borne of mesBornes">
+      <div class="borne-card-header">
+        <h3>{{ borne.localisation }}</h3>
+        <span class="badge" [ngClass]="getEtatClass(borne.etat)">
+          {{ getEtatLabel(borne.etat) }}
+        </span>
+      </div>
+
+      <div class="borne-card-body">
+        <div class="info-group">
+          <label>Type de prise</label>
+          <p>{{ borne.type }}</p>
+        </div>
+
+        <div class="info-group">
+          <label>Puissance</label>
+          <p>{{ borne.puissance }} kW</p>
+        </div>
+
+        <div class="info-group">
+          <label>Tarif</label>
+          <p>{{ borne.prix | currency:'EUR':'symbol':'1.2-2' }}/heure</p>
+        </div>
+
+        <div class="info-group" *ngIf="borne.numero">
+          <label>Numéro</label>
+          <p>{{ borne.numero }}</p>
+        </div>
+      </div>
+
+      <div class="borne-card-actions">
+        <button 
+          class="btn-icon btn-edit" 
+          (click)="ouvrirModalModification(borne)"
+          title="Modifier">
+          <i class="icon-edit"></i>
+        </button>
+
+        <div class="dropdown">
+          <button class="btn-icon btn-status" title="Changer l'état">
+            <i class="icon-settings"></i>
+          </button>
+          <div class="dropdown-content">
+            <button (click)="changerEtat(borne.idBorne!, 'DISPONIBLE')">
+              Disponible
+            </button>
+            <button (click)="changerEtat(borne.idBorne!, 'EN_MAINTENANCE')">
+              En maintenance
+            </button>
+            <button (click)="changerEtat(borne.idBorne!, 'HORS_SERVICE')">
+              Hors service
+            </button>
+          </div>
+        </div>
+
+        <button 
+          class="btn-icon btn-delete" 
+          (click)="supprimerBorne(borne.idBorne!)"
+          title="Supprimer">
+          <i class="icon-delete"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Ajout/Modification -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="fermerModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode ? 'Modifier la borne' : 'Ajouter une borne' }}</h2>
+        <button class="btn-close" (click)="fermerModal()">×</button>
+      </div>
+
+      <form [formGroup]="borneForm" (ngSubmit)="soumettreBorne()">
+        <div class="modal-body">
+          
+          <!-- Lieu -->
+          <div class="form-group">
+            <label for="lieu">Lieu *</label>
+            <div class="input-with-button">
+              <select id="lieu" formControlName="lieu" class="form-control">
+                <option value="">-- Sélectionnez un lieu --</option>
+                <option *ngFor="let lieu of mesLieux" [value]="lieu.idLieu">
+                  {{ lieu.nom }} - {{ lieu.adresse }}
+                </option>
+              </select>
+              <button 
+                type="button" 
+                class="btn btn-secondary btn-sm" 
+                (click)="ajouterLieu()">
+                + Nouveau lieu
+              </button>
+            </div>
+            <small class="form-text">Sélectionnez le lieu où se trouve la borne</small>
+          </div>
+
+          <!-- Localisation -->
+          <div class="form-group">
+            <label for="localisation">Description de la localisation *</label>
+            <input 
+              type="text" 
+              id="localisation" 
+              formControlName="localisation" 
+              class="form-control"
+              placeholder="Ex: Parking extérieur, Garage niveau -1">
+            <small class="form-text">Précisez l'emplacement exact de la borne</small>
+          </div>
+
+          <!-- Type de prise -->
+          <div class="form-group">
+            <label for="type">Type de prise *</label>
+            <select id="type" formControlName="type" class="form-control">
+              <option value="Type 2">Type 2 (Europe)</option>
+              <option value="CCS">CCS (Combo)</option>
+              <option value="CHAdeMO">CHAdeMO</option>
+              <option value="Type 1">Type 1 (SAE J1772)</option>
+              <option value="Tesla">Tesla Supercharger</option>
+              <option value="Prise domestique">Prise domestique</option>
+            </select>
+          </div>
+
+          <!-- Puissance -->
+          <div class="form-group">
+            <label for="puissance">Puissance (kW) *</label>
+            <input 
+              type="number" 
+              id="puissance" 
+              formControlName="puissance" 
+              class="form-control"
+              placeholder="Ex: 7.4, 11, 22, 50"
+              min="1"
+              step="0.1">
+            <small class="form-text">Puissance maximale de la borne</small>
+          </div>
+
+          <!-- Prix -->
+          <div class="form-group">
+            <label for="prix">Tarif horaire (€) *</label>
+            <input 
+              type="number" 
+              id="prix" 
+              formControlName="prix" 
+              class="form-control"
+              placeholder="Ex: 5.50"
+              min="0"
+              step="0.01">
+            <small class="form-text">Prix par heure de charge</small>
+          </div>
+
+          <!-- État -->
+          <div class="form-group">
+            <label for="etat">État *</label>
+            <select id="etat" formControlName="etat" class="form-control">
+              <option value="DISPONIBLE">Disponible</option>
+              <option value="EN_MAINTENANCE">En maintenance</option>
+              <option value="HORS_SERVICE">Hors service</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            (click)="fermerModal()"
+            [disabled]="isLoading">
+            Annuler
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+            [disabled]="borneForm.invalid || isLoading">
+            <span *ngIf="!isLoading">{{ isEditMode ? 'Modifier' : 'Ajouter' }}</span>
+            <span *ngIf="isLoading">En cours...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

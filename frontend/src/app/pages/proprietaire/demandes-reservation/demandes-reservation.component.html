@@ -1,0 +1,90 @@
+<div class="demandes-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Demandes de Réservation</h1>
+      <p class="subtitle">Validez ou refusez les demandes pour vos bornes</p>
+    </div>
+    <button class="btn btn-secondary" routerLink="/proprietaire">
+      ← Retour au dashboard
+    </button>
+  </div>
+
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Chargement des demandes...</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && demandes.length === 0">
+    <div class="empty-icon">📥</div>
+    <h2>Aucune demande en attente</h2>
+    <p>Vous n'avez pas de demande de réservation à traiter pour le moment</p>
+  </div>
+
+  <div class="demandes-list" *ngIf="!isLoading && demandes.length > 0">
+    <div class="demande-card" *ngFor="let demande of demandes">
+      <div class="demande-header">
+        <div class="client-info">
+          <h3>{{ demande.utilisateur.prenom }} {{ demande.utilisateur.nom }}</h3>
+          <p class="client-email">{{ demande.utilisateur.email }}</p>
+        </div>
+        <span class="badge badge-warning">En attente</span>
+      </div>
+
+      <div class="demande-body">
+        <div class="info-section">
+          <h4>Détails de la réservation</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="icon">📍</span>
+              <div>
+                <label>Borne</label>
+                <p>{{ demande.borne?.localisation || 'N/A' }}</p>
+                <small>{{ demande.borne?.type || 'N/A' }} - {{ demande.borne?.puissance || 0 }} kW</small>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <span class="icon">📅</span>
+              <div>
+                <label>Date et heure</label>
+                <p>{{ demande.dateDebut | date:'dd/MM/yyyy' }}</p>
+                <small>{{ demande.dateDebut | date:'HH:mm' }} - {{ demande.dateFin | date:'HH:mm' }}</small>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <span class="icon">⏱️</span>
+              <div>
+                <label>Durée</label>
+                <p>{{ calculerDuree(demande.dateDebut, demande.dateFin) }}</p>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <span class="icon">💰</span>
+              <div>
+                <label>Revenu estimé</label>
+                <p>{{ demande.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demande-actions">
+        <button 
+          class="btn btn-danger" 
+          (click)="refuserDemande(demande.idReservation)"
+          [disabled]="isLoading">
+          <i class="icon-close"></i> Refuser
+        </button>
+        <button 
+          class="btn btn-success" 
+          (click)="accepterDemande(demande.idReservation)"
+          [disabled]="isLoading">
+          <i class="icon-check"></i> Accepter
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,253 @@
+<div class="dashboard-proprietaire-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Espace Propriétaire</h1>
+      <p class="welcome-message" *ngIf="currentUser">
+        Bienvenue, {{ currentUser.prenom }} {{ currentUser.nom }}
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="naviguerVers('mes-bornes')">
+        <i class="icon-plus"></i> Ajouter une borne
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Chargement de vos données...</p>
+  </div>
+
+  <!-- Statistiques principales -->
+  <div class="stats-grid" *ngIf="!isLoading">
+    <div class="stat-card card-bornes">
+      <div class="stat-icon">
+        <i class="icon-bolt"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ stats.totalBornes }}</h3>
+        <p>Bornes enregistrées</p>
+        <small>{{ stats.bornesActives }} actives • {{ stats.bornesInactives }} inactives</small>
+      </div>
+    </div>
+
+    <div class="stat-card card-demandes">
+      <div class="stat-icon">
+        <i class="icon-clock"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ stats.demandesEnAttente }}</h3>
+        <p>Demandes en attente</p>
+        <small>Nécessitent votre validation</small>
+      </div>
+      <button 
+        class="stat-action" 
+        (click)="naviguerVers('demandes')"
+        *ngIf="stats.demandesEnAttente > 0">
+        Voir les demandes
+      </button>
+    </div>
+
+    <div class="stat-card card-reservations">
+      <div class="stat-icon">
+        <i class="icon-check"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ stats.reservationsConfirmees }}</h3>
+        <p>Réservations confirmées</p>
+        <small>En cours ou à venir</small>
+      </div>
+    </div>
+
+    <div class="stat-card card-occupation">
+      <div class="stat-icon">
+        <i class="icon-chart"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ stats.tauxOccupation }}%</h3>
+        <p>Taux d'occupation</p>
+        <small>Moyenne sur vos bornes</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistiques financières -->
+  <div class="revenue-section" *ngIf="!isLoading">
+    <h2>Revenus</h2>
+    <div class="revenue-grid">
+      <div class="revenue-card">
+        <div class="revenue-label">Ce mois</div>
+        <div class="revenue-amount">{{ stats.revenusMoisEnCours | currency:'EUR':'symbol':'1.2-2' }}</div>
+      </div>
+      <div class="revenue-card">
+        <div class="revenue-label">Total</div>
+        <div class="revenue-amount">{{ stats.revenusTotaux | currency:'EUR':'symbol':'1.2-2' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demandes récentes -->
+  <div class="section" *ngIf="!isLoading && demandesRecentes.length > 0">
+    <div class="section-header">
+      <h2>Demandes récentes <span class="badge badge-warning">{{ demandesRecentes.length }}</span></h2>
+      <button class="btn-link" (click)="naviguerVers('demandes')">
+        Voir toutes les demandes →
+      </button>
+    </div>
+    
+    <div class="demandes-list">
+      <div class="demande-card" *ngFor="let demande of demandesRecentes">
+        <div class="demande-header">
+          <div class="demande-info">
+            <h4>{{ demande.utilisateur.prenom }} {{ demande.utilisateur.nom }}</h4>
+            <p class="demande-email">{{ demande.utilisateur.email }}</p>
+          </div>
+          <span class="badge badge-warning">En attente</span>
+        </div>
+        
+        <div class="demande-body">
+          <div class="info-row">
+            <span class="label">Borne:</span>
+            <span class="value">{{ demande.borne?.localisation || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Date:</span>
+            <span class="value">{{ demande.dateDebut | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Durée:</span>
+            <span class="value">{{ calculerDuree(demande.dateDebut, demande.dateFin) }}h</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Montant:</span>
+            <span class="value">{{ demande.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</span>
+          </div>
+        </div>
+        
+        <div class="demande-actions">
+          <button 
+            class="btn btn-success btn-sm" 
+            (click)="accepterDemande(demande.idReservation)"
+            [disabled]="isLoading">
+            <i class="icon-check"></i> Accepter
+          </button>
+          <button 
+            class="btn btn-danger btn-sm" 
+            (click)="refuserDemande(demande.idReservation)"
+            [disabled]="isLoading">
+            <i class="icon-close"></i> Refuser
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mes bornes (aperçu) -->
+  <div class="section" *ngIf="!isLoading">
+    <div class="section-header">
+      <h2>Mes bornes</h2>
+      <button class="btn-link" (click)="naviguerVers('mes-bornes')">
+        Gérer mes bornes →
+      </button>
+    </div>
+    
+    <div class="alert alert-info" *ngIf="mesBornes.length === 0">
+      <p>Vous n'avez pas encore de borne enregistrée.</p>
+      <button class="btn btn-primary" (click)="naviguerVers('mes-bornes')">
+        Ajouter ma première borne
+      </button>
+    </div>
+    
+    <div class="bornes-grid" *ngIf="mesBornes.length > 0">
+      <div class="borne-card" *ngFor="let borne of mesBornes.slice(0, 6)">
+        <div class="borne-header">
+          <h4>{{ borne.localisation }}</h4>
+          <span class="badge" [ngClass]="getEtatClass(borne.etat)">
+            {{ borne.etat }}
+          </span>
+        </div>
+        <div class="borne-body">
+          <p><strong>Type:</strong> {{ borne.type }}</p>
+          <p><strong>Puissance:</strong> {{ borne.puissance }} kW</p>
+          <p><strong>Prix:</strong> {{ borne.prix | currency:'EUR':'symbol':'1.2-2' }}/h</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="see-more" *ngIf="mesBornes.length > 6">
+      <button class="btn btn-secondary" (click)="naviguerVers('mes-bornes')">
+        Voir toutes mes bornes ({{ mesBornes.length }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Dernières réservations -->
+  <div class="section" *ngIf="!isLoading && dernieresReservations.length > 0">
+    <div class="section-header">
+      <h2>Dernières réservations</h2>
+      <button class="btn-link" (click)="naviguerVers('historique')">
+        Voir l'historique complet →
+      </button>
+    </div>
+    
+    <div class="reservations-table">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Client</th>
+            <th>Borne</th>
+            <th>Date</th>
+            <th>Statut</th>
+            <th>Montant</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let reservation of dernieresReservations">
+            <td>#{{ reservation.idReservation }}</td>
+            <td>
+              {{ reservation.utilisateur.prenom }} {{ reservation.utilisateur.nom }}
+            </td>
+            <td>{{ reservation.borne?.localisation || 'N/A' }}</td>
+            <td>{{ reservation.dateDebut | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <span class="badge" [ngClass]="getStatutClass(reservation.statut)">
+                {{ getStatutLabel(reservation.statut) }}
+              </span>
+            </td>
+            <td>{{ reservation.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="quick-actions">
+    <h2>Actions rapides</h2>
+    <div class="actions-grid">
+      <button class="action-card" (click)="naviguerVers('mes-bornes')">
+        <i class="action-icon icon-settings"></i>
+        <h3>Gérer mes bornes</h3>
+        <p>Ajouter, modifier ou supprimer des bornes</p>
+      </button>
+      
+      <button class="action-card" (click)="naviguerVers('demandes')">
+        <i class="action-icon icon-inbox"></i>
+        <h3>Demandes de réservation</h3>
+        <p>Accepter ou refuser les demandes</p>
+        <span class="notification-badge" *ngIf="stats.demandesEnAttente > 0">
+          {{ stats.demandesEnAttente }}
+        </span>
+      </button>
+      
+      <button class="action-card" (click)="naviguerVers('historique')">
+        <i class="action-icon icon-history"></i>
+        <h3>Historique des réservations</h3>
+        <p>Consulter toutes vos réservations</p>
+      </button>
+    </div>
+  </div>
+</div>

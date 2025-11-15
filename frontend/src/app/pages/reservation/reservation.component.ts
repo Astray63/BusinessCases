@@ -396,7 +396,8 @@ export class ReservationComponent implements OnInit {
     doc.setFontSize(14);
     doc.text('Montant', 20, 169);
     doc.setFontSize(11);
-    const montant = reservation.montantTotal || (duree * reservation.borne.prix);
+    const prixBorne = reservation.borne?.prix || reservation.borne?.prixALaMinute || 0;
+    const montant = reservation.montantTotal || (duree * prixBorne);
     doc.text(`Total : ${montant.toFixed(2)} €`, 20, 177);
     
     // Statut
@@ -431,7 +432,8 @@ export class ReservationComponent implements OnInit {
       'CONFIRMEE': 'Confirmée',
       'ANNULEE': 'Annulée',
       'TERMINEE': 'Terminée',
-      'REFUSEE': 'Refusée'
+      'REFUSEE': 'Refusée',
+      'ACTIVE': 'Active'
     };
     return labels[statut] || statut;
   }
@@ -442,7 +444,8 @@ export class ReservationComponent implements OnInit {
       'CONFIRMEE': 'statut-confirmee',
       'ANNULEE': 'statut-annulee',
       'TERMINEE': 'statut-terminee',
-      'REFUSEE': 'statut-refusee'
+      'REFUSEE': 'statut-refusee',
+      'ACTIVE': 'statut-active'
     };
     return classes[statut] || '';
   }

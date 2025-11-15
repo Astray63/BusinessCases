@@ -1,6 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { UserContextService } from '../../services/user-context.service';
 import { Utilisateur } from '../../models/utilisateur.model';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -16,15 +17,22 @@ export class HeaderComponent implements OnInit {
   currentUser: Utilisateur | null = null;
   isMenuOpen = false;
   isDropdownOpen = false;
+  isProprietaire = false;
 
   constructor(
     private authService: AuthService,
+    private userContextService: UserContextService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+    });
+
+    // Écouter le statut propriétaire
+    this.userContextService.isProprietaire$.subscribe(isProprietaire => {
+      this.isProprietaire = isProprietaire;
     });
   }
 

@@ -20,6 +20,10 @@ export class LieuService {
     );
   }
 
+  getLieux(): Observable<ApiResponse<Lieu[]>> {
+    return this.http.get<ApiResponse<Lieu[]>>(this.apiUrl);
+  }
+
   getById(id: number): Observable<Lieu> {
     return this.http.get<ApiResponse<Lieu>>(`${this.apiUrl}/${id}`).pipe(
       map(response => response.data!)

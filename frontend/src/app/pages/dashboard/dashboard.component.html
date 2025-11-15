@@ -2,15 +2,18 @@
   <div class="dashboard-header">
     <h1>Bienvenue, {{ currentUser.prenom }} {{ currentUser.nom }}</h1>
     <p class="user-role">
-      <span class="role-badge" [ngClass]="'badge-' + currentUser.role">
-        {{ currentUser.role === 'admin' ? 'Administrateur' : currentUser.role === 'proprietaire' ? 'Propriétaire' : 'Client' }}
+      <span class="role-badge" [ngClass]="currentUser.role === 'admin' ? 'badge-admin' : 'badge-user'">
+        {{ currentUser.role === 'admin' ? 'Administrateur' : 'Utilisateur' }}
+      </span>
+      <span class="role-badge badge-proprietaire" *ngIf="isProprietaire">
+        Propriétaire ({{ nombreBornes }} borne{{ nombreBornes > 1 ? 's' : '' }})
       </span>
     </p>
   </div>
 
   <!-- Statistiques -->
   <div class="stats-grid">
-    <div class="stat-card" *ngIf="currentUser.role === 'proprietaire' || currentUser.role === 'admin'">
+    <div class="stat-card" *ngIf="isProprietaire">
       <div class="stat-icon bornes-icon"></div>
       <div class="stat-content">
         <h3>{{ stats.totalBornes }}</h3>
@@ -52,7 +55,7 @@
   </div>
 
   <!-- Mes bornes (si propriétaire) -->
-  <div class="section" *ngIf="(currentUser.role === 'proprietaire' || currentUser.role === 'admin') && !loading">
+  <div class="section" *ngIf="isProprietaire && !loading">
     <div class="section-header">
       <h2>Mes bornes de recharge</h2>
       <button class="btn-primary" (click)="ajouterBorne()">
@@ -110,7 +113,7 @@
           </div>
           <div class="reservation-body">
             <div class="reservation-info">
-              <p><strong>Borne:</strong> {{ reservation.borne.localisation || 'N/A' }}</p>
+              <p><strong>Borne:</strong> {{ reservation.borne?.localisation || 'N/A' }}</p>
               <p><strong>Début:</strong> {{ reservation.dateDebut | date:'dd/MM/yyyy HH:mm' }}</p>
               <p><strong>Fin:</strong> {{ reservation.dateFin | date:'dd/MM/yyyy HH:mm' }}</p>
               <p><strong>Prix total:</strong> {{ reservation.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</p>
@@ -138,7 +141,7 @@
           </div>
           <div class="reservation-body">
             <div class="reservation-info">
-              <p><strong>Borne:</strong> {{ reservation.borne.localisation || 'N/A' }}</p>
+              <p><strong>Borne:</strong> {{ reservation.borne?.localisation || 'N/A' }}</p>
               <p><strong>Date:</strong> {{ reservation.dateDebut | date:'dd/MM/yyyy HH:mm' }}</p>
               <p><strong>Prix total:</strong> {{ reservation.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</p>
             </div>
@@ -152,27 +155,27 @@
   <div class="quick-actions">
     <h2>Actions rapides</h2>
     <div class="actions-grid">
-      <a routerLink="/lieux" class="action-card action-lieu">
+      <a routerLink="/client/lieux" class="action-card action-lieu">
         <div class="action-icon lieu-icon">
           <i class="bi bi-geo-alt-fill"></i>
         </div>
-        <h3>Ajouter un lieu de recharge</h3>
-        <p>Enregistrer un nouveau lieu (maison, bureau...)</p>
+        <h3>Explorer les lieux</h3>
+        <p>Découvrir les lieux de recharge disponibles</p>
       </a>
       
-      <a routerLink="/bornes/ajouter" class="action-card action-borne" *ngIf="currentUser.role === 'proprietaire' || currentUser.role === 'admin'">
+      <a routerLink="/mes-bornes/bornes" class="action-card action-borne" *ngIf="isProprietaire">
         <div class="action-icon borne-icon">
           <i class="bi bi-lightning-charge-fill"></i>
         </div>
-        <h3>Ajouter une borne de recharge</h3>
-        <p>Mettre à disposition une borne de recharge</p>
+        <h3>Gérer mes bornes</h3>
+        <p>Ajouter ou modifier mes bornes de recharge</p>
       </a>
       
-      <a routerLink="/bornes" class="action-card action-search">
+      <a routerLink="/client/recherche" class="action-card action-search">
         <div class="action-icon search-icon">
           <i class="bi bi-search"></i>
         </div>
-        <h3>Trouver une borne autour de moi</h3>
+        <h3>Trouver une borne</h3>
         <p>Rechercher des bornes disponibles à proximité</p>
       </a>
 

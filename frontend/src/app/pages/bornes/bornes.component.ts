@@ -16,11 +16,16 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
   private markers: L.Marker[] = [];
   private userMarker?: L.Marker;
   private radiusCircle?: L.Circle;
+  private viewInitialized = false;
+  private readonly fallbackLocation = { lat: 48.8566, lng: 2.3522 };
   
   bornes: Borne[] = [];
   filteredBornes: Borne[] = [];
   loading = false;
   errorMessage = '';
+  locating = false;
+  geolocationStatus: 'pending' | 'success' | 'error' = 'pending';
+  geolocationMessage = '';
   
   // Filtres
   searchQuery = '';
@@ -41,11 +46,13 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.getUserLocation();
+    this.geolocationMessage = 'Initialisation de la géolocalisation...';
   }
 
   ngAfterViewInit(): void {
-    // La carte sera initialisée après obtention de la géolocalisation
+    this.viewInitialized = true;
+    // Schedule geolocation outside current change detection cycle
+    setTimeout(() => this.requestInitialGeolocation(), 0);
   }
 
   ngOnDestroy(): void {
@@ -54,32 +61,120 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private getUserLocation(): void {
-    if (navigator.geolocation) {
+  retryGeolocation(): void {
+    if (this.locating) {
+      return;
+    }
+    this.requestInitialGeolocation(true);
+  }
+
+  private requestInitialGeolocation(forceRetry = false): void {
+    if (!this.viewInitialized) {
+      return;
+    }
+
+    this.locating = true;
+    this.geolocationStatus = 'pending';
+    this.geolocationMessage = forceRetry
+      ? 'Nouvelle tentative de géolocalisation...'
+      : 'Recherche de votre position...';
+
+    this.resolveUserLocation()
+      .then((location) => {
+        console.log('🎯 Position finale utilisée:', location.lat, location.lng);
+        this.userLocation = location;
+        this.geolocationStatus = 'success';
+        this.geolocationMessage = '';
+      })
+      .catch((error) => {
+        console.error('❌ Échec géolocalisation, utilisation position par défaut (Paris)');
+        console.error('   Erreur:', error);
+        this.userLocation = { ...this.fallbackLocation };
+        this.geolocationStatus = 'error';
+        this.geolocationMessage = this.buildGeolocationErrorMessage(error);
+      })
+      .finally(() => {
+        this.locating = false;
+        this.initMapAndLoadData();
+      });
+  }
+
+  private resolveUserLocation(): Promise<{ lat: number; lng: number }> {
+    return new Promise((resolve, reject) => {
+      if (!this.isGeolocationSupported()) {
+        reject(new Error('GEO_UNSUPPORTED'));
+        return;
+      }
+
+      if (!this.isSecureContextForGeolocation()) {
+        const insecureError = new Error('GEO_INSECURE_CONTEXT');
+        reject(insecureError);
+        return;
+      }
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          this.userLocation = {
+          console.log('✅ Position GPS reçue:', position.coords.latitude, position.coords.longitude);
+          console.log('   Précision:', position.coords.accuracy, 'mètres');
+          resolve({
             lat: position.coords.latitude,
             lng: position.coords.longitude
-          };
-          this.initMapAndLoadData();
+          });
         },
         (error) => {
-          console.error('Erreur de géolocalisation', error);
-          // Position par défaut (Paris)
-          this.userLocation = { lat: 48.8566, lng: 2.3522 };
-          this.initMapAndLoadData();
+          console.error('❌ Erreur géolocalisation - Code:', error.code, 'Message:', error.message);
+          reject(error);
         },
         {
           enableHighAccuracy: true,
-          timeout: 5000,
+          timeout: 30000,
           maximumAge: 0
         }
       );
-    } else {
-      this.userLocation = { lat: 48.8566, lng: 2.3522 };
-      this.initMapAndLoadData();
+    });
+  }
+
+  private isGeolocationSupported(): boolean {
+    return typeof navigator !== 'undefined' && !!navigator.geolocation;
+  }
+
+  private isSecureContextForGeolocation(): boolean {
+    if (typeof window === 'undefined') {
+      return false;
     }
+
+    if (window.isSecureContext) {
+      return true;
+    }
+
+    const hostname = window.location.hostname;
+    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+  }
+
+  private buildGeolocationErrorMessage(error: any): string {
+    if (error instanceof Error && error.message === 'GEO_UNSUPPORTED') {
+      return 'Votre navigateur ne supporte pas la géolocalisation. Nous affichons les bornes autour de Paris.';
+    }
+
+    if (error instanceof Error && error.message === 'GEO_INSECURE_CONTEXT') {
+      return 'La géolocalisation est bloquée car cette page n\'est pas servie en HTTPS. Utilisez https:// ou localhost pour l\'activer.';
+    }
+
+    if (error && typeof error === 'object' && 'code' in error) {
+      const geoError = error as GeolocationPositionError;
+      switch (geoError.code) {
+        case geoError.PERMISSION_DENIED:
+          return '🚫 Accès à la position refusé. Autorisez l\'accès à la localisation dans votre navigateur (icône à gauche de l\'URL).';
+        case geoError.POSITION_UNAVAILABLE:
+          return '📍 Position indisponible. Vérifiez que les services de localisation sont activés sur votre appareil.';
+        case geoError.TIMEOUT:
+          return '⏱️ La demande de localisation a pris trop de temps (30s). Vérifiez votre connexion GPS/WiFi ou cliquez sur "Réessayer".';
+        default:
+          return 'Impossible de récupérer votre position. Nous utilisons une localisation par défaut (Paris).';
+      }
+    }
+
+    return 'Géolocalisation indisponible. Nous affichons les bornes autour de Paris.';
   }
 
   private initMapAndLoadData(): void {
@@ -358,7 +453,12 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  reserverBorne(borneId: number): void {
+  reserverBorne(borneId: number | undefined): void {
+    if (!borneId) {
+      console.error('ID de borne invalide');
+      return;
+    }
+    
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/auth/login'], { 
         queryParams: { returnUrl: '/bornes' } 

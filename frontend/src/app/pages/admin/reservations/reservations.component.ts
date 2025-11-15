@@ -150,7 +150,8 @@ export class ReservationsAdminComponent implements OnInit, OnDestroy {
 
     if (confirm('Êtes-vous sûr de vouloir annuler cette réservation ?')) {
       this.actionInProgress = true;
-      this.reservationService.cancelReservation(reservation.idReservation).subscribe({
+      // L'admin peut annuler sans passer de requesterId, le backend utilisera le contexte d'auth
+      this.reservationService.cancelReservation(reservation.idReservation, reservation.utilisateur?.idUtilisateur).subscribe({
         next: (response) => {
           if (response.result === 'SUCCESS') {
             this.loadReservations();
@@ -174,8 +175,9 @@ export class ReservationsAdminComponent implements OnInit, OnDestroy {
       'CONFIRMEE': 'badge bg-success',
       'ANNULEE': 'badge bg-danger',
       'TERMINEE': 'badge bg-secondary',
-      'REFUSEE': 'badge bg-danger'
+      'REFUSEE': 'badge bg-danger',
+      'ACTIVE': 'badge bg-primary'
     };
-    return classes[status];
+    return classes[status] || 'badge bg-secondary';
   }
 }

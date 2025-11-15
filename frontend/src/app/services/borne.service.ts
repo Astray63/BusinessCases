@@ -47,6 +47,10 @@ export class BorneService {
   getBornesByUtilisateur(userId: number): Observable<ApiResponse<Borne[]>> {
     return this.http.get<ApiResponse<Borne[]>>(`${this.apiUrl}/utilisateur/${userId}`);
   }
+
+  getBornesByProprietaire(proprietaireId: number): Observable<ApiResponse<Borne[]>> {
+    return this.http.get<ApiResponse<Borne[]>>(`${this.apiUrl}/proprietaire/${proprietaireId}`);
+  }
   
   searchBornesAdvanced(params: {
     latitude?: number;
