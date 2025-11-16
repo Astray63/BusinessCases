@@ -46,13 +46,11 @@ const routes: Routes = [
   // 🟢 MODE PROPRIÉTAIRE - Gestion de mes bornes
   // ============================================
   // Note: Ces routes nécessitent d'être authentifié ET de posséder au moins 1 borne
-  { 
+  {
     path: 'proprietaire', 
     loadChildren: () => import('./pages/proprietaire/proprietaire.module').then(m => m.ProprietaireModule),
-    canActivate: [AuthGuard, ProprietaireGuard]
-  },
-  
-  // Route spéciale pour devenir propriétaire (première borne)
+    canActivate: [AuthGuard] // Seul AuthGuard, pas ProprietaireGuard
+  },  // Route spéciale pour devenir propriétaire (première borne)
   // Pas de ProprietaireGuard ici car l'utilisateur n'a pas encore de borne
   { 
     path: 'devenir-proprietaire',

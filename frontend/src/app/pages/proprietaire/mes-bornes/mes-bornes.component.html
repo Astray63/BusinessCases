@@ -1,119 +1,161 @@
-<div class="mes-bornes-container">
+<div class="max-w-7xl mx-auto p-4 md:p-6">
   <!-- Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <h1>Mes Bornes de Recharge</h1>
-      <p class="subtitle">Gérez vos bornes électriques</p>
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Mes Bornes de Recharge</h1>
+      <p class="text-gray-600">Gérez vos bornes électriques et mettez-les en location</p>
     </div>
-    <div class="header-actions">
-      <button class="btn btn-secondary" routerLink="/proprietaire">
+    <div class="flex gap-3">
+      <button 
+        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+        routerLink="/proprietaire">
         ← Retour au dashboard
       </button>
-      <button class="btn btn-primary" (click)="ouvrirModalAjout()">
-        <i class="icon-plus"></i> Ajouter une borne
+      <button 
+        class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2"
+        (click)="ouvrirModalAjout()">
+        <i class="bi bi-plus-lg"></i>
+        Ajouter une borne
       </button>
     </div>
   </div>
 
   <!-- Loading -->
-  <div class="loading-container" *ngIf="isLoading && !showModal">
-    <div class="spinner"></div>
-    <p>Chargement de vos bornes...</p>
+  <div *ngIf="isLoading && !showModal" class="flex flex-col items-center justify-center py-20">
+    <div class="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+    <p class="text-gray-600">Chargement de vos bornes...</p>
   </div>
 
-  <!-- Empty State -->
-  <div class="empty-state" *ngIf="!isLoading && mesBornes.length === 0">
-    <div class="empty-icon">⚡</div>
-    <h2>Aucune borne enregistrée</h2>
-    <p>Commencez par ajouter votre première borne de recharge</p>
-    <button class="btn btn-primary" (click)="ouvrirModalAjout()">
-      <i class="icon-plus"></i> Ajouter ma première borne
+  <!-- Empty State - Nouveau propriétaire -->
+  <div *ngIf="!isLoading && mesBornes.length === 0" class="bg-white border border-gray-200 rounded-lg p-8 md:p-12 text-center">
+    <div class="flex justify-center mb-6">
+      <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">
+        <i class="bi bi-lightning-charge-fill text-4xl text-orange-600"></i>
+      </div>
+    </div>
+    <h2 class="text-2xl font-bold text-gray-900 mb-3">Bienvenue dans l'espace propriétaire !</h2>
+    <p class="text-gray-600 mb-2 max-w-2xl mx-auto">
+      Vous n'avez pas encore de borne enregistrée. Commencez par ajouter votre première borne de recharge pour la mettre en location.
+    </p>
+    <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
+      C'est simple : définissez l'emplacement, la puissance et le tarif, puis commencez à gagner de l'argent en louant votre borne aux utilisateurs !
+    </p>
+    
+    <!-- Avantages -->
+    <div class="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-8">
+      <div class="p-4 bg-gray-50 rounded-lg">
+        <i class="bi bi-cash-coin text-2xl text-orange-600 mb-2"></i>
+        <h3 class="font-semibold text-gray-900 mb-1">Revenus passifs</h3>
+        <p class="text-sm text-gray-600">Louez votre borne quand vous ne l'utilisez pas</p>
+      </div>
+      <div class="p-4 bg-gray-50 rounded-lg">
+        <i class="bi bi-calendar-check text-2xl text-orange-600 mb-2"></i>
+        <h3 class="font-semibold text-gray-900 mb-1">Gestion simple</h3>
+        <p class="text-sm text-gray-600">Gérez les réservations en quelques clics</p>
+      </div>
+      <div class="p-4 bg-gray-50 rounded-lg">
+        <i class="bi bi-shield-check text-2xl text-orange-600 mb-2"></i>
+        <h3 class="font-semibold text-gray-900 mb-1">Paiements sécurisés</h3>
+        <p class="text-sm text-gray-600">Recevez vos paiements de manière sécurisée</p>
+      </div>
+    </div>
+    
+    <button 
+      class="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-lg font-semibold inline-flex items-center gap-2"
+      (click)="ouvrirModalAjout()">
+      <i class="bi bi-plus-lg"></i>
+      Ajouter ma première borne
     </button>
   </div>
 
   <!-- Bornes Grid -->
-  <div class="bornes-grid" *ngIf="!isLoading && mesBornes.length > 0">
-    <div class="borne-card" *ngFor="let borne of mesBornes">
-      <div class="borne-card-header">
-        <h3>{{ borne.localisation }}</h3>
-        <span class="badge" [ngClass]="getEtatClass(borne.etat)">
-          {{ getEtatLabel(borne.etat) }}
-        </span>
-      </div>
-
-      <div class="borne-card-body">
-        <div class="info-group">
-          <label>Type de prise</label>
-          <p>{{ borne.type }}</p>
-        </div>
-
-        <div class="info-group">
-          <label>Puissance</label>
-          <p>{{ borne.puissance }} kW</p>
-        </div>
-
-        <div class="info-group">
-          <label>Tarif</label>
-          <p>{{ borne.prix | currency:'EUR':'symbol':'1.2-2' }}/heure</p>
-        </div>
-
-        <div class="info-group" *ngIf="borne.numero">
-          <label>Numéro</label>
-          <p>{{ borne.numero }}</p>
+  <div *ngIf="!isLoading && mesBornes.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div *ngFor="let borne of mesBornes" class="bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-shadow">
+      <!-- Header -->
+      <div class="p-4 border-b border-gray-200">
+        <div class="flex justify-between items-start mb-2">
+          <h3 class="text-lg font-semibold text-gray-900">{{ borne.localisation }}</h3>
+          <span 
+            class="px-2.5 py-0.5 text-xs font-medium rounded-full"
+            [ngClass]="{
+              'bg-green-100 text-green-800': borne.etat === 'DISPONIBLE',
+              'bg-yellow-100 text-yellow-800': borne.etat === 'MAINTENANCE',
+              'bg-red-100 text-red-800': borne.etat === 'HORS_SERVICE'
+            }">
+            {{ getEtatLabel(borne.etat) }}
+          </span>
         </div>
       </div>
 
-      <div class="borne-card-actions">
+      <!-- Body -->
+      <div class="p-4 space-y-3">
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-600">Type de prise</span>
+          <span class="text-sm font-medium text-gray-900">{{ borne.type }}</span>
+        </div>
+
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-600">Puissance</span>
+          <span class="text-sm font-medium text-gray-900">{{ borne.puissance }} kW</span>
+        </div>
+
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-600">Tarif</span>
+          <span class="text-sm font-medium text-gray-900">{{ borne.prix | currency:'EUR':'symbol':'1.2-2' }}/h</span>
+        </div>
+
+        <div *ngIf="borne.numero" class="flex justify-between">
+          <span class="text-sm text-gray-600">Numéro</span>
+          <span class="text-sm font-medium text-gray-900">{{ borne.numero }}</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="p-4 border-t border-gray-200 flex gap-2">
         <button 
-          class="btn-icon btn-edit" 
+          class="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm flex items-center justify-center gap-2"
           (click)="ouvrirModalModification(borne)"
           title="Modifier">
-          <i class="icon-edit"></i>
+          <i class="bi bi-pencil"></i>
+          Modifier
         </button>
 
-        <div class="dropdown">
-          <button class="btn-icon btn-status" title="Changer l'état">
-            <i class="icon-settings"></i>
+        <div class="relative">
+          <button 
+            class="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+            title="Changer l'état">
+            <i class="bi bi-gear"></i>
           </button>
-          <div class="dropdown-content">
-            <button (click)="changerEtat(borne.idBorne!, 'DISPONIBLE')">
-              Disponible
-            </button>
-            <button (click)="changerEtat(borne.idBorne!, 'EN_MAINTENANCE')">
-              En maintenance
-            </button>
-            <button (click)="changerEtat(borne.idBorne!, 'HORS_SERVICE')">
-              Hors service
-            </button>
-          </div>
         </div>
 
         <button 
-          class="btn-icon btn-delete" 
+          class="px-3 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm"
           (click)="supprimerBorne(borne.idBorne!)"
           title="Supprimer">
-          <i class="icon-delete"></i>
+          <i class="bi bi-trash"></i>
         </button>
       </div>
     </div>
   </div>
 
   <!-- Modal Ajout/Modification -->
-  <div class="modal-overlay" *ngIf="showModal" (click)="fermerModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>{{ isEditMode ? 'Modifier la borne' : 'Ajouter une borne' }}</h2>
-        <button class="btn-close" (click)="fermerModal()">×</button>
+  <div *ngIf="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" (click)="fermerModal()">
+    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-gray-900">{{ isEditMode ? 'Modifier la borne' : 'Ajouter une borne' }}</h2>
+        <button class="text-gray-400 hover:text-gray-600 text-2xl" (click)="fermerModal()">×</button>
       </div>
 
+      <!-- Form -->
       <form [formGroup]="borneForm" (ngSubmit)="soumettreBorne()">
-        <div class="modal-body">
+        <div class="p-6 space-y-4">
           
           <!-- Lieu -->
-          <div class="form-group">
-            <label for="lieu">Lieu *</label>
-            <div class="input-with-button">
-              <select id="lieu" formControlName="lieu" class="form-control">
+          <div>
+            <label for="lieu" class="block text-sm font-medium text-gray-700 mb-2">Lieu *</label>
+            <div class="flex gap-2">
+              <select id="lieu" formControlName="lieu" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
                 <option value="">-- Sélectionnez un lieu --</option>
                 <option *ngFor="let lieu of mesLieux" [value]="lieu.idLieu">
                   {{ lieu.nom }} - {{ lieu.adresse }}
@@ -121,30 +163,30 @@
               </select>
               <button 
                 type="button" 
-                class="btn btn-secondary btn-sm" 
+                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
                 (click)="ajouterLieu()">
                 + Nouveau lieu
               </button>
             </div>
-            <small class="form-text">Sélectionnez le lieu où se trouve la borne</small>
+            <p class="mt-1 text-xs text-gray-500">Sélectionnez le lieu où se trouve la borne</p>
           </div>
 
           <!-- Localisation -->
-          <div class="form-group">
-            <label for="localisation">Description de la localisation *</label>
+          <div>
+            <label for="localisation" class="block text-sm font-medium text-gray-700 mb-2">Description de la localisation *</label>
             <input 
               type="text" 
               id="localisation" 
               formControlName="localisation" 
-              class="form-control"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               placeholder="Ex: Parking extérieur, Garage niveau -1">
-            <small class="form-text">Précisez l'emplacement exact de la borne</small>
+            <p class="mt-1 text-xs text-gray-500">Précisez l'emplacement exact de la borne</p>
           </div>
 
           <!-- Type de prise -->
-          <div class="form-group">
-            <label for="type">Type de prise *</label>
-            <select id="type" formControlName="type" class="form-control">
+          <div>
+            <label for="type" class="block text-sm font-medium text-gray-700 mb-2">Type de prise *</label>
+            <select id="type" formControlName="type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
               <option value="Type 2">Type 2 (Europe)</option>
               <option value="CCS">CCS (Combo)</option>
               <option value="CHAdeMO">CHAdeMO</option>
@@ -155,55 +197,56 @@
           </div>
 
           <!-- Puissance -->
-          <div class="form-group">
-            <label for="puissance">Puissance (kW) *</label>
+          <div>
+            <label for="puissance" class="block text-sm font-medium text-gray-700 mb-2">Puissance (kW) *</label>
             <input 
               type="number" 
               id="puissance" 
               formControlName="puissance" 
-              class="form-control"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               placeholder="Ex: 7.4, 11, 22, 50"
               min="1"
               step="0.1">
-            <small class="form-text">Puissance maximale de la borne</small>
+            <p class="mt-1 text-xs text-gray-500">Puissance maximale de la borne</p>
           </div>
 
           <!-- Prix -->
-          <div class="form-group">
-            <label for="prix">Tarif horaire (€) *</label>
+          <div>
+            <label for="prix" class="block text-sm font-medium text-gray-700 mb-2">Tarif horaire (€) *</label>
             <input 
               type="number" 
               id="prix" 
               formControlName="prix" 
-              class="form-control"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               placeholder="Ex: 5.50"
               min="0"
               step="0.01">
-            <small class="form-text">Prix par heure de charge</small>
+            <p class="mt-1 text-xs text-gray-500">Prix par heure de charge</p>
           </div>
 
           <!-- État -->
-          <div class="form-group">
-            <label for="etat">État *</label>
-            <select id="etat" formControlName="etat" class="form-control">
+          <div>
+            <label for="etat" class="block text-sm font-medium text-gray-700 mb-2">État *</label>
+            <select id="etat" formControlName="etat" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
               <option value="DISPONIBLE">Disponible</option>
-              <option value="EN_MAINTENANCE">En maintenance</option>
+              <option value="MAINTENANCE">En maintenance</option>
               <option value="HORS_SERVICE">Hors service</option>
             </select>
           </div>
         </div>
 
-        <div class="modal-footer">
+        <!-- Footer -->
+        <div class="flex gap-3 p-6 border-t border-gray-200">
           <button 
             type="button" 
-            class="btn btn-secondary" 
+            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             (click)="fermerModal()"
             [disabled]="isLoading">
             Annuler
           </button>
           <button 
             type="submit" 
-            class="btn btn-primary"
+            class="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
             [disabled]="borneForm.invalid || isLoading">
             <span *ngIf="!isLoading">{{ isEditMode ? 'Modifier' : 'Ajouter' }}</span>
             <span *ngIf="isLoading">En cours...</span>

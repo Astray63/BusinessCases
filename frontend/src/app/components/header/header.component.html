@@ -1,81 +1,138 @@
 <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
-  <div class="container mx-auto px-6">
+  <div class="container mx-auto px-4">
     <div class="flex items-center justify-between h-16">
       <!-- Logo -->
       <div class="flex-shrink-0">
         <a routerLink="/" class="flex items-center gap-2 no-underline transition-opacity duration-200 hover:opacity-80">
           <i class="bi bi-lightning-charge-fill text-2xl text-blue-600"></i>
-          <span class="text-xl font-bold text-gray-900">Electricity Business</span>
+          <span class="text-xl font-bold text-gray-900 hidden sm:inline">Electricity Business</span>
+          <span class="text-xl font-bold text-gray-900 sm:hidden">EB</span>
         </a>
       </div>
       
       <!-- Navigation Desktop -->
-      <nav class="hidden lg:flex items-center gap-1">
+      <nav class="hidden xl:flex items-center gap-1">
         <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" 
-           class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900"
-           [class.bg-blue-50]="router.url === '/' && !router.url.includes('?')"
-           [class.text-blue-600]="router.url === '/' && !router.url.includes('?')"
-           [class.font-semibold]="router.url === '/' && !router.url.includes('?')">
+           class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100"
+           [class.bg-blue-50]="router.url === '/'"
+           [class.text-blue-600]="router.url === '/'"
+           [class.font-semibold]="router.url === '/'">
           <i class="bi bi-house-fill"></i>
           <span>Accueil</span>
         </a>
         
-        <!-- Liens pour utilisateurs non connectés -->
+        <!-- Non connecté -->
         <ng-container *ngIf="!currentUser">
-          <a routerLink="/auth/login" routerLinkActive="active" 
-             class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900"
+          <a routerLink="/auth/login" 
+             class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100"
              [class.bg-blue-50]="router.url === '/auth/login'"
-             [class.text-blue-600]="router.url === '/auth/login'"
-             [class.font-semibold]="router.url === '/auth/login'">
+             [class.text-blue-600]="router.url === '/auth/login'">
             <i class="bi bi-box-arrow-in-right"></i>
             <span>Connexion</span>
           </a>
-          <a routerLink="/auth/register" routerLinkActive="active" 
-             class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-600 transition-colors duration-200 hover:bg-blue-700 ml-2">
+          <a routerLink="/auth/register" 
+             class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 ml-1">
             <i class="bi bi-person-plus-fill"></i>
             <span>Inscription</span>
           </a>
         </ng-container>
         
-        <!-- Liens pour utilisateurs connectés -->
+        <!-- Connecté -->
         <ng-container *ngIf="currentUser">
-          <a routerLink="/client/recherche" routerLinkActive="active"
-             class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900"
-             [class.bg-blue-50]="router.url.includes('/client/recherche')"
-             [class.text-blue-600]="router.url.includes('/client/recherche')"
-             [class.font-semibold]="router.url.includes('/client/recherche')">
-            <i class="bi bi-search"></i>
-            <span>Rechercher</span>
-          </a>
+          <!-- Divider -->
+          <div class="w-px h-6 bg-gray-300 mx-1"></div>
           
-          <a routerLink="/client/mes-reservations" routerLinkActive="active"
-             class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900"
-             [class.bg-blue-50]="router.url.includes('/client/mes-reservations')"
-             [class.text-blue-600]="router.url.includes('/client/mes-reservations')"
-             [class.font-semibold]="router.url.includes('/client/mes-reservations')">
-            <i class="bi bi-calendar-check-fill"></i>
-            <span>Mes réservations</span>
-          </a>
+          <!-- Section Client -->
+          <div class="flex items-center gap-1">
+            <span class="px-2 text-xs font-semibold text-gray-500 uppercase">Client</span>
+            <a routerLink="/client/recherche"
+               class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+               [class.bg-blue-50]="router.url.includes('/client/recherche')"
+               [class.text-blue-600]="router.url.includes('/client/recherche')"
+               [class.text-gray-700]="!router.url.includes('/client/recherche')"
+               [class.hover:bg-gray-100]="!router.url.includes('/client/recherche')">
+              <i class="bi bi-search"></i>
+              <span>Rechercher</span>
+            </a>
+            
+            <a routerLink="/client/mes-reservations"
+               class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+               [class.bg-blue-50]="router.url.includes('/client/mes-reservations')"
+               [class.text-blue-600]="router.url.includes('/client/mes-reservations')"
+               [class.text-gray-700]="!router.url.includes('/client/mes-reservations')"
+               [class.hover:bg-gray-100]="!router.url.includes('/client/mes-reservations')">
+              <i class="bi bi-calendar-check-fill"></i>
+              <span>Réservations</span>
+            </a>
+            
+            <a routerLink="/client/lieux"
+               class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+               [class.bg-blue-50]="router.url.includes('/client/lieux')"
+               [class.text-blue-600]="router.url.includes('/client/lieux')"
+               [class.text-gray-700]="!router.url.includes('/client/lieux')"
+               [class.hover:bg-gray-100]="!router.url.includes('/client/lieux')">
+              <i class="bi bi-geo-alt-fill"></i>
+              <span>Lieux</span>
+            </a>
+          </div>
           
-          <!-- Liens propriétaire -->
-          <a *ngIf="isProprietaire" routerLink="/proprietaire/mes-bornes" routerLinkActive="active"
-             class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-orange-600 transition-colors duration-200 hover:bg-orange-700 ml-2"
-             [class.bg-orange-700]="router.url.includes('/proprietaire/mes-bornes')">
-            <i class="bi bi-lightning-charge-fill"></i>
-            <span>Mes bornes</span>
-          </a>
+          <!-- Divider -->
+          <div class="w-px h-6 bg-gray-300 mx-1"></div>
           
-          <a *ngIf="isProprietaire" routerLink="/proprietaire/demandes" routerLinkActive="active"
-             class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-orange-600 transition-colors duration-200 hover:bg-orange-700"
-             [class.bg-orange-700]="router.url.includes('/proprietaire/demandes')">
-            <i class="bi bi-inbox-fill"></i>
-            <span>Demandes</span>
-          </a>
+          <!-- Section Propriétaire -->
+          <div class="flex items-center gap-1">
+            <span class="px-2 text-xs font-semibold text-orange-600 uppercase">Propriétaire</span>
+            <a routerLink="/proprietaire/dashboard"
+               class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+               [class.bg-orange-50]="router.url.includes('/proprietaire/dashboard')"
+               [class.text-orange-600]="router.url.includes('/proprietaire/dashboard')"
+               [class.text-gray-700]="!router.url.includes('/proprietaire/dashboard')"
+               [class.hover:bg-orange-50]="!router.url.includes('/proprietaire/dashboard')">
+              <i class="bi bi-speedometer"></i>
+              <span>Dashboard</span>
+            </a>
+            
+            <a routerLink="/proprietaire/mes-bornes"
+               class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+               [class.bg-orange-50]="router.url.includes('/proprietaire/mes-bornes')"
+               [class.text-orange-600]="router.url.includes('/proprietaire/mes-bornes')"
+               [class.text-gray-700]="!router.url.includes('/proprietaire/mes-bornes')"
+               [class.hover:bg-orange-50]="!router.url.includes('/proprietaire/mes-bornes')">
+              <i class="bi bi-lightning-charge-fill"></i>
+              <span>Bornes</span>
+              <span *ngIf="nombreBornes > 0" class="px-1.5 py-0.5 text-xs bg-orange-100 text-orange-700 rounded-full font-medium">
+                {{ nombreBornes }}
+              </span>
+            </a>
+            
+            <a routerLink="/proprietaire/demandes"
+               class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+               [class.bg-orange-50]="router.url.includes('/proprietaire/demandes')"
+               [class.text-orange-600]="router.url.includes('/proprietaire/demandes')"
+               [class.text-gray-700]="!router.url.includes('/proprietaire/demandes')"
+               [class.hover:bg-orange-50]="!router.url.includes('/proprietaire/demandes')">
+              <i class="bi bi-inbox-fill"></i>
+              <span>Demandes</span>
+            </a>
+            
+            <a routerLink="/proprietaire/historique"
+               class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+               [class.bg-orange-50]="router.url.includes('/proprietaire/historique')"
+               [class.text-orange-600]="router.url.includes('/proprietaire/historique')"
+               [class.text-gray-700]="!router.url.includes('/proprietaire/historique')"
+               [class.hover:bg-orange-50]="!router.url.includes('/proprietaire/historique')">
+              <i class="bi bi-clock-history"></i>
+              <span>Historique</span>
+            </a>
+          </div>
+          
+          <!-- Divider -->
+          <div class="w-px h-6 bg-gray-300 mx-1"></div>
           
           <!-- Menu utilisateur -->
-          <div class="relative ml-2">
+          <div class="relative">
             <button 
-              class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-900"
+              class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100"
               (click)="toggleDropdown($event)">
               <i class="bi bi-person-circle text-lg"></i>
               <span>{{ currentUser.prenom }}</span>
@@ -83,7 +140,7 @@
             </button>
             
             <!-- Dropdown menu -->
-            <div *ngIf="isDropdownOpen" class="absolute right-0 top-full mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 animate-slideDown">
+            <div *ngIf="isDropdownOpen" class="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 animate-slideDown">
               <!-- User info -->
               <div class="px-4 py-3 border-b border-gray-200">
                 <p class="text-sm font-semibold text-gray-900">{{ currentUser.prenom }} {{ currentUser.nom }}</p>
@@ -94,7 +151,7 @@
               <a routerLink="/dashboard" (click)="closeDropdown()"
                  class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                 <i class="bi bi-speedometer2 text-blue-600"></i>
-                <span>Tableau de bord</span>
+                <span>Mon tableau de bord</span>
               </a>
               
               <a routerLink="/profile" (click)="closeDropdown()"
@@ -103,48 +160,10 @@
                 <span>Mon profil</span>
               </a>
               
-              <a routerLink="/client/lieux" (click)="closeDropdown()"
-                 class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                <i class="bi bi-geo-alt-fill text-blue-600"></i>
-                <span>Explorer les lieux</span>
-              </a>
-              
-              <!-- Section propriétaire -->
-              <ng-container *ngIf="isProprietaire">
-                <div class="border-t border-gray-200 my-2"></div>
-                <div class="px-4 py-2">
-                  <p class="text-xs font-semibold text-gray-500 uppercase">Espace Propriétaire</p>
-                </div>
-                
-                <a routerLink="/proprietaire/dashboard" (click)="closeDropdown()"
-                   class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                  <i class="bi bi-speedometer text-orange-600"></i>
-                  <span>Dashboard propriétaire</span>
-                </a>
-                
-                <a routerLink="/proprietaire/mes-bornes" (click)="closeDropdown()"
-                   class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                  <i class="bi bi-lightning-charge-fill text-orange-600"></i>
-                  <span>Gérer mes bornes</span>
-                </a>
-                
-                <a routerLink="/proprietaire/demandes" (click)="closeDropdown()"
-                   class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                  <i class="bi bi-inbox-fill text-orange-600"></i>
-                  <span>Demandes reçues</span>
-                </a>
-                
-                <a routerLink="/proprietaire/historique" (click)="closeDropdown()"
-                   class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                  <i class="bi bi-clock-history text-orange-600"></i>
-                  <span>Historique</span>
-                </a>
-              </ng-container>
-              
               <!-- Admin -->
               <a *ngIf="currentUser.role === 'admin'" routerLink="/admin" (click)="closeDropdown()"
                  class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                <i class="bi bi-shield-fill-check text-blue-600"></i>
+                <i class="bi bi-shield-fill-check text-red-600"></i>
                 <span>Administration</span>
               </a>
               
@@ -161,7 +180,7 @@
       </nav>
       
       <!-- Bouton menu mobile -->
-      <button class="lg:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200" 
+      <button class="xl:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200" 
               (click)="toggleMenu()" 
               aria-label="Toggle menu">
         <svg *ngIf="!isMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,27 +193,31 @@
     </div>
     
     <!-- Menu mobile -->
-    <nav *ngIf="isMenuOpen" class="lg:hidden py-4 border-t border-gray-200 animate-slideDown">
+    <nav *ngIf="isMenuOpen" class="xl:hidden py-4 border-t border-gray-200 animate-slideDown">
       <div class="space-y-1">
-        <a routerLink="/" (click)="closeDropdown()"
-           class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100"
-           [class.bg-blue-50]="router.url === '/' && !router.url.includes('?')"
-           [class.text-blue-600]="router.url === '/' && !router.url.includes('?')">
+        <a routerLink="/" (click)="closeMenu()"
+           class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+           [class.bg-blue-50]="router.url === '/'"
+           [class.text-blue-600]="router.url === '/'"
+           [class.text-gray-700]="router.url !== '/'"
+           [class.hover:bg-gray-100]="router.url !== '/'">
           <i class="bi bi-house-fill"></i>
           <span>Accueil</span>
         </a>
         
         <!-- Mobile - Non connecté -->
         <ng-container *ngIf="!currentUser">
-          <a routerLink="/auth/login" (click)="closeDropdown()"
-             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100"
+          <a routerLink="/auth/login" (click)="closeMenu()"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
              [class.bg-blue-50]="router.url === '/auth/login'"
-             [class.text-blue-600]="router.url === '/auth/login'">
+             [class.text-blue-600]="router.url === '/auth/login'"
+             [class.text-gray-700]="router.url !== '/auth/login'"
+             [class.hover:bg-gray-100]="router.url !== '/auth/login'">
             <i class="bi bi-box-arrow-in-right"></i>
             <span>Connexion</span>
           </a>
-          <a routerLink="/auth/register" (click)="closeDropdown()"
-             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-blue-600 transition-colors duration-200 hover:bg-blue-700">
+          <a routerLink="/auth/register" (click)="closeMenu()"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
             <i class="bi bi-person-plus-fill"></i>
             <span>Inscription</span>
           </a>
@@ -207,76 +230,114 @@
             <p class="text-xs text-gray-600">{{ currentUser.email }}</p>
           </div>
           
-          <a routerLink="/client/recherche" (click)="closeDropdown()"
-             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100"
+          <!-- Section Client -->
+          <div class="px-4 py-2">
+            <p class="text-xs font-semibold text-gray-500 uppercase">Espace Client</p>
+          </div>
+          
+          <a routerLink="/client/recherche" (click)="closeMenu()"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
              [class.bg-blue-50]="router.url.includes('/client/recherche')"
-             [class.text-blue-600]="router.url.includes('/client/recherche')">
+             [class.text-blue-600]="router.url.includes('/client/recherche')"
+             [class.text-gray-700]="!router.url.includes('/client/recherche')"
+             [class.hover:bg-gray-100]="!router.url.includes('/client/recherche')">
             <i class="bi bi-search"></i>
-            <span>Rechercher</span>
+            <span>Rechercher une borne</span>
           </a>
           
-          <a routerLink="/client/mes-reservations" (click)="closeDropdown()"
-             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100"
+          <a routerLink="/client/mes-reservations" (click)="closeMenu()"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
              [class.bg-blue-50]="router.url.includes('/client/mes-reservations')"
-             [class.text-blue-600]="router.url.includes('/client/mes-reservations')">
+             [class.text-blue-600]="router.url.includes('/client/mes-reservations')"
+             [class.text-gray-700]="!router.url.includes('/client/mes-reservations')"
+             [class.hover:bg-gray-100]="!router.url.includes('/client/mes-reservations')">
             <i class="bi bi-calendar-check-fill"></i>
             <span>Mes réservations</span>
           </a>
           
-          <a routerLink="/dashboard" (click)="closeDropdown()"
-             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100">
-            <i class="bi bi-speedometer2"></i>
-            <span>Tableau de bord</span>
-          </a>
-          
-          <a routerLink="/profile" (click)="closeDropdown()"
-             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100">
-            <i class="bi bi-person-fill"></i>
-            <span>Mon profil</span>
-          </a>
-          
-          <a routerLink="/client/lieux" (click)="closeDropdown()"
-             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100">
+          <a routerLink="/client/lieux" (click)="closeMenu()"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+             [class.bg-blue-50]="router.url.includes('/client/lieux')"
+             [class.text-blue-600]="router.url.includes('/client/lieux')"
+             [class.text-gray-700]="!router.url.includes('/client/lieux')"
+             [class.hover:bg-gray-100]="!router.url.includes('/client/lieux')">
             <i class="bi bi-geo-alt-fill"></i>
             <span>Explorer les lieux</span>
           </a>
           
-          <!-- Mobile - Propriétaire -->
-          <ng-container *ngIf="isProprietaire">
-            <div class="border-t border-gray-200 my-2"></div>
-            <div class="px-4 py-2">
-              <p class="text-xs font-semibold text-gray-500 uppercase">Espace Propriétaire</p>
-            </div>
-            
-            <a routerLink="/proprietaire/dashboard" (click)="closeDropdown()"
-               class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100">
-              <i class="bi bi-speedometer"></i>
-              <span>Dashboard propriétaire</span>
-            </a>
-            
-            <a routerLink="/proprietaire/mes-bornes" (click)="closeDropdown()"
-               class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100">
-              <i class="bi bi-lightning-charge-fill"></i>
-              <span>Gérer mes bornes</span>
-            </a>
-            
-            <a routerLink="/proprietaire/demandes" (click)="closeDropdown()"
-               class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100">
-              <i class="bi bi-inbox-fill"></i>
-              <span>Demandes reçues</span>
-            </a>
-            
-            <a routerLink="/proprietaire/historique" (click)="closeDropdown()"
-               class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100">
-              <i class="bi bi-clock-history"></i>
-              <span>Historique</span>
-            </a>
-          </ng-container>
+          <a routerLink="/dashboard" (click)="closeMenu()"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+             [class.bg-blue-50]="router.url.includes('/dashboard') && !router.url.includes('/proprietaire')"
+             [class.text-blue-600]="router.url.includes('/dashboard') && !router.url.includes('/proprietaire')"
+             [class.text-gray-700]="!router.url.includes('/dashboard') || router.url.includes('/proprietaire')"
+             [class.hover:bg-gray-100]="!router.url.includes('/dashboard') || router.url.includes('/proprietaire')">
+            <i class="bi bi-speedometer2"></i>
+            <span>Mon tableau de bord</span>
+          </a>
+          
+          <a routerLink="/profile" (click)="closeMenu()"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+             [class.bg-blue-50]="router.url.includes('/profile')"
+             [class.text-blue-600]="router.url.includes('/profile')"
+             [class.text-gray-700]="!router.url.includes('/profile')"
+             [class.hover:bg-gray-100]="!router.url.includes('/profile')">
+            <i class="bi bi-person-fill"></i>
+            <span>Mon profil</span>
+          </a>
+          
+          <!-- Section Propriétaire -->
+          <div class="border-t border-gray-200 my-2"></div>
+          <div class="px-4 py-2 flex items-center justify-between">
+            <p class="text-xs font-semibold text-orange-600 uppercase">Espace Propriétaire</p>
+            <span *ngIf="nombreBornes > 0" class="px-2 py-0.5 text-xs bg-orange-100 text-orange-600 rounded-full font-medium">
+              {{ nombreBornes }}
+            </span>
+          </div>
+          
+          <a routerLink="/proprietaire/dashboard" (click)="closeMenu()"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+             [class.bg-orange-50]="router.url.includes('/proprietaire/dashboard')"
+             [class.text-orange-600]="router.url.includes('/proprietaire/dashboard')"
+             [class.text-gray-700]="!router.url.includes('/proprietaire/dashboard')"
+             [class.hover:bg-orange-50]="!router.url.includes('/proprietaire/dashboard')">
+            <i class="bi bi-speedometer"></i>
+            <span>Dashboard propriétaire</span>
+          </a>
+          
+          <a routerLink="/proprietaire/mes-bornes" (click)="closeMenu()"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+             [class.bg-orange-50]="router.url.includes('/proprietaire/mes-bornes')"
+             [class.text-orange-600]="router.url.includes('/proprietaire/mes-bornes')"
+             [class.text-gray-700]="!router.url.includes('/proprietaire/mes-bornes')"
+             [class.hover:bg-orange-50]="!router.url.includes('/proprietaire/mes-bornes')">
+            <i class="bi bi-lightning-charge-fill"></i>
+            <span>Gérer mes bornes</span>
+          </a>
+          
+          <a routerLink="/proprietaire/demandes" (click)="closeMenu()"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+             [class.bg-orange-50]="router.url.includes('/proprietaire/demandes')"
+             [class.text-orange-600]="router.url.includes('/proprietaire/demandes')"
+             [class.text-gray-700]="!router.url.includes('/proprietaire/demandes')"
+             [class.hover:bg-orange-50]="!router.url.includes('/proprietaire/demandes')">
+            <i class="bi bi-inbox-fill"></i>
+            <span>Demandes reçues</span>
+          </a>
+          
+          <a routerLink="/proprietaire/historique" (click)="closeMenu()"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+             [class.bg-orange-50]="router.url.includes('/proprietaire/historique')"
+             [class.text-orange-600]="router.url.includes('/proprietaire/historique')"
+             [class.text-gray-700]="!router.url.includes('/proprietaire/historique')"
+             [class.hover:bg-orange-50]="!router.url.includes('/proprietaire/historique')">
+            <i class="bi bi-clock-history"></i>
+            <span>Historique</span>
+          </a>
           
           <!-- Mobile - Admin -->
-          <a *ngIf="currentUser.role === 'admin'" routerLink="/admin" (click)="closeDropdown()"
-             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100">
-            <i class="bi bi-shield-fill-check"></i>
+          <a *ngIf="currentUser.role === 'admin'" routerLink="/admin" (click)="closeMenu()"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+            <i class="bi bi-shield-fill-check text-red-600"></i>
             <span>Administration</span>
           </a>
           

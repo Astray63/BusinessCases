@@ -164,6 +164,7 @@ export class DashboardProprietaireComponent implements OnInit {
     const labels: { [key: string]: string } = {
       'EN_ATTENTE': 'En attente',
       'CONFIRMEE': 'Confirmée',
+      'ACTIVE': 'En cours',
       'TERMINEE': 'Terminée',
       'ANNULEE': 'Annulée',
       'REFUSEE': 'Refusée'

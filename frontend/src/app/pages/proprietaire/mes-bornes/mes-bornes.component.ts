@@ -215,9 +215,9 @@ export class MesBornesComponent implements OnInit {
   getEtatClass(etat: string): string {
     const classes: { [key: string]: string } = {
       'DISPONIBLE': 'badge-success',
-      'OCCUPEE': 'badge-warning',
+      'OCCUPE': 'badge-warning',
       'HORS_SERVICE': 'badge-danger',
-      'EN_MAINTENANCE': 'badge-secondary'
+      'MAINTENANCE': 'badge-secondary'
     };
     return classes[etat] || 'badge-secondary';
   }
@@ -225,9 +225,9 @@ export class MesBornesComponent implements OnInit {
   getEtatLabel(etat: string): string {
     const labels: { [key: string]: string } = {
       'DISPONIBLE': 'Disponible',
-      'OCCUPEE': 'Occupée',
+      'OCCUPE': 'Occupée',
       'HORS_SERVICE': 'Hors service',
-      'EN_MAINTENANCE': 'En maintenance'
+      'MAINTENANCE': 'En maintenance'
     };
     return labels[etat] || etat;
   }

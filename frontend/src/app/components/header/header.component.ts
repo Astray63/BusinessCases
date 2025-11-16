@@ -17,6 +17,7 @@ export class HeaderComponent implements OnInit {
   isMenuOpen = false;
   isDropdownOpen = false;
   isProprietaire = false;
+  nombreBornes = 0;
 
   constructor(
     private authService: AuthService,
@@ -33,10 +34,19 @@ export class HeaderComponent implements OnInit {
     this.userContextService.isProprietaire$.subscribe(isProprietaire => {
       this.isProprietaire = isProprietaire;
     });
+
+    // Écouter le nombre de bornes
+    this.userContextService.nombreBornes$.subscribe(nombreBornes => {
+      this.nombreBornes = nombreBornes;
+    });
   }
 
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen = false;
   }
 
   toggleDropdown(event: Event): void {

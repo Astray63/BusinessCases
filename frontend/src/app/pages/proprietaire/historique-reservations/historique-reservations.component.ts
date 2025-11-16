@@ -87,13 +87,13 @@ export class HistoriqueReservationsComponent implements OnInit {
 
   getStatutClass(statut: string): string {
     const classes: { [key: string]: string } = {
-      'EN_ATTENTE': 'badge-warning',
-      'CONFIRMEE': 'badge-success',
-      'TERMINEE': 'badge-secondary',
-      'ANNULEE': 'badge-danger',
-      'REFUSEE': 'badge-danger'
+      'EN_ATTENTE': 'bg-yellow-100 text-yellow-800',
+      'CONFIRMEE': 'bg-green-100 text-green-800',
+      'TERMINEE': 'bg-gray-100 text-gray-800',
+      'ANNULEE': 'bg-red-100 text-red-800',
+      'REFUSEE': 'bg-red-100 text-red-800'
     };
-    return classes[statut] || 'badge-secondary';
+    return classes[statut] || 'bg-gray-100 text-gray-800';
   }
 
   getStatutLabel(statut: string): string {
