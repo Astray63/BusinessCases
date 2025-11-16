@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ProprietaireGuard } from '../../guards/proprietaire.guard';
 
 import { DashboardProprietaireComponent } from './dashboard-proprietaire/dashboard-proprietaire.component';
 import { MesBornesComponent } from './mes-bornes/mes-bornes.component';
@@ -10,25 +9,33 @@ import { DemandesReservationComponent } from './demandes-reservation/demandes-re
 import { HistoriqueReservationsComponent } from './historique-reservations/historique-reservations.component';
 
 const routes: Routes = [
+  // Dashboard propriétaire (vue d'ensemble)
   { 
     path: '', 
-    component: DashboardProprietaireComponent,
-    canActivate: [ProprietaireGuard]
+    redirectTo: 'dashboard',
+    pathMatch: 'full'
   },
   { 
-    path: 'bornes', 
-    component: MesBornesComponent,
-    canActivate: [ProprietaireGuard]
+    path: 'dashboard', 
+    component: DashboardProprietaireComponent
   },
+  
+  // Gestion des bornes
+  { 
+    path: 'mes-bornes', 
+    component: MesBornesComponent
+  },
+  
+  // Gestion des demandes de réservation
   { 
     path: 'demandes', 
-    component: DemandesReservationComponent,
-    canActivate: [ProprietaireGuard]
+    component: DemandesReservationComponent
   },
+  
+  // Historique des réservations sur mes bornes
   { 
-    path: 'reservations', 
-    component: HistoriqueReservationsComponent,
-    canActivate: [ProprietaireGuard]
+    path: 'historique', 
+    component: HistoriqueReservationsComponent
   }
 ];
 

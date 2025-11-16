@@ -26,10 +26,10 @@
         </ng-container>
         
         <ng-container *ngIf="currentUser">
-          <!-- 🔹 MODE CLIENT -->
+          <!-- � MODE CLIENT - Toujours visible -->
           <li><a routerLink="/client/recherche" routerLinkActive="active">
             <i class="bi bi-search"></i>
-            <span>Trouver une borne</span>
+            <span>Rechercher</span>
           </a></li>
           
           <li><a routerLink="/client/mes-reservations" routerLinkActive="active">
@@ -37,11 +37,18 @@
             <span>Mes réservations</span>
           </a></li>
           
-          <!-- 🔹 MODE PROPRIÉTAIRE (si l'utilisateur possède des bornes) -->
+          <!-- � MODE PROPRIÉTAIRE - Visible uniquement si propriétaire -->
           <li *ngIf="isProprietaire">
-            <a routerLink="/mes-bornes" routerLinkActive="active" class="nav-link-proprietaire">
+            <a routerLink="/proprietaire/mes-bornes" routerLinkActive="active" class="nav-link-proprietaire">
               <i class="bi bi-lightning-charge-fill"></i>
               <span>Mes bornes</span>
+            </a>
+          </li>
+          
+          <li *ngIf="isProprietaire">
+            <a routerLink="/proprietaire/demandes" routerLinkActive="active" class="nav-link-proprietaire">
+              <i class="bi bi-inbox-fill"></i>
+              <span>Demandes</span>
             </a>
           </li>
           
@@ -70,16 +77,31 @@
                 Explorer les lieux
               </a></li>
               <li *ngIf="isProprietaire" class="dropdown-divider"></li>
+              <li *ngIf="isProprietaire" class="dropdown-section-title">
+                <small>🟢 Espace Propriétaire</small>
+              </li>
               <li *ngIf="isProprietaire">
-                <a routerLink="/mes-bornes/bornes" (click)="closeDropdown()">
+                <a routerLink="/proprietaire/dashboard" (click)="closeDropdown()">
+                  <i class="bi bi-speedometer"></i>
+                  Dashboard propriétaire
+                </a>
+              </li>
+              <li *ngIf="isProprietaire">
+                <a routerLink="/proprietaire/mes-bornes" (click)="closeDropdown()">
                   <i class="bi bi-lightning-charge-fill"></i>
                   Gérer mes bornes
                 </a>
               </li>
               <li *ngIf="isProprietaire">
-                <a routerLink="/mes-bornes/demandes" (click)="closeDropdown()">
+                <a routerLink="/proprietaire/demandes" (click)="closeDropdown()">
                   <i class="bi bi-inbox-fill"></i>
                   Demandes reçues
+                </a>
+              </li>
+              <li *ngIf="isProprietaire">
+                <a routerLink="/proprietaire/historique" (click)="closeDropdown()">
+                  <i class="bi bi-clock-history"></i>
+                  Historique
                 </a>
               </li>
               <li *ngIf="currentUser.role === 'admin'">

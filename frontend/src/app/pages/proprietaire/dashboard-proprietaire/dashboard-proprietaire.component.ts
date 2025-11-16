@@ -147,7 +147,7 @@ export class DashboardProprietaireComponent implements OnInit {
   }
 
   naviguerVers(route: string): void {
-    this.router.navigate([`/mes-bornes/${route}`]);
+    this.router.navigate([`/proprietaire/${route}`]);
   }
 
   getStatutClass(statut: string): string {

@@ -60,14 +60,19 @@ export class ReservationService {
   }
 
   // Méthodes utilisateur
-  /** Réservations de l'utilisateur connecté */
-  getReservationsByCurrentUser(userId: number): Observable<ApiResponse<Reservation[]>> {
+  /** 🔵 MODE CLIENT: Réservations faites par l'utilisateur (en tant que client) */
+  getMesReservationsClient(userId: number): Observable<ApiResponse<Reservation[]>> {
     return this.http.get<ApiResponse<ReservationBackend[]>>(`${this.apiUrl}/utilisateur/${userId}`).pipe(
       map(response => ({
         ...response,
         data: response.data ? response.data.map(r => this.mapBackendToFrontend(r)) : []
       }))
     );
+  }
+
+  /** Réservations de l'utilisateur connecté */
+  getReservationsByCurrentUser(userId: number): Observable<ApiResponse<Reservation[]>> {
+    return this.getMesReservationsClient(userId);
   }
 
   getReservationsByUser(userId: number): Observable<ApiResponse<Reservation[]>> {
@@ -145,8 +150,35 @@ export class ReservationService {
   }
 
   // Réservations pour un propriétaire de borne
-  getReservationsProprietaire(proprietaireId: number): Observable<ApiResponse<Reservation[]>> {
+  /** 🟢 MODE PROPRIÉTAIRE: Toutes les réservations reçues sur mes bornes */
+  getMesReservationsProprietaire(proprietaireId: number): Observable<ApiResponse<Reservation[]>> {
     return this.http.get<ApiResponse<Reservation[]>>(`${this.apiUrl}/proprietaire/${proprietaireId}`);
+  }
+
+  /** 🟢 MODE PROPRIÉTAIRE: Demandes en attente sur mes bornes */
+  getDemandesEnAttente(proprietaireId: number): Observable<ApiResponse<Reservation[]>> {
+    return this.getMesReservationsProprietaire(proprietaireId).pipe(
+      map(response => ({
+        ...response,
+        data: response.data ? response.data.filter(r => r.statut === 'EN_ATTENTE') : []
+      }))
+    );
+  }
+
+  /** 🟢 MODE PROPRIÉTAIRE: Historique des réservations sur mes bornes */
+  getHistoriqueReservationsProprietaire(proprietaireId: number): Observable<ApiResponse<Reservation[]>> {
+    return this.getMesReservationsProprietaire(proprietaireId).pipe(
+      map(response => ({
+        ...response,
+        data: response.data ? response.data.filter(r => 
+          r.statut !== 'EN_ATTENTE'
+        ) : []
+      }))
+    );
+  }
+
+  getReservationsProprietaire(proprietaireId: number): Observable<ApiResponse<Reservation[]>> {
+    return this.getMesReservationsProprietaire(proprietaireId);
   }
 
   // Export et factures
