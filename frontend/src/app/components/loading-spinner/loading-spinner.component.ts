@@ -7,31 +7,12 @@ import { LoadingService } from '../../services/loading.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div *ngIf="loadingService.loading$ | async" class="loading-overlay">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Chargement...</span>
+    <div *ngIf="loadingService.loading$ | async" class="fixed top-0 left-0 w-full h-full bg-white/70 flex justify-center items-center z-[1000]">
+      <div class="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" role="status">
+        <span class="sr-only">Chargement...</span>
       </div>
     </div>
-  `,
-  styles: [`
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(255, 255, 255, 0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .spinner-border {
-      width: 3rem;
-      height: 3rem;
-    }
-  `]
+  `
 })
 export class LoadingSpinnerComponent {
   constructor(public loadingService: LoadingService) {}

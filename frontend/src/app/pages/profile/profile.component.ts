@@ -7,7 +7,6 @@ import { Utilisateur } from '../../models/utilisateur.model';
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent implements OnInit {
   currentUser: Utilisateur | null = null;

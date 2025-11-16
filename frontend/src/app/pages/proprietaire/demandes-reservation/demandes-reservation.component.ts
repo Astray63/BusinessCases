@@ -8,7 +8,6 @@ import { Reservation } from '../../../models/reservation.model';
 @Component({
   selector: 'app-demandes-reservation',
   templateUrl: './demandes-reservation.component.html',
-  styleUrls: ['./demandes-reservation.component.scss']
 })
 export class DemandesReservationComponent implements OnInit {
   currentUser: Utilisateur | null = null;

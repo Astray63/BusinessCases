@@ -9,7 +9,6 @@ import { DashboardStats } from '../../models/dashboard-stats.model';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
   currentUser: Utilisateur | null = null;

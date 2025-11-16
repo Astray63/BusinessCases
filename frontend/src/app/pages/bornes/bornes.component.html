@@ -1,230 +1,265 @@
-<div class="container-fluid p-0">
-  <div class="row g-0">
-    <!-- Panneau de filtres -->
-    <div class="col-lg-3 filters-panel">
-      <div class="p-3">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h4 class="mb-0"><i class="bi bi-funnel"></i> Filtres</h4>
-          <button class="btn btn-sm btn-outline-secondary" (click)="toggleView()">
-            <i class="bi" [ngClass]="showMap ? 'bi-list' : 'bi-map'"></i>
-            {{ showMap ? 'Liste' : 'Carte' }}
-          </button>
-        </div>
-
-        <!-- Recherche -->
-        <div class="mb-3">
-          <label class="form-label fw-bold">Recherche</label>
-          <div class="input-group">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input 
-              type="text" 
-              class="form-control" 
-              placeholder="Localisation..."
-              [(ngModel)]="searchQuery"
-              (ngModelChange)="onSearchChange()">
-          </div>
-        </div>
-
-        <!-- Distance -->
-        <div class="mb-3">
-          <label class="form-label fw-bold">
-            Distance maximum: <span class="text-primary">{{ distance }} km</span>
-          </label>
-          <input 
-            type="range" 
-            class="form-range" 
-            min="1" 
-            max="50" 
-            [(ngModel)]="distance"
-            (change)="onFilterChange()">
-          <div class="d-flex justify-content-between">
-            <small class="text-muted">1 km</small>
-            <small class="text-muted">50 km</small>
-          </div>
-        </div>
-
-        <!-- Prix -->
-        <div class="mb-3">
-          <label class="form-label fw-bold">
-            Prix: <span class="text-primary">{{ prixMin }}€ - {{ prixMax }}€/h</span>
-          </label>
-          <div class="row">
-            <div class="col-6">
-              <label class="form-label small">Min</label>
-              <input 
-                type="range" 
-                class="form-range" 
-                min="0" 
-                max="50" 
-                [(ngModel)]="prixMin"
-                (change)="onFilterChange()">
-            </div>
-            <div class="col-6">
-              <label class="form-label small">Max</label>
-              <input 
-                type="range" 
-                class="form-range" 
-                min="0" 
-                max="50" 
-                [(ngModel)]="prixMax"
-                (change)="onFilterChange()">
-            </div>
-          </div>
-        </div>
-
-        <!-- Puissance -->
-        <div class="mb-3">
-          <label class="form-label fw-bold">
-            Puissance minimale: <span class="text-primary">{{ puissanceMin }} kW</span>
-          </label>
-          <input 
-            type="range" 
-            class="form-range" 
-            min="0" 
-            max="350" 
-            step="10"
-            [(ngModel)]="puissanceMin"
-            (change)="onFilterChange()">
-          <div class="d-flex justify-content-between">
-            <small class="text-muted">0 kW</small>
-            <small class="text-muted">350 kW</small>
-          </div>
-        </div>
-
-        <!-- État -->
-        <div class="mb-3">
-          <label class="form-label fw-bold">État</label>
-          <select 
-            class="form-select" 
-            [(ngModel)]="selectedEtat"
-            (change)="onFilterChange()">
-            <option value="all">Tous les états</option>
-            <option value="DISPONIBLE">Disponible</option>
-            <option value="OCCUPEE">Occupée</option>
-            <option value="EN_MAINTENANCE">En maintenance</option>
-            <option value="EN_PANNE">Hors service</option>
-          </select>
-        </div>
-
-        <!-- Disponibles uniquement -->
-        <div class="mb-3">
-          <div class="form-check">
-            <input 
-              class="form-check-input" 
-              type="checkbox" 
-              id="disponibleOnly"
-              [(ngModel)]="disponibleOnly"
-              (change)="onFilterChange()">
-            <label class="form-check-label" for="disponibleOnly">
-              Disponibles uniquement
-            </label>
-          </div>
-        </div>
-
-        <!-- Bouton recherche -->
+<div class="flex h-full">
+  <!-- Panneau de filtres -->
+  <div class="w-full lg:w-80 border-r border-gray-200 bg-white overflow-y-auto">
+    <div class="p-4 border-b border-gray-200 bg-gray-50">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+          <i class="bi bi-funnel mr-2"></i>
+          Filtres
+        </h2>
         <button 
-          class="btn btn-primary w-100" 
-          (click)="searchBornes()"
-          [disabled]="loading">
-          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-          <i *ngIf="!loading" class="bi bi-search me-2"></i>
-          Rechercher
+          class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors flex items-center"
+          (click)="toggleView()">
+          <i class="bi mr-1.5" [ngClass]="showMap ? 'bi-list' : 'bi-map'"></i>
+          {{ showMap ? 'Liste' : 'Carte' }}
         </button>
-
-        <!-- Résultats -->
-        <div class="mt-3 p-2 bg-light rounded">
-          <div class="d-flex justify-content-between align-items-center">
-            <span class="fw-bold">Résultats:</span>
-            <span class="badge bg-primary">{{ filteredBornes.length }}</span>
-          </div>
-        </div>
-
-        <!-- Messages -->
-        <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
-          <i class="bi bi-exclamation-triangle"></i> {{ errorMessage }}
-        </div>
       </div>
     </div>
 
-    <!-- Carte ou Liste -->
-    <div class="col-lg-9">
-      <div class="p-3 pt-0">
-        <div *ngIf="locating" class="alert alert-info d-flex align-items-center gap-2">
-          <span class="spinner-border spinner-border-sm" role="status"></span>
-          <div>Recherche de votre position...</div>
+    <div class="p-4 space-y-4">
+      <!-- Recherche -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Recherche</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+            <i class="bi bi-search"></i>
+          </span>
+          <input 
+            type="text" 
+            class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Localisation..."
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="onSearchChange()">
         </div>
-        <div *ngIf="geolocationStatus === 'error'" class="alert alert-warning d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2">
+      </div>
+
+      <!-- Distance -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Distance maximum: <span class="text-blue-600 font-semibold">{{ distance }} km</span>
+        </label>
+        <input 
+          type="range" 
+          class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+          min="1" 
+          max="50" 
+          [(ngModel)]="distance"
+          (change)="onFilterChange()">
+        <div class="flex justify-between mt-1">
+          <span class="text-xs text-gray-500">1 km</span>
+          <span class="text-xs text-gray-500">50 km</span>
+        </div>
+      </div>
+
+      <!-- Prix -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Prix: <span class="text-blue-600 font-semibold">{{ prixMin }}€ - {{ prixMax }}€/h</span>
+        </label>
+        <div class="grid grid-cols-2 gap-3">
           <div>
-            <i class="bi bi-exclamation-triangle me-2"></i>
+            <label class="block text-xs text-gray-600 mb-1">Min</label>
+            <input 
+              type="range" 
+              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              min="0" 
+              max="50" 
+              [(ngModel)]="prixMin"
+              (change)="onFilterChange()">
+          </div>
+          <div>
+            <label class="block text-xs text-gray-600 mb-1">Max</label>
+            <input 
+              type="range" 
+              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              min="0" 
+              max="50" 
+              [(ngModel)]="prixMax"
+              (change)="onFilterChange()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Puissance -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Puissance minimale: <span class="text-blue-600 font-semibold">{{ puissanceMin }} kW</span>
+        </label>
+        <input 
+          type="range" 
+          class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+          min="0" 
+          max="350" 
+          step="10"
+          [(ngModel)]="puissanceMin"
+          (change)="onFilterChange()">
+        <div class="flex justify-between mt-1">
+          <span class="text-xs text-gray-500">0 kW</span>
+          <span class="text-xs text-gray-500">350 kW</span>
+        </div>
+      </div>
+
+      <!-- État -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">État</label>
+        <select 
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          [(ngModel)]="selectedEtat"
+          (change)="onFilterChange()">
+          <option value="all">Tous les états</option>
+          <option value="DISPONIBLE">Disponible</option>
+          <option value="OCCUPE">Occupée</option>
+          <option value="MAINTENANCE">En maintenance</option>
+          <option value="HORS_SERVICE">Hors service</option>
+        </select>
+      </div>
+
+      <!-- Disponibles uniquement -->
+      <div class="flex items-center">
+        <input 
+          type="checkbox" 
+          id="disponibleOnly"
+          class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          [(ngModel)]="disponibleOnly"
+          (change)="onFilterChange()">
+        <label class="ml-2 text-sm text-gray-700 cursor-pointer" for="disponibleOnly">
+          Disponibles uniquement
+        </label>
+      </div>
+
+      <!-- Bouton recherche -->
+      <button 
+        class="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center"
+        (click)="searchBornes()"
+        [disabled]="loading">
+        <span *ngIf="loading" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
+        <i *ngIf="!loading" class="bi bi-search mr-2"></i>
+        Rechercher
+      </button>
+
+      <!-- Résultats -->
+      <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <div class="flex justify-between items-center">
+          <span class="text-sm font-medium text-gray-700">Résultats:</span>
+          <span class="px-2.5 py-0.5 bg-blue-600 text-white text-sm font-medium rounded-full">
+            {{ filteredBornes.length }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div *ngIf="errorMessage" class="p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div class="flex items-center text-red-800 text-sm">
+          <i class="bi bi-exclamation-triangle mr-2"></i>
+          {{ errorMessage }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carte ou Liste -->
+  <div class="flex-1 overflow-hidden">
+    <!-- Messages de géolocalisation -->
+    <div class="p-4">
+      <div *ngIf="locating" class="p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center">
+        <span class="inline-block w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mr-3"></span>
+        <div class="text-sm text-blue-800">Recherche de votre position...</div>
+      </div>
+      <div *ngIf="geolocationStatus === 'error'" class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
+          <div class="flex items-center text-sm text-yellow-800">
+            <i class="bi bi-exclamation-triangle mr-2"></i>
             {{ geolocationMessage }}
           </div>
           <button 
-            class="btn btn-sm btn-outline-primary ms-md-auto"
+            class="px-3 py-1.5 text-sm border border-yellow-600 text-yellow-700 rounded-lg hover:bg-yellow-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
             type="button"
             (click)="retryGeolocation()"
             [disabled]="locating">
-            <i class="bi bi-arrow-repeat me-1"></i>
+            <i class="bi bi-arrow-repeat mr-1.5"></i>
             Réessayer
           </button>
         </div>
       </div>
-      <!-- Vue Carte -->
-      <div *ngIf="showMap" id="map" class="map-container"></div>
+    </div>
 
-      <!-- Vue Liste -->
-      <div *ngIf="!showMap" class="list-container p-3">
-        <div *ngIf="loading && filteredBornes.length === 0" class="text-center py-5">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Chargement...</span>
-          </div>
-          <p class="mt-2">Recherche en cours...</p>
+    <!-- Vue Carte -->
+    <div *ngIf="showMap" id="map" class="h-full"></div>
+
+    <!-- Vue Liste -->
+    <div *ngIf="!showMap" class="h-full overflow-y-auto p-4">
+      <!-- Chargement -->
+      <div *ngIf="loading && filteredBornes.length === 0" class="flex flex-col items-center justify-center py-20">
+        <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-gray-600">Recherche en cours...</p>
+      </div>
+
+      <!-- Aucun résultat -->
+      <div *ngIf="!loading && filteredBornes.length === 0" class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div class="flex items-center text-blue-800 text-sm">
+          <i class="bi bi-info-circle mr-2"></i>
+          Aucune borne trouvée avec ces critères. Essayez d'augmenter le rayon de recherche.
         </div>
+      </div>
 
-        <div *ngIf="!loading && filteredBornes.length === 0" class="alert alert-info">
-          <i class="bi bi-info-circle"></i> Aucune borne trouvée avec ces critères. Essayez d'augmenter le rayon de recherche.
-        </div>
+      <!-- Grille des bornes -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div *ngFor="let borne of filteredBornes" class="border border-gray-200 rounded-lg hover:shadow-lg transition-shadow bg-white">
+          <div class="p-4">
+            <!-- En-tête -->
+            <div class="flex justify-between items-start mb-3">
+              <h5 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="bi bi-lightning-charge-fill text-yellow-500 mr-2"></i>
+                Borne #{{ borne.idBorne }}
+              </h5>
+              <span 
+                class="px-2.5 py-0.5 text-xs font-medium rounded-full"
+                [ngClass]="{
+                  'bg-green-100 text-green-800': borne.etat === 'DISPONIBLE',
+                  'bg-yellow-100 text-yellow-800': borne.etat === 'OCCUPE',
+                  'bg-gray-100 text-gray-800': borne.etat === 'MAINTENANCE',
+                  'bg-red-100 text-red-800': borne.etat === 'HORS_SERVICE'
+                }">
+                {{ getEtatLabel(borne.etat) }}
+              </span>
+            </div>
 
-        <div class="row">
-          <div class="col-md-6 col-xl-4 mb-3" *ngFor="let borne of filteredBornes">
-            <div class="card h-100 borne-card">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <h5 class="card-title mb-0">
-                    <i class="bi bi-lightning-charge-fill text-warning"></i>
-                    Borne #{{ borne.idBorne }}
-                  </h5>
-                  <span class="badge" [ngClass]="getEtatClass(borne.etat)">
-                    {{ getEtatLabel(borne.etat) }}
-                  </span>
-                </div>
+            <!-- Localisation -->
+            <p class="text-sm text-gray-600 mb-3 flex items-center">
+              <i class="bi bi-geo-alt mr-2"></i>
+              {{ borne.localisation }}
+            </p>
 
-                <p class="card-text mb-2">
-                  <i class="bi bi-geo-alt"></i> {{ borne.localisation }}
-                </p>
-
-                <div class="d-flex justify-content-between mb-2">
-                  <span><strong>Puissance:</strong> {{ getPuissanceLabel(borne.puissance) }}</span>
-                </div>
-
-                <div class="d-flex justify-content-between mb-3">
-                  <span><strong>Prix:</strong> {{ borne.prix }}€/h</span>
-                  <span><strong>Type:</strong> {{ borne.type }}</span>
-                </div>
-
-                <div class="d-flex gap-2">
-                  <button 
-                    class="btn btn-sm btn-primary flex-grow-1"
-                    (click)="reserverBorne(borne.idBorne)"
-                    [disabled]="borne.etat !== 'DISPONIBLE'">
-                    <i class="bi bi-calendar-check"></i> Réserver
-                  </button>
-                  <button 
-                    class="btn btn-sm btn-outline-primary"
-                    (click)="onBorneSelect(borne)">
-                    <i class="bi bi-map"></i> Voir
-                  </button>
-                </div>
+            <!-- Informations -->
+            <div class="space-y-2 mb-4">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Puissance:</span>
+                <span class="font-medium text-gray-900">{{ getPuissanceLabel(borne.puissance) }}</span>
               </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Prix:</span>
+                <span class="font-medium text-gray-900">{{ borne.prix }}€/h</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Type:</span>
+                <span class="font-medium text-gray-900">{{ borne.type }}</span>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-2">
+              <button 
+                class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed text-sm font-medium flex items-center justify-center"
+                (click)="reserverBorne(borne.idBorne)"
+                [disabled]="borne.etat !== 'DISPONIBLE'">
+                <i class="bi bi-calendar-check mr-2"></i>
+                Réserver
+              </button>
+              <button 
+                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium flex items-center justify-center"
+                (click)="onBorneSelect(borne)">
+                <i class="bi bi-map"></i>
+              </button>
             </div>
           </div>
         </div>

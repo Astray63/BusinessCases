@@ -7,7 +7,6 @@ import { ToastService } from '../../../services/toast.service';
 @Component({
   selector: 'app-validate',
   templateUrl: './validate.component.html',
-  styleUrls: ['./validate.component.scss']
 })
 export class ValidateComponent implements OnInit {
   validateForm!: FormGroup;

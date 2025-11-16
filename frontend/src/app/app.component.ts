@@ -13,19 +13,13 @@ import { AuthService } from './services/auth.service';
   standalone: false,
   template: `
     <app-header></app-header>
-    <main class="container py-4">
+    <main class="container mx-auto max-w-7xl px-4 py-5 min-h-[calc(100vh-120px)]">
       <router-outlet></router-outlet>
     </main>
     <app-footer></app-footer>
     <app-toast></app-toast>
     <app-loading-spinner></app-loading-spinner>
-  `,
-  styles: [`
-    main {
-      min-height: calc(100vh - 120px);
-      padding: 20px 0;
-    }
-  `]
+  `
 })
 export class AppComponent implements OnInit {
   title = 'Electricity Business';

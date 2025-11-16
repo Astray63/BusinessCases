@@ -9,7 +9,6 @@ import { Reservation } from '../../../models/reservation.model';
 @Component({
   selector: 'app-historique-reservations',
   templateUrl: './historique-reservations.component.html',
-  styleUrls: ['./historique-reservations.component.scss']
 })
 export class HistoriqueReservationsComponent implements OnInit {
   currentUser: Utilisateur | null = null;

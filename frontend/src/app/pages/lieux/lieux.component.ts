@@ -7,7 +7,6 @@ import { Lieu } from '../../models/lieu.model';
 @Component({
   selector: 'app-lieux',
   templateUrl: './lieux.component.html',
-  styleUrls: ['./lieux.component.scss']
 })
 export class LieuxComponent implements OnInit {
   lieux: Lieu[] = [];

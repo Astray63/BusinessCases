@@ -11,7 +11,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 @Component({
   selector: 'app-mes-bornes',
   templateUrl: './mes-bornes.component.html',
-  styleUrls: ['./mes-bornes.component.scss']
 })
 export class MesBornesComponent implements OnInit {
   currentUser: Utilisateur | null = null;

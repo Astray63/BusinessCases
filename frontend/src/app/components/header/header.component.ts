@@ -10,8 +10,7 @@ import { RouterModule } from '@angular/router';
   selector: 'app-header',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  templateUrl: './header.component.html'
 })
 export class HeaderComponent implements OnInit {
   currentUser: Utilisateur | null = null;
@@ -22,7 +21,7 @@ export class HeaderComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private userContextService: UserContextService,
-    private router: Router
+    public router: Router
   ) { }
 
   ngOnInit(): void {

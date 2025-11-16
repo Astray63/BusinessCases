@@ -9,7 +9,6 @@ import { Lieu } from '../../../models/lieu.model';
 @Component({
   selector: 'app-lieu-form',
   templateUrl: './lieu-form.component.html',
-  styleUrls: ['./lieu-form.component.scss']
 })
 export class LieuFormComponent implements OnInit {
   lieuForm: FormGroup;

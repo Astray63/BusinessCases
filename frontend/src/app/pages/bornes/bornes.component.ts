@@ -9,7 +9,6 @@ import { ApiResponse } from '../../models/api-response.model';
 @Component({
   selector: 'app-bornes',
   templateUrl: './bornes.component.html',
-  styleUrls: ['./bornes.component.scss']
 })
 export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
   private map!: L.Map;
@@ -386,13 +385,13 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
       case 'DISPONIBLE':
         color = 'success';
         break;
-      case 'OCCUPEE':
+      case 'OCCUPE':
         color = 'warning';
         break;
-      case 'EN_MAINTENANCE':
+      case 'MAINTENANCE':
         color = 'secondary';
         break;
-      case 'EN_PANNE':
+      case 'HORS_SERVICE':
         color = 'danger';
         break;
     }
@@ -429,15 +428,15 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
     let label = 'Disponible';
     
     switch(etat) {
-      case 'OCCUPEE':
+      case 'OCCUPE':
         badgeClass = 'bg-warning';
         label = 'Occupée';
         break;
-      case 'EN_MAINTENANCE':
+      case 'MAINTENANCE':
         badgeClass = 'bg-secondary';
         label = 'Maintenance';
         break;
-      case 'EN_PANNE':
+      case 'HORS_SERVICE':
         badgeClass = 'bg-danger';
         label = 'Hors service';
         break;
@@ -474,9 +473,9 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
   getEtatLabel(etat: string): string {
     switch(etat) {
       case 'DISPONIBLE': return 'Disponible';
-      case 'OCCUPEE': return 'Occupée';
-      case 'EN_MAINTENANCE': return 'En maintenance';
-      case 'EN_PANNE': return 'Hors service';
+      case 'OCCUPE': return 'Occupée';
+      case 'MAINTENANCE': return 'En maintenance';
+      case 'HORS_SERVICE': return 'Hors service';
       default: return etat;
     }
   }
@@ -484,9 +483,9 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
   getEtatClass(etat: string): string {
     switch(etat) {
       case 'DISPONIBLE': return 'status-disponible';
-      case 'OCCUPEE': return 'status-occupee';
-      case 'EN_MAINTENANCE': return 'status-maintenance';
-      case 'EN_PANNE': return 'status-hors-service';
+      case 'OCCUPE': return 'status-occupee';
+      case 'MAINTENANCE': return 'status-maintenance';
+      case 'HORS_SERVICE': return 'status-hors-service';
       default: return '';
     }
   }

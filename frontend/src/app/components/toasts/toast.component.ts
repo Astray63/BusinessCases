@@ -8,7 +8,7 @@ import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
   standalone: true,
   imports: [CommonModule, NgbToastModule],
   template: `
-    <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div class="fixed top-0 right-0 p-3 z-[1200]">
       <ngb-toast
         *ngFor="let toast of toastService.toasts"
         [class]="'bg-' + toast.type"
@@ -16,8 +16,8 @@ import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
         [delay]="5000"
         (hidden)="toastService.remove(toast)"
       >
-        <div class="d-flex">
-          <div class="toast-body text-white">
+        <div class="flex">
+          <div class="flex-1 text-white p-3">
             <strong>{{ toast.title }}</strong><br>
             {{ toast.message }}
           </div>
@@ -25,12 +25,7 @@ import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
         </div>
       </ngb-toast>
     </div>
-  `,
-  styles: [`
-    .toast-container {
-      z-index: 1200;
-    }
-  `]
+  `
 })
 export class ToastComponent {
   constructor(public toastService: ToastService) {}

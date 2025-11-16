@@ -21,7 +21,6 @@ interface StatistiquesProprietaire {
 @Component({
   selector: 'app-dashboard-proprietaire',
   templateUrl: './dashboard-proprietaire.component.html',
-  styleUrls: ['./dashboard-proprietaire.component.scss']
 })
 export class DashboardProprietaireComponent implements OnInit {
   currentUser: Utilisateur | null = null;

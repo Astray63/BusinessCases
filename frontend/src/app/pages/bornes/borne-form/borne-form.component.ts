@@ -11,7 +11,6 @@ import { Lieu } from '../../../models/lieu.model';
 @Component({
   selector: 'app-borne-form',
   templateUrl: './borne-form.component.html',
-  styleUrls: ['./borne-form.component.scss']
 })
 export class BorneFormComponent implements OnInit {
   borneForm: FormGroup;

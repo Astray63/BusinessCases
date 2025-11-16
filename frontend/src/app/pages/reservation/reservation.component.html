@@ -1,232 +1,282 @@
-<div class="reservation-page">
-  <div class="page-header">
-    <h1>Gestion des Réservations</h1>
-    <p class="subtitle">Réservez une borne électrique ou gérez vos réservations existantes</p>
+<div class="min-h-screen bg-gray-50">
+  <!-- En-tête de la page -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="container mx-auto px-6 py-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Gestion des Réservations</h1>
+      <p class="text-gray-600">Réservez une borne électrique ou gérez vos réservations existantes</p>
+    </div>
   </div>
 
-  <!-- Navigation par onglets -->
-  <div class="tabs-navigation">
-    <button 
-      class="tab-button" 
-      [class.active]="activeTab === 'nouvelle'"
-      (click)="changerTab('nouvelle')">
-      <i class="icon-plus"></i> Nouvelle réservation
-    </button>
-    <button 
-      class="tab-button" 
-      [class.active]="activeTab === 'en-cours'"
-      (click)="changerTab('en-cours')">
-      <i class="icon-clock"></i> En cours ({{ reservationsEnCours.length }})
-    </button>
-    <button 
-      class="tab-button" 
-      [class.active]="activeTab === 'passees'"
-      (click)="changerTab('passees')">
-      <i class="icon-history"></i> Passées ({{ reservationsPassees.length }})
-    </button>
-    <button 
-      *ngIf="isProprietaire"
-      class="tab-button" 
-      [class.active]="activeTab === 'proprietaire'"
-      (click)="changerTab('proprietaire')">
-      <i class="icon-user"></i> Mes bornes ({{ reservationsProprietaire.length }})
-    </button>
-  </div>
+  <div class="container mx-auto px-6 py-6">
+    <!-- Navigation par onglets -->
+    <div class="flex flex-wrap gap-2 mb-6 bg-white p-2 rounded-lg border border-gray-200">
+      <button 
+        class="px-4 py-2.5 rounded-md text-sm font-medium transition-colors duration-200"
+        [class.bg-blue-600]="activeTab === 'nouvelle'"
+        [class.text-white]="activeTab === 'nouvelle'"
+        [class.text-gray-700]="activeTab !== 'nouvelle'"
+        [class.hover:bg-gray-100]="activeTab !== 'nouvelle'"
+        (click)="changerTab('nouvelle')">
+        <i class="bi bi-plus-circle mr-2"></i>Nouvelle réservation
+      </button>
+      <button 
+        class="px-4 py-2.5 rounded-md text-sm font-medium transition-colors duration-200"
+        [class.bg-blue-600]="activeTab === 'en-cours'"
+        [class.text-white]="activeTab === 'en-cours'"
+        [class.text-gray-700]="activeTab !== 'en-cours'"
+        [class.hover:bg-gray-100]="activeTab !== 'en-cours'"
+        (click)="changerTab('en-cours')">
+        <i class="bi bi-clock mr-2"></i>En cours <span class="ml-1">({{ reservationsEnCours.length }})</span>
+      </button>
+      <button 
+        class="px-4 py-2.5 rounded-md text-sm font-medium transition-colors duration-200"
+        [class.bg-blue-600]="activeTab === 'passees'"
+        [class.text-white]="activeTab === 'passees'"
+        [class.text-gray-700]="activeTab !== 'passees'"
+        [class.hover:bg-gray-100]="activeTab !== 'passees'"
+        (click)="changerTab('passees')">
+        <i class="bi bi-archive mr-2"></i>Passées <span class="ml-1">({{ reservationsPassees.length }})</span>
+      </button>
+      <button 
+        *ngIf="isProprietaire"
+        class="px-4 py-2.5 rounded-md text-sm font-medium transition-colors duration-200"
+        [class.bg-blue-600]="activeTab === 'proprietaire'"
+        [class.text-white]="activeTab === 'proprietaire'"
+        [class.text-gray-700]="activeTab !== 'proprietaire'"
+        [class.hover:bg-gray-100]="activeTab !== 'proprietaire'"
+        (click)="changerTab('proprietaire')">
+        <i class="bi bi-building mr-2"></i>Mes bornes <span class="ml-1">({{ reservationsProprietaire.length }})</span>
+      </button>
+    </div>
 
-  <!-- Contenu des onglets -->
-  <div class="tab-content">
-    
-    <!-- ONGLET: Nouvelle réservation -->
-    <div *ngIf="activeTab === 'nouvelle'" class="tab-panel">
-      <div class="reservation-form-container">
-        <h2>Effectuer une réservation</h2>
+    <!-- Contenu des onglets -->
+    <div class="mt-6">
+      
+      <!-- ONGLET: Nouvelle réservation -->
+      <div *ngIf="activeTab === 'nouvelle'" class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Effectuer une réservation</h2>
         
-        <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()" class="reservation-form">
+        <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()" class="space-y-6">
           
           <!-- Sélection de la borne -->
-          <div class="form-group">
-            <label for="borneId">Borne de recharge *</label>
+          <div>
+            <label for="borneId" class="block text-sm font-medium text-gray-700 mb-2">
+              Borne de recharge <span class="text-red-500">*</span>
+            </label>
             <select 
               id="borneId" 
               formControlName="borneId" 
-              class="form-control"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               (change)="selectionnerBorne($event)">
               <option value="">-- Sélectionnez une borne disponible --</option>
               <option *ngFor="let borne of bornesDisponibles" [value]="borne.idBorne">
                 {{ borne.localisation }} - {{ borne.type }} ({{ borne.puissance }} kW) - {{ borne.prix }}€/h
               </option>
             </select>
-            <small class="form-text">Seules les bornes disponibles sont affichées</small>
+            <p class="mt-1 text-sm text-gray-500">Seules les bornes disponibles sont affichées</p>
           </div>
 
           <!-- Informations de la borne sélectionnée -->
-          <div *ngIf="selectedBorne" class="borne-details">
-            <h4>Détails de la borne</h4>
-            <div class="detail-grid">
-              <div class="detail-item">
-                <span class="label">Localisation:</span>
-                <span class="value">{{ selectedBorne.localisation }}</span>
+          <div *ngIf="selectedBorne" class="bg-blue-50 border border-blue-200 rounded-lg p-5">
+            <h4 class="text-lg font-bold text-gray-900 mb-4">Détails de la borne</h4>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <span class="text-sm text-gray-600">Localisation:</span>
+                <p class="font-semibold text-gray-900">{{ selectedBorne.localisation }}</p>
               </div>
-              <div class="detail-item">
-                <span class="label">Type:</span>
-                <span class="value">{{ selectedBorne.type }}</span>
+              <div>
+                <span class="text-sm text-gray-600">Type:</span>
+                <p class="font-semibold text-gray-900">{{ selectedBorne.type }}</p>
               </div>
-              <div class="detail-item">
-                <span class="label">Puissance:</span>
-                <span class="value">{{ selectedBorne.puissance }} kW</span>
+              <div>
+                <span class="text-sm text-gray-600">Puissance:</span>
+                <p class="font-semibold text-gray-900">{{ selectedBorne.puissance }} kW</p>
               </div>
-              <div class="detail-item">
-                <span class="label">Prix:</span>
-                <span class="value">{{ selectedBorne.prix }}€/heure</span>
+              <div>
+                <span class="text-sm text-gray-600">Prix:</span>
+                <p class="font-semibold text-gray-900">{{ selectedBorne.prix }}€/heure</p>
               </div>
             </div>
           </div>
 
           <!-- Plage horaire -->
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label for="dateDebut">Date de début *</label>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label for="dateDebut" class="block text-sm font-medium text-gray-700 mb-2">
+                Date de début <span class="text-red-500">*</span>
+              </label>
               <input 
                 type="date" 
                 id="dateDebut" 
                 formControlName="dateDebut" 
-                class="form-control"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 [min]="getCurrentDate()">
             </div>
-            <div class="form-group col-md-6">
-              <label for="heureDebut">Heure de début *</label>
+            <div>
+              <label for="heureDebut" class="block text-sm font-medium text-gray-700 mb-2">
+                Heure de début <span class="text-red-500">*</span>
+              </label>
               <input 
                 type="time" 
                 id="heureDebut" 
                 formControlName="heureDebut" 
-                class="form-control">
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label for="dateFin">Date de fin *</label>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label for="dateFin" class="block text-sm font-medium text-gray-700 mb-2">
+                Date de fin <span class="text-red-500">*</span>
+              </label>
               <input 
                 type="date" 
                 id="dateFin" 
                 formControlName="dateFin" 
-                class="form-control"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 [min]="getCurrentDate()">
             </div>
-            <div class="form-group col-md-6">
-              <label for="heureFin">Heure de fin *</label>
+            <div>
+              <label for="heureFin" class="block text-sm font-medium text-gray-700 mb-2">
+                Heure de fin <span class="text-red-500">*</span>
+              </label>
               <input 
                 type="time" 
                 id="heureFin" 
                 formControlName="heureFin" 
-                class="form-control">
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
           </div>
 
           <!-- Actions -->
-          <div class="form-actions">
+          <div class="flex gap-3 pt-2">
             <button 
               type="submit" 
-              class="btn btn-primary" 
+              class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               [disabled]="isLoading || reservationForm.invalid">
-              <span *ngIf="!isLoading">📅 Réserver</span>
-              <span *ngIf="isLoading">⏳ En cours...</span>
+              <span *ngIf="!isLoading"><i class="bi bi-calendar-check mr-2"></i>Réserver</span>
+              <span *ngIf="isLoading"><i class="bi bi-hourglass-split mr-2"></i>En cours...</span>
             </button>
             <button 
               type="button" 
-              class="btn btn-secondary" 
+              class="px-6 py-2.5 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors duration-200"
               (click)="reservationForm.reset()"
               [disabled]="isLoading">
               Réinitialiser
             </button>
           </div>
 
-          <div class="info-message">
-            <p>ℹ️ Une notification sera automatiquement envoyée au propriétaire de la borne après votre réservation.</p>
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p class="text-sm text-blue-800">
+              <i class="bi bi-info-circle mr-2"></i>
+              Une notification sera automatiquement envoyée au propriétaire de la borne après votre réservation.
+            </p>
           </div>
         </form>
       </div>
-    </div>
 
-    <!-- ONGLET: Réservations en cours -->
-    <div *ngIf="activeTab === 'en-cours'" class="tab-panel">
-      <h2>Réservations en cours</h2>
-      <p class="description">Réservations en attente de validation ou confirmées</p>
+      <!-- ONGLET: Réservations en cours -->
+      <div *ngIf="activeTab === 'en-cours'">
+        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-4">
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Réservations en cours</h2>
+          <p class="text-gray-600">Réservations en attente de validation ou confirmées</p>
+        </div>
 
-      <div *ngIf="reservationsEnCours.length === 0" class="empty-state">
-        <p>Aucune réservation en cours</p>
-      </div>
+        <div *ngIf="reservationsEnCours.length === 0" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
+          <i class="bi bi-calendar-x text-5xl text-gray-300 mb-3 block"></i>
+          <p class="text-gray-500">Aucune réservation en cours</p>
+        </div>
 
-      <div class="reservations-grid">
-        <div 
-          *ngFor="let reservation of reservationsEnCours" 
-          class="reservation-card"
-          [class.en-attente]="reservation.statut === 'EN_ATTENTE'">
-          
-          <div class="reservation-header">
-            <span class="reservation-id">#{{ reservation.idReservation }}</span>
-            <span class="reservation-statut" [ngClass]="getStatutClass(reservation.statut)">
-              {{ getStatutLabel(reservation.statut) }}
-            </span>
-          </div>
-
-          <div class="reservation-body">
-            <div class="info-row">
-              <span class="icon">📍</span>
-              <div class="info-content">
-                <strong>{{ reservation.borne?.localisation || 'N/A' }}</strong>
-                <small>{{ reservation.borne?.type || 'N/A' }} - {{ reservation.borne?.puissance || 0 }} kW</small>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div 
+            *ngFor="let reservation of reservationsEnCours" 
+            class="bg-white border rounded-lg shadow-sm overflow-hidden"
+            [class.border-yellow-300]="reservation.statut === 'EN_ATTENTE'"
+            [class.border-green-300]="reservation.statut === 'CONFIRMEE'"
+            [class.border-gray-200]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'">
+            
+            <div class="p-5">
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-semibold text-gray-500">#{{ reservation.idReservation }}</span>
+                <span class="px-2.5 py-1 rounded-full text-xs font-semibold"
+                      [class.bg-yellow-100]="reservation.statut === 'EN_ATTENTE'"
+                      [class.text-yellow-800]="reservation.statut === 'EN_ATTENTE'"
+                      [class.bg-green-100]="reservation.statut === 'CONFIRMEE'"
+                      [class.text-green-800]="reservation.statut === 'CONFIRMEE'"
+                      [class.bg-gray-100]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'"
+                      [class.text-gray-800]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'">
+                  {{ getStatutLabel(reservation.statut) }}
+                </span>
               </div>
-            </div>
 
-            <div class="info-row">
-              <span class="icon">📅</span>
-              <div class="info-content">
-                <strong>{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</strong>
-                <small>{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</small>
+              <div class="space-y-3 mb-5">
+                <div class="flex items-start gap-3">
+                  <span class="text-xl">📍</span>
+                  <div class="flex-1">
+                    <p class="font-bold text-gray-900 text-sm">{{ reservation.borne?.localisation || 'N/A' }}</p>
+                    <p class="text-xs text-gray-600">{{ reservation.borne?.type || 'N/A' }} - {{ reservation.borne?.puissance || 0 }} kW</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3">
+                  <span class="text-xl">📅</span>
+                  <div class="flex-1">
+                    <p class="font-bold text-gray-900 text-sm">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</p>
+                    <p class="text-xs text-gray-600">{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3">
+                  <span class="text-xl">⏱️</span>
+                  <div class="flex-1">
+                    <p class="font-bold text-gray-900 text-sm">Durée</p>
+                    <p class="text-xs text-gray-600">{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3" *ngIf="reservation.montantTotal">
+                  <span class="text-xl">💰</span>
+                  <div class="flex-1">
+                    <p class="font-bold text-gray-900 text-sm">Montant</p>
+                    <p class="text-xs text-gray-600">{{ reservation.montantTotal }} €</p>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div class="info-row">
-              <span class="icon">⏱️</span>
-              <div class="info-content">
-                <strong>Durée</strong>
-                <small>{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</small>
-              </div>
+              <button 
+                class="w-full px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
+                (click)="cancelReservation(reservation.idReservation)"
+                [disabled]="isLoading">
+                <i class="bi bi-x-circle mr-2"></i>Annuler
+              </button>
             </div>
-
-            <div class="info-row" *ngIf="reservation.montantTotal">
-              <span class="icon">💰</span>
-              <div class="info-content">
-                <strong>Montant</strong>
-                <small>{{ reservation.montantTotal }} €</small>
-              </div>
-            </div>
-          </div>
-
-          <div class="reservation-footer">
-            <button 
-              class="btn btn-danger btn-sm" 
-              (click)="cancelReservation(reservation.idReservation)"
-              [disabled]="isLoading">
-              Annuler
-            </button>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ONGLET: Réservations passées -->
-    <div *ngIf="activeTab === 'passees'" class="tab-panel">
-      <div class="panel-header">
-        <h2>Réservations passées</h2>
-        
-        <!-- Filtres -->
-        <div class="filtres-container">
-          <form [formGroup]="filtreForm" class="filtres-form">
-            <div class="filtre-group">
-              <label>Statut</label>
-              <select formControlName="statut" class="form-control">
+      <!-- ONGLET: Réservations passées -->
+      <div *ngIf="activeTab === 'passees'">
+        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-4">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900 mb-1">Réservations passées</h2>
+              <p class="text-gray-600">Historique de vos réservations terminées</p>
+            </div>
+            
+            <!-- Actions d'export -->
+            <button 
+              class="px-4 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              (click)="exporterExcel()"
+              [disabled]="reservationsPassees.length === 0 || isLoading">
+              <i class="bi bi-file-earmark-excel mr-2"></i>Exporter Excel
+            </button>
+          </div>
+
+          <!-- Filtres -->
+          <form [formGroup]="filtreForm" class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1.5">Statut</label>
+              <select formControlName="statut" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="">Tous</option>
                 <option value="TERMINEE">Terminée</option>
                 <option value="ANNULEE">Annulée</option>
@@ -234,202 +284,216 @@
               </select>
             </div>
 
-            <div class="filtre-group">
-              <label>Date début</label>
-              <input type="date" formControlName="dateDebut" class="form-control">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1.5">Date début</label>
+              <input type="date" formControlName="dateDebut" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
 
-            <div class="filtre-group">
-              <label>Date fin</label>
-              <input type="date" formControlName="dateFin" class="form-control">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1.5">Date fin</label>
+              <input type="date" formControlName="dateFin" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             </div>
 
-            <div class="filtre-group">
-              <label>Borne</label>
-              <select formControlName="borneId" class="form-control">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1.5">Borne</label>
+              <select formControlName="borneId" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="">Toutes</option>
                 <option *ngFor="let borne of bornes" [value]="borne.idBorne">
                   {{ borne.localisation }}
                 </option>
               </select>
             </div>
-
-            <div class="filtre-actions">
-              <button 
-                type="button" 
-                class="btn btn-primary btn-sm" 
-                (click)="appliquerFiltre()">
-                Filtrer
-              </button>
-              <button 
-                type="button" 
-                class="btn btn-secondary btn-sm" 
-                (click)="reinitialiserFiltre()"
-                *ngIf="filtreActif">
-                Réinitialiser
-              </button>
-            </div>
           </form>
+
+          <div class="flex gap-2">
+            <button 
+              type="button" 
+              class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200"
+              (click)="appliquerFiltre()">
+              <i class="bi bi-funnel mr-2"></i>Filtrer
+            </button>
+            <button 
+              type="button" 
+              class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-300 transition-colors duration-200"
+              (click)="reinitialiserFiltre()"
+              *ngIf="filtreActif">
+              <i class="bi bi-x-circle mr-2"></i>Réinitialiser
+            </button>
+          </div>
         </div>
 
-        <!-- Actions d'export -->
-        <div class="export-actions">
-          <button 
-            class="btn btn-success" 
-            (click)="exporterExcel()"
-            [disabled]="reservationsPassees.length === 0 || isLoading">
-            📊 Exporter Excel
-          </button>
+        <div *ngIf="reservationsPassees.length === 0" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
+          <i class="bi bi-archive text-5xl text-gray-300 mb-3 block"></i>
+          <p class="text-gray-500">Aucune réservation passée</p>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden" *ngIf="reservationsPassees.length > 0">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Borne</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Durée</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Statut</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Montant</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <tr *ngFor="let reservation of reservationsPassees" class="hover:bg-gray-50 transition-colors duration-150">
+                  <td class="px-4 py-3 text-sm text-gray-900">#{{ reservation.idReservation }}</td>
+                  <td class="px-4 py-3">
+                    <p class="text-sm font-semibold text-gray-900">{{ reservation.borne?.localisation || 'N/A' }}</p>
+                    <p class="text-xs text-gray-600">{{ reservation.borne?.type || 'N/A' }}</p>
+                  </td>
+                  <td class="px-4 py-3">
+                    <p class="text-sm text-gray-900">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</p>
+                    <p class="text-xs text-gray-600">{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</p>
+                  </td>
+                  <td class="px-4 py-3 text-sm text-gray-900">{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</td>
+                  <td class="px-4 py-3">
+                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold inline-block"
+                          [class.bg-green-100]="reservation.statut === 'TERMINEE'"
+                          [class.text-green-800]="reservation.statut === 'TERMINEE'"
+                          [class.bg-gray-100]="reservation.statut === 'ANNULEE'"
+                          [class.text-gray-800]="reservation.statut === 'ANNULEE'"
+                          [class.bg-red-100]="reservation.statut === 'REFUSEE'"
+                          [class.text-red-800]="reservation.statut === 'REFUSEE'">
+                      {{ getStatutLabel(reservation.statut) }}
+                    </span>
+                    <p *ngIf="reservation.motifRefus" class="text-xs text-red-600 mt-1">{{ reservation.motifRefus }}</p>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span *ngIf="reservation.montantTotal" class="text-sm font-semibold text-gray-900">{{ reservation.montantTotal }} €</span>
+                    <span *ngIf="!reservation.montantTotal" class="text-sm text-gray-400">-</span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <button 
+                      *ngIf="reservation.statut === 'TERMINEE' || reservation.statut === 'CONFIRMEE'"
+                      class="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded hover:bg-gray-200 transition-colors duration-200"
+                      (click)="genererRecuPDF(reservation)"
+                      [disabled]="isLoading">
+                      <i class="bi bi-file-pdf mr-1"></i>Reçu PDF
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <div *ngIf="reservationsPassees.length === 0" class="empty-state">
-        <p>Aucune réservation passée</p>
-      </div>
+      <!-- ONGLET: Gestion propriétaire -->
+      <div *ngIf="activeTab === 'proprietaire' && isProprietaire">
+        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-4">
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Réservations de mes bornes</h2>
+          <p class="text-gray-600">Gérez les demandes de réservation pour vos bornes</p>
+        </div>
 
-      <div class="reservations-table" *ngIf="reservationsPassees.length > 0">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Borne</th>
-              <th>Date</th>
-              <th>Durée</th>
-              <th>Statut</th>
-              <th>Montant</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let reservation of reservationsPassees">
-              <td>#{{ reservation.idReservation }}</td>
-              <td>
-                <strong>{{ reservation.borne?.localisation || 'N/A' }}</strong><br>
-                <small>{{ reservation.borne?.type || 'N/A' }}</small>
-              </td>
-              <td>
-                {{ reservation.dateDebut | date:'dd/MM/yyyy' }}<br>
-                <small>{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</small>
-              </td>
-              <td>{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</td>
-              <td>
-                <span class="badge" [ngClass]="getStatutClass(reservation.statut)">
+        <div *ngIf="reservationsProprietaire.length === 0" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
+          <i class="bi bi-building text-5xl text-gray-300 mb-3 block"></i>
+          <p class="text-gray-500">Aucune réservation pour vos bornes</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div 
+            *ngFor="let reservation of reservationsProprietaire" 
+            class="bg-white border rounded-lg shadow-sm overflow-hidden"
+            [class.border-yellow-300]="reservation.statut === 'EN_ATTENTE'"
+            [class.border-green-300]="reservation.statut === 'CONFIRMEE'"
+            [class.border-gray-200]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'">
+            
+            <div class="p-5">
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-semibold text-gray-500">#{{ reservation.idReservation }}</span>
+                <span class="px-2.5 py-1 rounded-full text-xs font-semibold"
+                      [class.bg-yellow-100]="reservation.statut === 'EN_ATTENTE'"
+                      [class.text-yellow-800]="reservation.statut === 'EN_ATTENTE'"
+                      [class.bg-green-100]="reservation.statut === 'CONFIRMEE'"
+                      [class.text-green-800]="reservation.statut === 'CONFIRMEE'"
+                      [class.bg-gray-100]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'"
+                      [class.text-gray-800]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'">
                   {{ getStatutLabel(reservation.statut) }}
                 </span>
-                <div *ngIf="reservation.motifRefus" class="motif-refus">
-                  <small>{{ reservation.motifRefus }}</small>
+              </div>
+
+              <div class="space-y-3 mb-5">
+                <div class="flex items-start gap-3">
+                  <span class="text-xl">👤</span>
+                  <div class="flex-1">
+                    <p class="font-bold text-gray-900 text-sm">{{ reservation.utilisateur.prenom }} {{ reservation.utilisateur.nom }}</p>
+                    <p class="text-xs text-gray-600">{{ reservation.utilisateur.email }}</p>
+                  </div>
                 </div>
-              </td>
-              <td>
-                <strong *ngIf="reservation.montantTotal">{{ reservation.montantTotal }} €</strong>
-                <span *ngIf="!reservation.montantTotal">-</span>
-              </td>
-              <td>
+
+                <div class="flex items-start gap-3">
+                  <span class="text-xl">📍</span>
+                  <div class="flex-1">
+                    <p class="font-bold text-gray-900 text-sm">{{ reservation.borne?.localisation || 'N/A' }}</p>
+                    <p class="text-xs text-gray-600">{{ reservation.borne?.type || 'N/A' }} - {{ reservation.borne?.puissance || 0 }} kW</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3">
+                  <span class="text-xl">📅</span>
+                  <div class="flex-1">
+                    <p class="font-bold text-gray-900 text-sm">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</p>
+                    <p class="text-xs text-gray-600">{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3">
+                  <span class="text-xl">⏱️</span>
+                  <div class="flex-1">
+                    <p class="font-bold text-gray-900 text-sm">Durée</p>
+                    <p class="text-xs text-gray-600">{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3" *ngIf="reservation.montantTotal">
+                  <span class="text-xl">💰</span>
+                  <div class="flex-1">
+                    <p class="font-bold text-gray-900 text-sm">Revenu estimé</p>
+                    <p class="text-xs text-gray-600">{{ reservation.montantTotal }} €</p>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="reservation.statut === 'EN_ATTENTE'" class="flex gap-2">
                 <button 
-                  *ngIf="reservation.statut === 'TERMINEE' || reservation.statut === 'CONFIRMEE'"
-                  class="btn btn-sm btn-outline" 
-                  (click)="genererRecuPDF(reservation)"
+                  class="flex-1 px-4 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50"
+                  (click)="accepterReservation(reservation.idReservation)"
                   [disabled]="isLoading">
-                  📄 Reçu PDF
+                  <i class="bi bi-check-circle mr-2"></i>Accepter
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+                <button 
+                  class="flex-1 px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
+                  (click)="refuserReservation(reservation.idReservation)"
+                  [disabled]="isLoading">
+                  <i class="bi bi-x-circle mr-2"></i>Refuser
+                </button>
+              </div>
 
-    <!-- ONGLET: Gestion propriétaire -->
-    <div *ngIf="activeTab === 'proprietaire' && isProprietaire" class="tab-panel">
-      <h2>Réservations de mes bornes</h2>
-      <p class="description">Gérez les demandes de réservation pour vos bornes</p>
-
-      <div *ngIf="reservationsProprietaire.length === 0" class="empty-state">
-        <p>Aucune réservation pour vos bornes</p>
-      </div>
-
-      <div class="reservations-grid">
-        <div 
-          *ngFor="let reservation of reservationsProprietaire" 
-          class="reservation-card proprietaire-card">
-          
-          <div class="reservation-header">
-            <span class="reservation-id">#{{ reservation.idReservation }}</span>
-            <span class="reservation-statut" [ngClass]="getStatutClass(reservation.statut)">
-              {{ getStatutLabel(reservation.statut) }}
-            </span>
-          </div>
-
-          <div class="reservation-body">
-            <div class="info-row">
-              <span class="icon">👤</span>
-              <div class="info-content">
-                <strong>{{ reservation.utilisateur.prenom }} {{ reservation.utilisateur.nom }}</strong>
-                <small>{{ reservation.utilisateur.email }}</small>
+              <div *ngIf="reservation.statut !== 'EN_ATTENTE'" class="text-center py-2">
+                <span class="text-sm font-medium text-gray-600">
+                  {{ getStatutLabel(reservation.statut) }}
+                </span>
               </div>
             </div>
-
-            <div class="info-row">
-              <span class="icon">📍</span>
-              <div class="info-content">
-                <strong>{{ reservation.borne?.localisation || 'N/A' }}</strong>
-                <small>{{ reservation.borne?.type || 'N/A' }} - {{ reservation.borne?.puissance || 0 }} kW</small>
-              </div>
-            </div>
-
-            <div class="info-row">
-              <span class="icon">📅</span>
-              <div class="info-content">
-                <strong>{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</strong>
-                <small>{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</small>
-              </div>
-            </div>
-
-            <div class="info-row">
-              <span class="icon">⏱️</span>
-              <div class="info-content">
-                <strong>Durée</strong>
-                <small>{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</small>
-              </div>
-            </div>
-
-            <div class="info-row" *ngIf="reservation.montantTotal">
-              <span class="icon">💰</span>
-              <div class="info-content">
-                <strong>Revenu estimé</strong>
-                <small>{{ reservation.montantTotal }} €</small>
-              </div>
-            </div>
-          </div>
-
-          <div class="reservation-footer" *ngIf="reservation.statut === 'EN_ATTENTE'">
-            <button 
-              class="btn btn-success btn-sm" 
-              (click)="accepterReservation(reservation.idReservation)"
-              [disabled]="isLoading">
-              ✓ Accepter
-            </button>
-            <button 
-              class="btn btn-danger btn-sm" 
-              (click)="refuserReservation(reservation.idReservation)"
-              [disabled]="isLoading">
-              ✗ Refuser
-            </button>
-          </div>
-
-          <div class="reservation-footer" *ngIf="reservation.statut !== 'EN_ATTENTE'">
-            <span class="status-text">
-              {{ getStatutLabel(reservation.statut) }}
-            </span>
           </div>
         </div>
       </div>
-    </div>
 
+    </div>
   </div>
 
   <!-- Loader global -->
-  <div *ngIf="isLoading" class="global-loader">
-    <div class="spinner"></div>
+  <div *ngIf="isLoading" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 shadow-xl">
+      <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3"></div>
+      <p class="text-gray-700 font-medium">Chargement...</p>
+    </div>
   </div>
 </div>
