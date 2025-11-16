@@ -1,244 +1,312 @@
-<div class="dashboard-container" *ngIf="currentUser && !loading">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6" *ngIf="currentUser && !loading">
   <!-- En-tête avec message de bienvenue -->
-  <header class="dashboard-header">
-    <div class="welcome-section">
-      <h1 class="welcome-title">Bonjour, {{ currentUser.prenom }} 👋</h1>
-      <p class="welcome-subtitle">Bienvenue sur votre tableau de bord</p>
-    </div>
-    <div class="user-badges">
-      <span class="badge badge-role" [class.badge-admin]="currentUser.role === 'admin'">
-        {{ currentUser.role === 'admin' ? '👑 Administrateur' : '👤 Utilisateur' }}
-      </span>
-      <span class="badge badge-owner" *ngIf="isProprietaire">
-        ⚡ Propriétaire
-      </span>
+  <header class="mb-8 bg-white rounded-2xl shadow-lg p-8">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Bonjour, {{ currentUser.prenom }} 👋</h1>
+        <p class="text-lg text-gray-600">Bienvenue sur votre tableau de bord</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold"
+              [class.bg-gradient-to-r]="currentUser.role === 'admin'"
+              [class.from-purple-500]="currentUser.role === 'admin'"
+              [class.to-pink-500]="currentUser.role === 'admin'"
+              [class.text-white]="currentUser.role === 'admin'"
+              [class.bg-blue-100]="currentUser.role !== 'admin'"
+              [class.text-blue-800]="currentUser.role !== 'admin'">
+          {{ currentUser.role === 'admin' ? '👑 Administrateur' : '👤 Utilisateur' }}
+        </span>
+        <span class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-full text-sm font-semibold" *ngIf="isProprietaire">
+          ⚡ Propriétaire
+        </span>
+      </div>
     </div>
   </header>
 
   <!-- Section Statistiques Client -->
-  <section class="stats-section client-section">
-    <div class="section-header">
-      <h2 class="section-title">
-        <span class="icon">🔵</span>
+  <section class="mb-12">
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <span class="text-blue-600">🔵</span>
         Mes réservations
       </h2>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card stat-card-primary">
-        <div class="stat-icon">
-          <i class="bi bi-calendar-check"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ dashboardStats?.clientStats?.totalReservations || 0 }}</div>
-          <div class="stat-label">Réservations totales</div>
-          <div class="stat-sublabel">
-            {{ dashboardStats?.clientStats?.reservationsCeMois || 0 }} ce mois-ci
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <!-- Card 1: Total réservations -->
+      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <p class="text-gray-600 text-sm font-medium mb-2">Réservations totales</p>
+            <p class="text-4xl font-bold text-blue-600 mb-1">{{ dashboardStats?.clientStats?.totalReservations || 0 }}</p>
+            <p class="text-xs text-gray-500">{{ dashboardStats?.clientStats?.reservationsCeMois || 0 }} ce mois-ci</p>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <i class="bi bi-calendar-check text-2xl text-blue-600"></i>
           </div>
         </div>
       </div>
 
-      <div class="stat-card stat-card-success">
-        <div class="stat-icon">
-          <i class="bi bi-lightning-charge-fill"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ dashboardStats?.clientStats?.reservationsEnCours || 0 }}</div>
-          <div class="stat-label">Actives</div>
-          <div class="stat-sublabel">En cours d'utilisation</div>
-        </div>
-      </div>
-
-      <div class="stat-card stat-card-info">
-        <div class="stat-icon">
-          <i class="bi bi-check-circle-fill"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ dashboardStats?.clientStats?.reservationsTerminees || 0 }}</div>
-          <div class="stat-label">Terminées</div>
-          <div class="stat-sublabel">Complétées avec succès</div>
+      <!-- Card 2: Actives -->
+      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <p class="text-gray-600 text-sm font-medium mb-2">Actives</p>
+            <p class="text-4xl font-bold text-green-600 mb-1">{{ dashboardStats?.clientStats?.reservationsEnCours || 0 }}</p>
+            <p class="text-xs text-gray-500">En cours d'utilisation</p>
+          </div>
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <i class="bi bi-lightning-charge-fill text-2xl text-green-600"></i>
+          </div>
         </div>
       </div>
 
-      <div class="stat-card stat-card-warning">
-        <div class="stat-icon">
-          <i class="bi bi-wallet2"></i>
+      <!-- Card 3: Terminées -->
+      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <p class="text-gray-600 text-sm font-medium mb-2">Terminées</p>
+            <p class="text-4xl font-bold text-cyan-600 mb-1">{{ dashboardStats?.clientStats?.reservationsTerminees || 0 }}</p>
+            <p class="text-xs text-gray-500">Complétées avec succès</p>
+          </div>
+          <div class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
+            <i class="bi bi-check-circle-fill text-2xl text-cyan-600"></i>
+          </div>
         </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ dashboardStats?.clientStats?.montantMoisEnCours | currency:'EUR':'symbol':'1.0-0' }}</div>
-          <div class="stat-label">Dépenses du mois</div>
-          <div class="stat-sublabel">
-            Total: {{ dashboardStats?.clientStats?.montantTotalDepense | currency:'EUR':'symbol':'1.0-0' }}
+      </div>
+
+      <!-- Card 4: Dépenses -->
+      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <p class="text-gray-600 text-sm font-medium mb-2">Dépenses du mois</p>
+            <p class="text-4xl font-bold text-amber-600 mb-1">{{ dashboardStats?.clientStats?.montantMoisEnCours | currency:'EUR':'symbol':'1.0-0' }}</p>
+            <p class="text-xs text-gray-500">Total: {{ dashboardStats?.clientStats?.montantTotalDepense | currency:'EUR':'symbol':'1.0-0' }}</p>
+          </div>
+          <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+            <i class="bi bi-wallet2 text-2xl text-amber-600"></i>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Prochaine réservation -->
-    <div class="next-reservation-card" *ngIf="dashboardStats?.clientStats?.prochaineReservation">
-      <div class="card-header">
-        <h3>🎯 Prochaine réservation</h3>
-      </div>
-      <div class="card-body">
-        <div class="reservation-info">
-          <p><strong>Borne:</strong> {{ dashboardStats?.clientStats?.prochaineReservation?.borne?.nom }}</p>
-          <p><strong>Lieu:</strong> {{ dashboardStats?.clientStats?.prochaineReservation?.borne?.localisation }}</p>
-          <p><strong>Début:</strong> {{ dashboardStats?.clientStats?.prochaineReservation?.dateDebut | date:'dd/MM/yyyy à HH:mm' }}</p>
-          <p><strong>Fin:</strong> {{ dashboardStats?.clientStats?.prochaineReservation?.dateFin | date:'dd/MM/yyyy à HH:mm' }}</p>
+    <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg p-6 text-white mb-6" *ngIf="dashboardStats?.clientStats?.prochaineReservation">
+      <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+        <span>🎯</span>
+        Prochaine réservation
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+        <div>
+          <p class="text-sm opacity-90">Borne</p>
+          <p class="font-semibold text-lg">{{ dashboardStats?.clientStats?.prochaineReservation?.borne?.nom }}</p>
+        </div>
+        <div>
+          <p class="text-sm opacity-90">Lieu</p>
+          <p class="font-semibold text-lg">{{ dashboardStats?.clientStats?.prochaineReservation?.borne?.localisation }}</p>
+        </div>
+        <div>
+          <p class="text-sm opacity-90">Début</p>
+          <p class="font-semibold text-lg">{{ dashboardStats?.clientStats?.prochaineReservation?.dateDebut | date:'dd/MM/yyyy à HH:mm' }}</p>
+        </div>
+        <div>
+          <p class="text-sm opacity-90">Fin</p>
+          <p class="font-semibold text-lg">{{ dashboardStats?.clientStats?.prochaineReservation?.dateFin | date:'dd/MM/yyyy à HH:mm' }}</p>
         </div>
       </div>
     </div>
 
     <!-- Actions rapides Client -->
-    <div class="quick-actions">
-      <button class="action-btn action-btn-primary" (click)="reserverBorne()">
-        <i class="bi bi-search"></i>
+    <div class="flex flex-wrap gap-4">
+      <button class="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+              (click)="reserverBorne()">
+        <i class="bi bi-search text-xl"></i>
         <span>Rechercher une borne</span>
       </button>
-      <button class="action-btn action-btn-secondary" (click)="voirMesReservations()">
-        <i class="bi bi-list-ul"></i>
+      <button class="flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-800 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+              (click)="voirMesReservations()">
+        <i class="bi bi-list-ul text-xl"></i>
         <span>Voir toutes mes réservations</span>
       </button>
     </div>
   </section>
 
   <!-- Section Propriétaire -->
-  <section class="stats-section owner-section" *ngIf="isProprietaire && dashboardStats?.ownerStats">
-    <div class="section-header">
-      <h2 class="section-title">
-        <span class="icon">🟢</span>
+  <section class="mb-12" *ngIf="isProprietaire && dashboardStats?.ownerStats">
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <span class="text-green-600">🟢</span>
         Mes bornes de recharge
       </h2>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card stat-card-purple">
-        <div class="stat-icon">
-          <i class="bi bi-ev-station-fill"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ dashboardStats?.ownerStats?.totalBornes }}</div>
-          <div class="stat-label">Bornes totales</div>
-          <div class="stat-sublabel">
-            {{ dashboardStats?.ownerStats?.bornesDisponibles }} disponibles
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <!-- Card 1: Bornes totales -->
+      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <p class="text-gray-600 text-sm font-medium mb-2">Bornes totales</p>
+            <p class="text-4xl font-bold text-purple-600 mb-1">{{ dashboardStats?.ownerStats?.totalBornes }}</p>
+            <p class="text-xs text-gray-500">{{ dashboardStats?.ownerStats?.bornesDisponibles }} disponibles</p>
+          </div>
+          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <i class="bi bi-ev-station-fill text-2xl text-purple-600"></i>
           </div>
         </div>
       </div>
 
-      <div class="stat-card stat-card-revenue">
-        <div class="stat-icon">
-          <i class="bi bi-currency-euro"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ dashboardStats?.ownerStats?.revenusEstimesMois | currency:'EUR':'symbol':'1.0-0' }}</div>
-          <div class="stat-label">Revenus ce mois</div>
-          <div class="stat-sublabel">
-            Total: {{ dashboardStats?.ownerStats?.revenusTotaux | currency:'EUR':'symbol':'1.0-0' }}
+      <!-- Card 2: Revenus -->
+      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <p class="text-gray-600 text-sm font-medium mb-2">Revenus ce mois</p>
+            <p class="text-4xl font-bold text-emerald-600 mb-1">{{ dashboardStats?.ownerStats?.revenusEstimesMois | currency:'EUR':'symbol':'1.0-0' }}</p>
+            <p class="text-xs text-gray-500">Total: {{ dashboardStats?.ownerStats?.revenusTotaux | currency:'EUR':'symbol':'1.0-0' }}</p>
+          </div>
+          <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+            <i class="bi bi-currency-euro text-2xl text-emerald-600"></i>
           </div>
         </div>
       </div>
 
-      <div class="stat-card stat-card-alert">
-        <div class="stat-icon">
-          <i class="bi bi-inbox-fill"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ dashboardStats?.ownerStats?.demandesEnAttente }}</div>
-          <div class="stat-label">Demandes en attente</div>
-          <div class="stat-sublabel">À traiter rapidement</div>
+      <!-- Card 3: Demandes -->
+      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <p class="text-gray-600 text-sm font-medium mb-2">Demandes en attente</p>
+            <p class="text-4xl font-bold text-red-600 mb-1">{{ dashboardStats?.ownerStats?.demandesEnAttente }}</p>
+            <p class="text-xs text-gray-500">À traiter rapidement</p>
+          </div>
+          <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+            <i class="bi bi-inbox-fill text-2xl text-red-600"></i>
+          </div>
         </div>
       </div>
 
-      <div class="stat-card stat-card-teal">
-        <div class="stat-icon">
-          <i class="bi bi-graph-up-arrow"></i>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value">{{ dashboardStats?.ownerStats?.tauxOccupationMoyen }}%</div>
-          <div class="stat-label">Taux d'occupation</div>
-          <div class="stat-sublabel">
-            {{ dashboardStats?.ownerStats?.totalReservations }} réservations
+      <!-- Card 4: Taux d'occupation -->
+      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <p class="text-gray-600 text-sm font-medium mb-2">Taux d'occupation</p>
+            <p class="text-4xl font-bold text-teal-600 mb-1">{{ dashboardStats?.ownerStats?.tauxOccupationMoyen }}%</p>
+            <p class="text-xs text-gray-500">{{ dashboardStats?.ownerStats?.totalReservations }} réservations</p>
+          </div>
+          <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
+            <i class="bi bi-graph-up-arrow text-2xl text-teal-600"></i>
           </div>
         </div>
       </div>
     </div>
 
     <!-- État des bornes -->
-    <div class="bornes-status-grid">
-      <div class="status-item status-disponible">
-        <div class="status-count">{{ dashboardStats?.ownerStats?.bornesDisponibles }}</div>
-        <div class="status-label">Disponibles</div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+        <div class="text-4xl font-bold text-green-600 mb-2">{{ dashboardStats?.ownerStats?.bornesDisponibles }}</div>
+        <div class="text-sm font-medium text-gray-600">Disponibles</div>
+        <div class="mt-2 h-2 bg-green-200 rounded-full">
+          <div class="h-full bg-green-600 rounded-full" style="width: 100%"></div>
+        </div>
       </div>
-      <div class="status-item status-occupee">
-        <div class="status-count">{{ dashboardStats?.ownerStats?.bornesOccupees }}</div>
-        <div class="status-label">Occupées</div>
+      <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+        <div class="text-4xl font-bold text-orange-600 mb-2">{{ dashboardStats?.ownerStats?.bornesOccupees }}</div>
+        <div class="text-sm font-medium text-gray-600">Occupées</div>
+        <div class="mt-2 h-2 bg-orange-200 rounded-full">
+          <div class="h-full bg-orange-600 rounded-full" style="width: 100%"></div>
+        </div>
       </div>
-      <div class="status-item status-maintenance">
-        <div class="status-count">{{ dashboardStats?.ownerStats?.bornesMaintenance }}</div>
-        <div class="status-label">En maintenance</div>
+      <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+        <div class="text-4xl font-bold text-blue-600 mb-2">{{ dashboardStats?.ownerStats?.bornesMaintenance }}</div>
+        <div class="text-sm font-medium text-gray-600">En maintenance</div>
+        <div class="mt-2 h-2 bg-blue-200 rounded-full">
+          <div class="h-full bg-blue-600 rounded-full" style="width: 100%"></div>
+        </div>
       </div>
-      <div class="status-item status-hors-service">
-        <div class="status-count">{{ dashboardStats?.ownerStats?.bornesHorsService }}</div>
-        <div class="status-label">Hors service</div>
+      <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+        <div class="text-4xl font-bold text-red-600 mb-2">{{ dashboardStats?.ownerStats?.bornesHorsService }}</div>
+        <div class="text-sm font-medium text-gray-600">Hors service</div>
+        <div class="mt-2 h-2 bg-red-200 rounded-full">
+          <div class="h-full bg-red-600 rounded-full" style="width: 100%"></div>
+        </div>
       </div>
     </div>
 
     <!-- Borne la plus populaire -->
-    <div class="popular-borne-card" *ngIf="dashboardStats?.ownerStats?.borneLaPlusReservee">
-      <div class="card-header">
-        <h3>⭐ Borne la plus réservée</h3>
-      </div>
-      <div class="card-body">
-        <div class="borne-info">
-          <p><strong>Nom:</strong> {{ dashboardStats?.ownerStats?.borneLaPlusReservee?.nom }}</p>
-          <p><strong>Localisation:</strong> {{ dashboardStats?.ownerStats?.borneLaPlusReservee?.localisation }}</p>
-          <p><strong>Puissance:</strong> {{ dashboardStats?.ownerStats?.borneLaPlusReservee?.puissance }} kW</p>
-          <p><strong>Prix:</strong> {{ dashboardStats?.ownerStats?.borneLaPlusReservee?.prixALaMinute | currency:'EUR':'symbol':'1.2-2' }}/min</p>
+    <div class="bg-gradient-to-r from-orange-500 to-pink-600 rounded-xl shadow-lg p-6 text-white mb-6" *ngIf="dashboardStats?.ownerStats?.borneLaPlusReservee">
+      <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+        <span>⭐</span>
+        Borne la plus réservée
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+        <div>
+          <p class="text-sm opacity-90">Nom</p>
+          <p class="font-semibold text-lg">{{ dashboardStats?.ownerStats?.borneLaPlusReservee?.nom }}</p>
+        </div>
+        <div>
+          <p class="text-sm opacity-90">Localisation</p>
+          <p class="font-semibold text-lg">{{ dashboardStats?.ownerStats?.borneLaPlusReservee?.localisation }}</p>
+        </div>
+        <div>
+          <p class="text-sm opacity-90">Puissance</p>
+          <p class="font-semibold text-lg">{{ dashboardStats?.ownerStats?.borneLaPlusReservee?.puissance }} kW</p>
+        </div>
+        <div>
+          <p class="text-sm opacity-90">Prix</p>
+          <p class="font-semibold text-lg">{{ dashboardStats?.ownerStats?.borneLaPlusReservee?.prixALaMinute | currency:'EUR':'symbol':'1.2-2' }}/min</p>
         </div>
       </div>
     </div>
 
     <!-- Actions rapides Propriétaire -->
-    <div class="quick-actions">
-      <button class="action-btn action-btn-success" (click)="ajouterBorne()">
-        <i class="bi bi-plus-circle-fill"></i>
+    <div class="flex flex-wrap gap-4">
+      <button class="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+              (click)="ajouterBorne()">
+        <i class="bi bi-plus-circle-fill text-xl"></i>
         <span>Ajouter une borne</span>
       </button>
-      <button class="action-btn action-btn-primary" (click)="voirMesBornes()">
-        <i class="bi bi-lightning-charge"></i>
+      <button class="flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+              (click)="voirMesBornes()">
+        <i class="bi bi-lightning-charge text-xl"></i>
         <span>Gérer mes bornes</span>
       </button>
-      <button class="action-btn action-btn-secondary" (click)="voirDemandesReservation()">
-        <i class="bi bi-inbox"></i>
+      <button class="flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-800 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+              (click)="voirDemandesReservation()">
+        <i class="bi bi-inbox text-xl"></i>
         <span>Voir les demandes</span>
       </button>
     </div>
   </section>
 
   <!-- Call to Action - Devenir propriétaire -->
-  <section class="cta-section" *ngIf="!isProprietaire">
-    <div class="cta-card">
-      <div class="cta-icon">💡</div>
-      <div class="cta-content">
-        <h2>Vous possédez une borne de recharge ?</h2>
-        <p>Mettez-la en location et générez des revenus passifs tout en aidant la communauté !</p>
-        <button class="cta-btn" (click)="devenirProprietaire()">
-          <i class="bi bi-lightning-charge-fill"></i>
-          Devenir propriétaire
-        </button>
-      </div>
-      <div class="cta-benefits">
-        <div class="benefit-item">
-          <i class="bi bi-check-circle-fill"></i>
-          <span>Revenus complémentaires</span>
+  <section *ngIf="!isProprietaire">
+    <div class="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 rounded-2xl shadow-2xl overflow-hidden">
+      <div class="p-8 md:p-12">
+        <div class="text-center mb-8">
+          <div class="text-6xl mb-4">💡</div>
+          <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Vous possédez une borne de recharge ?</h2>
+          <p class="text-lg text-white/90 max-w-2xl mx-auto">Mettez-la en location et générez des revenus passifs tout en aidant la communauté !</p>
         </div>
-        <div class="benefit-item">
-          <i class="bi bi-check-circle-fill"></i>
-          <span>Gestion simplifiée</span>
+        
+        <div class="flex justify-center mb-8">
+          <button class="px-8 py-4 bg-white text-purple-600 font-bold text-lg rounded-lg hover:bg-gray-100 transition-all duration-200 transform hover:scale-105 shadow-xl"
+                  (click)="devenirProprietaire()">
+            <i class="bi bi-lightning-charge-fill mr-2"></i>
+            Devenir propriétaire
+          </button>
         </div>
-        <div class="benefit-item">
-          <i class="bi bi-check-circle-fill"></i>
-          <span>Impact écologique positif</span>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center text-white">
+            <i class="bi bi-check-circle-fill text-3xl mb-3"></i>
+            <p class="font-semibold">Revenus complémentaires</p>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center text-white">
+            <i class="bi bi-check-circle-fill text-3xl mb-3"></i>
+            <p class="font-semibold">Gestion simplifiée</p>
+          </div>
+          <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center text-white">
+            <i class="bi bi-check-circle-fill text-3xl mb-3"></i>
+            <p class="font-semibold">Impact écologique positif</p>
+          </div>
         </div>
       </div>
     </div>
@@ -246,19 +314,20 @@
 </div>
 
 <!-- Loading State -->
-<div class="loading-state" *ngIf="loading">
-  <div class="spinner-wrapper">
-    <div class="spinner"></div>
-    <p>Chargement de votre tableau de bord...</p>
-  </div>
+<div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6" *ngIf="loading">
+  <div class="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-blue-600 mb-6"></div>
+  <p class="text-gray-600 text-xl font-medium">Chargement de votre tableau de bord...</p>
 </div>
 
 <!-- Empty State -->
-<div class="empty-state" *ngIf="!currentUser && !loading">
-  <div class="empty-icon">🔒</div>
-  <h2>Accès non autorisé</h2>
-  <p>Veuillez vous connecter pour accéder à votre tableau de bord.</p>
-  <button class="btn-login" routerLink="/auth/login">
-    Se connecter
-  </button>
+<div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6" *ngIf="!currentUser && !loading">
+  <div class="text-center bg-white rounded-2xl shadow-xl p-12 max-w-md">
+    <div class="text-6xl mb-6">🔒</div>
+    <h2 class="text-3xl font-bold text-gray-900 mb-4">Accès non autorisé</h2>
+    <p class="text-gray-600 mb-8">Veuillez vous connecter pour accéder à votre tableau de bord.</p>
+    <button class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+            routerLink="/auth/login">
+      Se connecter
+    </button>
+  </div>
 </div>

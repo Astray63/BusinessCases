@@ -18,6 +18,10 @@ export class HeaderComponent implements OnInit {
   isDropdownOpen = false;
   isProprietaire = false;
   nombreBornes = 0;
+  
+  // Sous-menus desktop
+  isClientMenuOpen = false;
+  isProprietaireMenuOpen = false;
 
   constructor(
     private authService: AuthService,
@@ -62,17 +66,39 @@ export class HeaderComponent implements OnInit {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
-    // Fermer le dropdown si on clique en dehors
+    // Fermer les dropdowns si on clique en dehors
     const target = event.target as HTMLElement;
-    if (!target.closest('.dropdown')) {
+    if (!target.closest('.dropdown') && !target.closest('.submenu-trigger')) {
       this.isDropdownOpen = false;
+      this.isClientMenuOpen = false;
+      this.isProprietaireMenuOpen = false;
     }
+  }
+
+  toggleClientMenu(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isClientMenuOpen = !this.isClientMenuOpen;
+    this.isProprietaireMenuOpen = false;
+  }
+
+  toggleProprietaireMenu(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isProprietaireMenuOpen = !this.isProprietaireMenuOpen;
+    this.isClientMenuOpen = false;
+  }
+
+  closeAllMenus(): void {
+    this.isClientMenuOpen = false;
+    this.isProprietaireMenuOpen = false;
+    this.isDropdownOpen = false;
+    this.isMenuOpen = false;
   }
 
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/']);
-    this.isMenuOpen = false;
-    this.isDropdownOpen = false;
+    this.closeAllMenus();
   }
 }
