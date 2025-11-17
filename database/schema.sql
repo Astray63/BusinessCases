@@ -161,14 +161,14 @@ CREATE TABLE reservation (
     date_debut TIMESTAMP NOT NULL,
     date_fin TIMESTAMP NOT NULL,
     prix_a_la_minute DECIMAL(10,4) NOT NULL,
-    etat VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    etat VARCHAR(20) NOT NULL DEFAULT 'EN_ATTENTE',
     total_price DECIMAL(10,2),
     receipt_path VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT chk_dates CHECK (date_fin > date_debut),
-    CONSTRAINT chk_etat_res CHECK (etat IN ('ACTIVE','TERMINEE','ANNULEE')),
+    CONSTRAINT chk_etat_res CHECK (etat IN ('EN_ATTENTE','CONFIRMEE','ACTIVE','TERMINEE','ANNULEE','REFUSEE')),
     CONSTRAINT fk_res_user FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE,
     CONSTRAINT fk_res_borne FOREIGN KEY (charging_station_id) REFERENCES charging_stations(id_borne) ON DELETE CASCADE
 );

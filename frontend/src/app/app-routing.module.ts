@@ -1,11 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
-import { ProprietaireGuard } from './guards/proprietaire.guard';
 
 const routes: Routes = [
   // ============================================
-  // 🏠 DEFAULT & PUBLIC ROUTES
+  // 🏠 PUBLIC ROUTES
   // ============================================
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { 
@@ -18,7 +17,7 @@ const routes: Routes = [
   },
   
   // ============================================
-  // 🔐 PROTECTED ROUTES - Général
+  // 🔐 PROTECTED ROUTES
   // ============================================
   { 
     path: 'dashboard', 
@@ -32,9 +31,8 @@ const routes: Routes = [
   },
   
   // ============================================
-  // 🔵 MODE CLIENT - Recherche et réservation de bornes
+  // 🔵 ESPACE CLIENT
   // ============================================
-  // Note: Toutes les routes client nécessitent juste l'authentification
   { 
     path: 'client', 
     loadChildren: () => import('./pages/client/client.module').then(m => m.ClientModule),
@@ -42,29 +40,13 @@ const routes: Routes = [
   },
   
   // ============================================
-  // 🟢 MODE PROPRIÉTAIRE - Gestion de mes bornes
+  // � ESPACE PROPRIÉTAIRE
   // ============================================
-  // Note: Ces routes nécessitent d'être authentifié ET de posséder au moins 1 borne
   {
     path: 'proprietaire', 
     loadChildren: () => import('./pages/proprietaire/proprietaire.module').then(m => m.ProprietaireModule),
-    canActivate: [AuthGuard] // Seul AuthGuard, pas ProprietaireGuard
-  },  // Route spéciale pour devenir propriétaire (première borne)
-  // Pas de ProprietaireGuard ici car l'utilisateur n'a pas encore de borne
-  { 
-    path: 'devenir-proprietaire',
-    redirectTo: 'proprietaire/mes-bornes', // Temporaire, à créer un module dédié si besoin
-    pathMatch: 'full'
+    canActivate: [AuthGuard]
   },
-  
-  // ============================================
-  // 🔄 LEGACY REDIRECTS - Pour compatibilité avec anciennes URLs
-  // ============================================
-  { path: 'bornes', redirectTo: 'client/recherche', pathMatch: 'full' },
-  { path: 'lieux', redirectTo: 'proprietaire/mes-lieux', pathMatch: 'full' },
-  { path: 'reservations', redirectTo: 'client/mes-reservations', pathMatch: 'full' },
-  { path: 'reservation', redirectTo: 'client/mes-reservations', pathMatch: 'full' },
-  { path: 'mes-bornes', redirectTo: 'proprietaire/mes-bornes', pathMatch: 'full' },
   
   // ============================================
   // 🚫 WILDCARD - 404

@@ -93,4 +93,17 @@ export class BorneService {
   marquerEnService(id: number): Observable<ApiResponse<Borne>> {
     return this.http.put<ApiResponse<Borne>>(`${this.apiUrl}/${id}/en-service`, {});
   }
+
+  // Gestion des médias
+  uploadMedia(borneId: number, file: File): Observable<ApiResponse<string>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<string>>(`${this.apiUrl}/${borneId}/media`, formData);
+  }
+
+  deleteMedia(borneId: number, mediaUrl: string): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${borneId}/media`, {
+      body: { mediaUrl }
+    });
+  }
 }

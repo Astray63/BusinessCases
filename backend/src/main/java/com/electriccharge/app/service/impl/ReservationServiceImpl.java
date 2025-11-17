@@ -9,6 +9,7 @@ import com.electriccharge.app.model.Utilisateur;
 import com.electriccharge.app.repository.ChargingStationRepository;
 import com.electriccharge.app.repository.ReservationRepository;
 import com.electriccharge.app.repository.UtilisateurRepository;
+import com.electriccharge.app.service.PdfReceiptService;
 import com.electriccharge.app.service.ReservationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,14 +31,17 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final ChargingStationRepository chargingStationRepository;
     private final UtilisateurRepository utilisateurRepository;
+    private final PdfReceiptService pdfReceiptService;
 
     public ReservationServiceImpl(
             ReservationRepository reservationRepository,
             ChargingStationRepository chargingStationRepository,
-            UtilisateurRepository utilisateurRepository) {
+            UtilisateurRepository utilisateurRepository,
+            PdfReceiptService pdfReceiptService) {
         this.reservationRepository = reservationRepository;
         this.chargingStationRepository = chargingStationRepository;
         this.utilisateurRepository = utilisateurRepository;
+        this.pdfReceiptService = pdfReceiptService;
     }
 
     @Override
@@ -93,6 +97,68 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
         reservation.setEtat(Reservation.EtatReservation.TERMINEE);
+        Reservation saved = reservationRepository.save(reservation);
+        return convertToDto(saved);
+    }
+
+    @Override
+    public ReservationDto accepter(Long reservationId, Long proprietaireId) {
+        logger.debug("Accepting reservation {} by owner {}", reservationId, proprietaireId);
+        
+        Reservation reservation = reservationRepository.findWithDetails(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
+        
+        // Vérifier que l'utilisateur est bien le propriétaire de la borne
+        if (reservation.getChargingStation() == null || 
+            reservation.getChargingStation().getOwner() == null ||
+            !reservation.getChargingStation().getOwner().getIdUtilisateur().equals(proprietaireId)) {
+            throw new IllegalArgumentException("Vous n'êtes pas autorisé à accepter cette réservation");
+        }
+        
+        // Vérifier que la réservation est en attente
+        if (reservation.getEtat() != Reservation.EtatReservation.EN_ATTENTE) {
+            throw new IllegalArgumentException("Seules les réservations en attente peuvent être acceptées");
+        }
+        
+        // Changer le statut
+        reservation.setEtat(Reservation.EtatReservation.CONFIRMEE);
+        
+        // Générer le reçu PDF
+        try {
+            String receiptPath = pdfReceiptService.generateReceipt(reservation);
+            reservation.setReceiptPath(receiptPath);
+            logger.info("Reçu PDF généré pour la réservation #{}: {}", reservationId, receiptPath);
+        } catch (Exception e) {
+            logger.error("Erreur lors de la génération du reçu PDF pour la réservation #{}", reservationId, e);
+            // On continue même si la génération du PDF échoue
+        }
+        
+        Reservation saved = reservationRepository.save(reservation);
+        return convertToDto(saved);
+    }
+
+    @Override
+    public ReservationDto refuser(Long reservationId, Long proprietaireId, String motif) {
+        logger.debug("Refusing reservation {} by owner {} with reason: {}", reservationId, proprietaireId, motif);
+        
+        Reservation reservation = reservationRepository.findWithDetails(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
+        
+        // Vérifier que l'utilisateur est bien le propriétaire de la borne
+        if (reservation.getChargingStation() == null || 
+            reservation.getChargingStation().getOwner() == null ||
+            !reservation.getChargingStation().getOwner().getIdUtilisateur().equals(proprietaireId)) {
+            throw new IllegalArgumentException("Vous n'êtes pas autorisé à refuser cette réservation");
+        }
+        
+        // Vérifier que la réservation est en attente
+        if (reservation.getEtat() != Reservation.EtatReservation.EN_ATTENTE) {
+            throw new IllegalArgumentException("Seules les réservations en attente peuvent être refusées");
+        }
+        
+        // Changer le statut
+        reservation.setEtat(Reservation.EtatReservation.REFUSEE);
+        
         Reservation saved = reservationRepository.save(reservation);
         return convertToDto(saved);
     }
@@ -155,6 +221,7 @@ public class ReservationServiceImpl implements ReservationService {
         dto.setEtat(reservation.getEtat() != null ? reservation.getEtat().name() : null);
         dto.setPrixALaMinute(reservation.getPrixALaMinute());
         dto.setTotalPrice(reservation.getTotalPrice());
+        dto.setReceiptPath(reservation.getReceiptPath());
         
         // Populate nested objects
         if (reservation.getChargingStation() != null) {

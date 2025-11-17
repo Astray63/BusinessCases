@@ -34,7 +34,7 @@ public class Reservation {
     
     @Enumerated(EnumType.STRING)
     @Column(name = "etat", nullable = false)
-    private EtatReservation etat = EtatReservation.ACTIVE;
+    private EtatReservation etat = EtatReservation.EN_ATTENTE;
     
     @Column(name = "total_price", precision = 10, scale = 2)
     private BigDecimal totalPrice;
@@ -63,9 +63,12 @@ public class Reservation {
     private Set<Signalement> signalements;
     
     public enum EtatReservation {
+        EN_ATTENTE("en_attente"),
+        CONFIRMEE("confirmee"),
         ACTIVE("active"),
         TERMINEE("terminee"),
-        ANNULEE("annulee");
+        ANNULEE("annulee"),
+        REFUSEE("refusee");
         
         private final String value;
         

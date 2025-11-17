@@ -23,6 +23,7 @@ public class ReservationDto {
     private String etat; // ACTIVE, TERMINEE, ANNULEE
     private BigDecimal prixALaMinute;
     private BigDecimal totalPrice;
+    private String receiptPath;
     
     // Nested objects for frontend consumption
     private BorneDto borne;
@@ -106,5 +107,13 @@ public class ReservationDto {
 
     public void setUtilisateur(UtilisateurSimpleDto utilisateur) {
         this.utilisateur = utilisateur;
+    }
+
+    public String getReceiptPath() {
+        return receiptPath;
+    }
+
+    public void setReceiptPath(String receiptPath) {
+        this.receiptPath = receiptPath;
     }
 } 

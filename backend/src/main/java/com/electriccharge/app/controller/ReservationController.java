@@ -3,11 +3,15 @@ package com.electriccharge.app.controller;
 import com.electriccharge.app.dto.ApiResponse;
 import com.electriccharge.app.dto.ReservationDto;
 import com.electriccharge.app.model.Utilisateur;
+import com.electriccharge.app.service.PdfReceiptService;
 import com.electriccharge.app.service.ReservationService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,9 +26,11 @@ public class ReservationController {
     private static final Logger logger = LoggerFactory.getLogger(ReservationController.class);
 
     private final ReservationService reservationService;
+    private final PdfReceiptService pdfReceiptService;
 
-    public ReservationController(ReservationService reservationService) {
+    public ReservationController(ReservationService reservationService, PdfReceiptService pdfReceiptService) {
         this.reservationService = reservationService;
+        this.pdfReceiptService = pdfReceiptService;
     }
 
     @PostMapping
@@ -34,6 +40,41 @@ public class ReservationController {
             return new ResponseEntity<>(ApiResponse.success("Réservation créée", saved), HttpStatus.CREATED);
         } catch (Exception ex) {
             return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    // IMPORTANT: Ce mapping doit être AVANT /{id} pour éviter que "receipt" soit traité comme un ID
+    @GetMapping("/{id}/receipt")
+    public ResponseEntity<?> getReceipt(@PathVariable Long id) {
+        try {
+            ReservationDto reservation = reservationService.getById(id);
+            
+            // Vérifier si un reçu existe
+            if (reservation.getReceiptPath() == null || reservation.getReceiptPath().isEmpty()) {
+                return new ResponseEntity<>(
+                    ApiResponse.error("Aucun reçu disponible pour cette réservation"), 
+                    HttpStatus.NOT_FOUND
+                );
+            }
+            
+            // Récupérer le contenu du PDF
+            byte[] pdfContent = pdfReceiptService.getReceiptContent(reservation.getReceiptPath());
+            
+            // Créer la réponse avec le PDF
+            ByteArrayResource resource = new ByteArrayResource(pdfContent);
+            
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, 
+                        "attachment; filename=\"recu_reservation_" + id + ".pdf\"")
+                    .body(resource);
+                    
+        } catch (Exception ex) {
+            logger.error("Erreur lors de la récupération du reçu pour la réservation {}: {}", id, ex.getMessage());
+            return new ResponseEntity<>(
+                ApiResponse.error("Erreur lors de la récupération du reçu"), 
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
 
@@ -116,6 +157,59 @@ public class ReservationController {
             ReservationDto dto = reservationService.complete(id);
             return ResponseEntity.ok(ApiResponse.success("Réservation terminée", dto));
         } catch (Exception ex) {
+            return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    @PutMapping("/{id}/accepter")
+    public ResponseEntity<ApiResponse<?>> accepter(
+            @PathVariable Long id,
+            @RequestBody(required = false) java.util.Map<String, Object> body) {
+        try {
+            Long proprietaireId = body != null && body.get("proprietaireId") != null 
+                ? ((Number) body.get("proprietaireId")).longValue() 
+                : null;
+            
+            if (proprietaireId == null) {
+                return new ResponseEntity<>(
+                    ApiResponse.error("L'ID du propriétaire est requis"), 
+                    HttpStatus.BAD_REQUEST
+                );
+            }
+            
+            ReservationDto dto = reservationService.accepter(id, proprietaireId);
+            return ResponseEntity.ok(ApiResponse.success("Réservation acceptée avec succès. Un reçu PDF a été généré.", dto));
+        } catch (IllegalArgumentException ex) {
+            return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.FORBIDDEN);
+        } catch (Exception ex) {
+            logger.error("Erreur lors de l'acceptation de la réservation {}: {}", id, ex.getMessage());
+            return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    @PutMapping("/{id}/refuser")
+    public ResponseEntity<ApiResponse<?>> refuser(
+            @PathVariable Long id,
+            @RequestBody(required = false) java.util.Map<String, Object> body) {
+        try {
+            Long proprietaireId = body != null && body.get("proprietaireId") != null 
+                ? ((Number) body.get("proprietaireId")).longValue() 
+                : null;
+            String motif = body != null ? (String) body.get("motif") : null;
+            
+            if (proprietaireId == null) {
+                return new ResponseEntity<>(
+                    ApiResponse.error("L'ID du propriétaire est requis"), 
+                    HttpStatus.BAD_REQUEST
+                );
+            }
+            
+            ReservationDto dto = reservationService.refuser(id, proprietaireId, motif);
+            return ResponseEntity.ok(ApiResponse.success("Réservation refusée", dto));
+        } catch (IllegalArgumentException ex) {
+            return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.FORBIDDEN);
+        } catch (Exception ex) {
+            logger.error("Erreur lors du refus de la réservation {}: {}", id, ex.getMessage());
             return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
