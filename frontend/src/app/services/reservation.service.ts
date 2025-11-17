@@ -23,7 +23,8 @@ export class ReservationService {
       dateDebut: new Date(backend.dateDebut),
       dateFin: new Date(backend.dateFin),
       statut: this.mapEtatToStatut(backend.etat),
-      montantTotal: backend.totalPrice
+      montantTotal: backend.totalPrice,
+      receiptPath: backend.receiptPath
     };
   }
 
@@ -116,14 +117,24 @@ export class ReservationService {
 
   // Accepter / refuser une réservation (propriétaire)
   accepterReservation(id: number, proprietaireId: number): Observable<ApiResponse<Reservation>> {
-    return this.http.put<ApiResponse<Reservation>>(`${this.apiUrl}/${id}/accepter`, { proprietaireId });
+    return this.http.put<ApiResponse<ReservationBackend>>(`${this.apiUrl}/${id}/accepter`, { proprietaireId }).pipe(
+      map(response => ({
+        ...response,
+        data: response.data ? this.mapBackendToFrontend(response.data) : undefined
+      }))
+    );
   }
 
   refuserReservation(id: number, proprietaireId: number, motif?: string): Observable<ApiResponse<Reservation>> {
-    return this.http.put<ApiResponse<Reservation>>(`${this.apiUrl}/${id}/refuser`, { 
+    return this.http.put<ApiResponse<ReservationBackend>>(`${this.apiUrl}/${id}/refuser`, { 
       proprietaireId,
       motif 
-    });
+    }).pipe(
+      map(response => ({
+        ...response,
+        data: response.data ? this.mapBackendToFrontend(response.data) : undefined
+      }))
+    );
   }
 
   // Filtrer les réservations
@@ -152,7 +163,12 @@ export class ReservationService {
   // Réservations pour un propriétaire de borne
   /** 🟢 MODE PROPRIÉTAIRE: Toutes les réservations reçues sur mes bornes */
   getMesReservationsProprietaire(proprietaireId: number): Observable<ApiResponse<Reservation[]>> {
-    return this.http.get<ApiResponse<Reservation[]>>(`${this.apiUrl}/proprietaire/${proprietaireId}`);
+    return this.http.get<ApiResponse<ReservationBackend[]>>(`${this.apiUrl}/proprietaire/${proprietaireId}`).pipe(
+      map(response => ({
+        ...response,
+        data: response.data ? response.data.map(r => this.mapBackendToFrontend(r)) : []
+      }))
+    );
   }
 
   /** 🟢 MODE PROPRIÉTAIRE: Demandes en attente sur mes bornes */
@@ -214,6 +230,11 @@ export class ReservationService {
   // Générer un reçu PDF
   genererRecuPDF(id: number): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/${id}/recu-pdf`, { responseType: 'blob' });
+  }
+
+  // Télécharger le reçu PDF d'une réservation acceptée
+  downloadReceipt(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${id}/receipt`, { responseType: 'blob' });
   }
 
   // Envoyer une notification

@@ -243,12 +243,23 @@
                 </div>
               </div>
 
-              <button 
-                class="w-full px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
-                (click)="cancelReservation(reservation.idReservation)"
-                [disabled]="isLoading">
-                <i class="bi bi-x-circle mr-2"></i>Annuler
-              </button>
+              <div class="flex gap-2">
+                <button 
+                  *ngIf="hasReceipt(reservation)"
+                  class="flex-1 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50"
+                  (click)="telechargerRecu(reservation.idReservation)"
+                  [disabled]="isLoading">
+                  <i class="bi bi-file-pdf mr-2"></i>Reçu PDF
+                </button>
+                <button 
+                  [class.flex-1]="hasReceipt(reservation)"
+                  [class.w-full]="!hasReceipt(reservation)"
+                  class="px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
+                  (click)="cancelReservation(reservation.idReservation)"
+                  [disabled]="isLoading">
+                  <i class="bi bi-x-circle mr-2"></i>Annuler
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -371,12 +382,13 @@
                   </td>
                   <td class="px-4 py-3">
                     <button 
-                      *ngIf="reservation.statut === 'TERMINEE' || reservation.statut === 'CONFIRMEE'"
-                      class="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded hover:bg-gray-200 transition-colors duration-200"
-                      (click)="genererRecuPDF(reservation)"
+                      *ngIf="hasReceipt(reservation)"
+                      class="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors duration-200"
+                      (click)="telechargerRecu(reservation.idReservation)"
                       [disabled]="isLoading">
                       <i class="bi bi-file-pdf mr-1"></i>Reçu PDF
                     </button>
+                    <span *ngIf="!hasReceipt(reservation)" class="text-xs text-gray-400">-</span>
                   </td>
                 </tr>
               </tbody>
@@ -476,7 +488,16 @@
                 </button>
               </div>
 
-              <div *ngIf="reservation.statut !== 'EN_ATTENTE'" class="text-center py-2">
+              <div *ngIf="reservation.statut !== 'EN_ATTENTE' && hasReceipt(reservation)" class="flex gap-2">
+                <button 
+                  class="w-full px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50"
+                  (click)="telechargerRecu(reservation.idReservation)"
+                  [disabled]="isLoading">
+                  <i class="bi bi-file-pdf mr-2"></i>Télécharger le reçu
+                </button>
+              </div>
+
+              <div *ngIf="reservation.statut !== 'EN_ATTENTE' && !hasReceipt(reservation)" class="text-center py-2">
                 <span class="text-sm font-medium text-gray-600">
                   {{ getStatutLabel(reservation.statut) }}
                 </span>

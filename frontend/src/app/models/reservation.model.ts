@@ -13,6 +13,7 @@ export interface ReservationBackend {
   etat: string;
   prixALaMinute: number;
   totalPrice: number;
+  receiptPath?: string;
   borne?: Borne;
   utilisateur?: Utilisateur;
 }
@@ -30,6 +31,7 @@ export interface Reservation {
   montantTotal?: number;
   notificationEnvoyee?: boolean;
   motifRefus?: string;
+  receiptPath?: string;
 }
 
 export interface ReservationFiltre {

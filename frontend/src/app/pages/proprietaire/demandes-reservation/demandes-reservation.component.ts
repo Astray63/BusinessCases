@@ -38,17 +38,37 @@ export class DemandesReservationComponent implements OnInit {
     if (!this.currentUser) return;
     
     this.isLoading = true;
+    console.log('🔍 Chargement des demandes pour le propriétaire:', this.currentUser.idUtilisateur);
+    
     this.reservationService.getReservationsProprietaire(this.currentUser.idUtilisateur).subscribe({
       next: (response) => {
+        console.log('📦 Réponse brute du serveur:', response);
+        
         if (response.result === 'SUCCESS' && response.data) {
+          console.log('✅ Données reçues:', response.data);
+          console.log('📊 Total de réservations:', response.data.length);
+          
+          // Afficher les statuts de toutes les réservations
+          response.data.forEach((r, index) => {
+            console.log(`   [${index}] Réservation #${r.idReservation} - Statut: "${r.statut}" - Borne: ${r.borne?.localisation}`);
+          });
+          
           this.demandes = response.data
-            .filter(r => r.statut === 'EN_ATTENTE')
+            .filter(r => {
+              const isEnAttente = r.statut === 'EN_ATTENTE';
+              console.log(`   Réservation #${r.idReservation}: statut="${r.statut}", EN_ATTENTE=${isEnAttente}`);
+              return isEnAttente;
+            })
             .sort((a, b) => new Date(b.dateDebut).getTime() - new Date(a.dateDebut).getTime());
+          
+          console.log('✨ Demandes en attente filtrées:', this.demandes.length);
+        } else {
+          console.warn('⚠️ Aucune donnée ou réponse non SUCCESS:', response);
         }
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des demandes:', error);
+        console.error('❌ Erreur lors du chargement des demandes:', error);
         this.isLoading = false;
       }
     });

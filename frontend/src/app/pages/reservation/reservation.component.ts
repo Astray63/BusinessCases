@@ -276,6 +276,26 @@ export class ReservationComponent implements OnInit {
     });
   }
 
+  // Télécharger le reçu PDF
+  telechargerRecu(reservationId: number): void {
+    this.reservationService.downloadReceipt(reservationId).subscribe({
+      next: (blob: Blob) => {
+        const fileName = `recu_reservation_${reservationId}.pdf`;
+        saveAs(blob, fileName);
+        this.toastService.showSuccess('Reçu téléchargé avec succès');
+      },
+      error: (err: any) => {
+        const errorMsg = err.error?.message || 'Erreur lors du téléchargement du reçu';
+        this.toastService.showError(errorMsg);
+      }
+    });
+  }
+
+  // Vérifier si un reçu PDF est disponible pour cette réservation
+  hasReceipt(reservation: Reservation): boolean {
+    return !!(reservation.receiptPath && reservation.receiptPath.trim().length > 0);
+  }
+
   // Appliquer les filtres
   appliquerFiltre(): void {
     const filtres = this.filtreForm.value;

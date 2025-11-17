@@ -1,88 +1,83 @@
-<div class="verify-email-page">
-  <!-- Background avec effet gradient -->
-  <div class="background-overlay"></div>
-  
-  <!-- Contenu principal -->
-  <div class="verify-content">
-    <div class="verify-card">
-      <!-- En-tête avec icône -->
-      <div class="card-header">
-        <div class="icon-wrapper">
-          <div class="icon-circle">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/>
-            </svg>
-          </div>
+<div class="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+    
+    <!-- Card principale -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      
+      <!-- En-tête -->
+      <div class="px-8 pt-12 pb-8 text-center border-b border-gray-100">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-50 rounded-full mb-6">
+          <i class="bi bi-shield-check text-3xl text-blue-600"></i>
         </div>
-        <h1>Validez votre compte</h1>
-        <p class="subtitle">
-          Nous avons envoyé un code de vérification à
+        <h1 class="text-2xl font-semibold text-gray-900 mb-2">
+          Vérification de votre compte
+        </h1>
+        <p class="text-sm text-gray-600 mb-4">
+          Un code de vérification a été envoyé à
         </p>
-        <p class="email-display">{{ email }}</p>
+        <p class="text-sm font-medium text-gray-900 bg-gray-50 rounded px-4 py-2 inline-block">
+          {{ email }}
+        </p>
       </div>
 
       <!-- Formulaire -->
-      <form [formGroup]="verificationForm" (ngSubmit)="onSubmit()" class="verification-form">
-        <div class="form-group">
-          <label for="code">Code de vérification</label>
+      <form [formGroup]="verificationForm" (ngSubmit)="onSubmit()" class="px-8 py-8">
+        <div class="mb-8">
+          <label for="code" class="block text-sm font-medium text-gray-700 mb-3">
+            Code de vérification
+          </label>
           <input
             type="text"
             id="code"
             formControlName="code"
-            class="form-control"
-            placeholder="000000"
+            class="w-full px-4 py-3.5 text-center text-2xl font-semibold tracking-[0.5em] border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            [class.border-gray-300]="!(verificationForm.get('code')?.invalid && verificationForm.get('code')?.touched)"
+            [class.border-red-500]="verificationForm.get('code')?.invalid && verificationForm.get('code')?.touched"
+            placeholder="· · · · · ·"
             maxlength="6"
             (input)="onCodeInput($event)"
-            [class.is-invalid]="verificationForm.get('code')?.invalid && verificationForm.get('code')?.touched"
           />
-          <div class="invalid-feedback" *ngIf="verificationForm.get('code')?.invalid && verificationForm.get('code')?.touched">
-            <span *ngIf="verificationForm.get('code')?.errors?.['required']">Le code est obligatoire</span>
-            <span *ngIf="verificationForm.get('code')?.errors?.['pattern']">Le code doit contenir exactement 6 chiffres</span>
+          <div class="mt-2 text-sm text-red-600" *ngIf="verificationForm.get('code')?.invalid && verificationForm.get('code')?.touched">
+            <p *ngIf="verificationForm.get('code')?.errors?.['required']">
+              Le code de vérification est requis
+            </p>
+            <p *ngIf="verificationForm.get('code')?.errors?.['pattern']">
+              Le code doit contenir 6 chiffres
+            </p>
           </div>
         </div>
 
         <button
           type="submit"
-          class="btn btn-primary btn-block"
+          class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
           [disabled]="verificationForm.invalid || isLoading"
         >
-          <span *ngIf="!isLoading">Valider mon compte</span>
-          <span *ngIf="isLoading">
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            Vérification en cours...
+          <span *ngIf="!isLoading">Vérifier</span>
+          <span *ngIf="isLoading" class="inline-flex items-center gap-2">
+            <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            Vérification...
           </span>
         </button>
       </form>
 
       <!-- Actions secondaires -->
-      <div class="footer-actions">
-        <div class="divider">
-          <span>ou</span>
-        </div>
-        
-        <div class="action-buttons">
+      <div class="px-8 pb-8 border-t border-gray-100 pt-6">
+        <div class="space-y-3">
           <button
             type="button"
-            class="btn btn-secondary"
+            class="w-full px-6 py-2.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             (click)="resendCode()"
             [disabled]="isResending"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-              <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-              <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-            </svg>
             <span *ngIf="!isResending">Renvoyer le code</span>
             <span *ngIf="isResending">Envoi en cours...</span>
           </button>
 
           <button
             type="button"
-            class="btn btn-outline"
+            class="w-full px-6 py-2.5 text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors"
             (click)="backToLogin()"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-              <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-            </svg>
             Retour à la connexion
           </button>
         </div>
@@ -90,21 +85,20 @@
     </div>
 
     <!-- Informations additionnelles -->
-    <div class="help-section">
-      <div class="help-card">
-        <div class="help-icon">💡</div>
-        <h3>Conseil</h3>
-        <p>Vérifiez votre dossier spam si vous ne trouvez pas l'email</p>
-      </div>
-      <div class="help-card">
-        <div class="help-icon">⏱️</div>
-        <h3>Validité</h3>
-        <p>Le code est valable pendant 15 minutes</p>
-      </div>
-      <div class="help-card">
-        <div class="help-icon">🔒</div>
-        <h3>Sécurité</h3>
-        <p>Ne partagez jamais votre code de vérification</p>
+    <div class="mt-8 bg-blue-50 border border-blue-100 rounded-lg p-6">
+      <div class="space-y-3 text-sm">
+        <div class="flex items-start gap-3">
+          <i class="bi bi-info-circle text-blue-600 mt-0.5 flex-shrink-0"></i>
+          <p class="text-gray-700">Vérifiez votre dossier spam si vous ne recevez pas l'email</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <i class="bi bi-clock text-blue-600 mt-0.5 flex-shrink-0"></i>
+          <p class="text-gray-700">Le code expire après 15 minutes</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <i class="bi bi-shield-lock text-blue-600 mt-0.5 flex-shrink-0"></i>
+          <p class="text-gray-700">Ne partagez jamais votre code de vérification</p>
+        </div>
       </div>
     </div>
   </div>
