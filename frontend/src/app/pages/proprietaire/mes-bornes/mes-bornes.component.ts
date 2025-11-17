@@ -74,10 +74,12 @@ export class MesBornesComponent implements OnInit {
     });
 
     // Charger les lieux du propriétaire
-    this.lieuService.getLieux().subscribe({
+    this.lieuService.getByUtilisateur(this.currentUser.idUtilisateur).subscribe({
       next: (response: any) => {
         if (response.result === 'SUCCESS' && response.data) {
           this.mesLieux = response.data;
+        } else if (Array.isArray(response)) {
+          this.mesLieux = response;
         }
       },
       error: (error: any) => console.error('Erreur lors du chargement des lieux:', error)
@@ -120,19 +122,50 @@ export class MesBornesComponent implements OnInit {
     this.isLoading = true;
     const formData = this.borneForm.value;
     
+    // Convertir l'ID du lieu en nombre
+    const lieuId = typeof formData.lieu === 'string' ? parseInt(formData.lieu, 10) : formData.lieu;
+    
+    console.log('Form data lieu:', formData.lieu, 'Type:', typeof formData.lieu);
+    console.log('Lieu ID converti:', lieuId);
+    console.log('Mes lieux disponibles:', this.mesLieux.map(l => ({ id: l.idLieu, nom: l.nom })));
+    
+    // Récupérer le lieu sélectionné pour obtenir ses coordonnées
+    const lieuSelectionne = this.mesLieux.find(l => l.idLieu === lieuId);
+    
+    console.log('Lieu sélectionné:', lieuSelectionne);
+    
+    if (!lieuSelectionne) {
+      alert('Veuillez sélectionner un lieu valide');
+      this.isLoading = false;
+      return;
+    }
+    
+    // Calculer le prix à la minute à partir du tarif horaire
+    const prixHoraire = parseFloat(formData.prix);
+    const prixMinute = (prixHoraire / 60).toFixed(4);
+    
     const borneData: any = {
+      numero: `BORNE-${Date.now()}`, // Générer un numéro unique
+      nom: `${lieuSelectionne.nom} - ${formData.type}`,
       localisation: formData.localisation,
+      address: lieuSelectionne.adresse || `${lieuSelectionne.numero || ''} ${lieuSelectionne.rue || ''} ${lieuSelectionne.codePostal} ${lieuSelectionne.ville}`.trim(),
+      latitude: lieuSelectionne.latitude || 0,
+      longitude: lieuSelectionne.longitude || 0,
       type: formData.type,
-      puissance: formData.puissance,
-      prix: formData.prix,
+      connectorType: formData.type,
+      puissance: parseInt(formData.puissance),
+      prix: prixHoraire,
+      hourlyRate: prixHoraire,
+      prixALaMinute: parseFloat(prixMinute),
       etat: formData.etat,
-      lieu: { idLieu: formData.lieu },
-      ownerId: this.currentUser.idUtilisateur
+      ownerId: this.currentUser.idUtilisateur,
+      lieu: { idLieu: lieuId }
     };
 
     if (this.isEditMode && this.selectedBorne && this.selectedBorne.idBorne) {
       // Modification
       borneData.idBorne = this.selectedBorne.idBorne;
+      borneData.id = this.selectedBorne.idBorne;
       this.borneService.updateBorne(this.selectedBorne.idBorne, borneData).subscribe({
         next: (response) => {
           if (response.result === 'SUCCESS') {
@@ -230,6 +263,6 @@ export class MesBornesComponent implements OnInit {
   }
 
   ajouterLieu(): void {
-    this.router.navigate(['/lieux']);
+    this.router.navigate(['/proprietaire/mes-lieux']);
   }
 }

@@ -16,12 +16,6 @@ const routes: Routes = [
     loadChildren: () => import('../bornes/bornes.module').then(m => m.BornesModule)
   },
   
-  // Recherche de lieux
-  { 
-    path: 'lieux', 
-    loadChildren: () => import('../lieux/lieux.module').then(m => m.LieuxModule)
-  },
-  
   // Mes réservations (en tant que client)
   { 
     path: 'mes-reservations', 

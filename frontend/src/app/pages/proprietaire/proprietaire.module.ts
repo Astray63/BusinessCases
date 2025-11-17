@@ -20,6 +20,12 @@ const routes: Routes = [
     component: DashboardProprietaireComponent
   },
   
+  // Gestion des lieux
+  { 
+    path: 'mes-lieux', 
+    loadChildren: () => import('../lieux/lieux.module').then(m => m.LieuxModule)
+  },
+  
   // Gestion des bornes
   { 
     path: 'mes-bornes', 

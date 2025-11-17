@@ -78,14 +78,6 @@
                 <i class="bi bi-calendar-check-fill"></i>
                 <span>Mes réservations</span>
               </a>
-              
-              <a routerLink="/client/lieux" (click)="closeAllMenus()"
-                 class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
-                 [class.bg-blue-50]="router.url.includes('/client/lieux')"
-                 [class.text-blue-600]="router.url.includes('/client/lieux')">
-                <i class="bi bi-geo-alt-fill"></i>
-                <span>Explorer les lieux</span>
-              </a>
             </div>
           </div>
           
@@ -114,6 +106,14 @@
                  [class.text-orange-600]="router.url.includes('/proprietaire/dashboard')">
                 <i class="bi bi-speedometer"></i>
                 <span>Dashboard propriétaire</span>
+              </a>
+              
+              <a routerLink="/proprietaire/mes-lieux" (click)="closeAllMenus()"
+                 class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors duration-200"
+                 [class.bg-orange-50]="router.url.includes('/proprietaire/mes-lieux')"
+                 [class.text-orange-600]="router.url.includes('/proprietaire/mes-lieux')">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span>Gérer mes lieux</span>
               </a>
               
               <a routerLink="/proprietaire/mes-bornes" (click)="closeAllMenus()"
@@ -274,16 +274,6 @@
             <span>Mes réservations</span>
           </a>
           
-          <a routerLink="/client/lieux" (click)="closeMenu()"
-             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
-             [class.bg-blue-50]="router.url.includes('/client/lieux')"
-             [class.text-blue-600]="router.url.includes('/client/lieux')"
-             [class.text-gray-700]="!router.url.includes('/client/lieux')"
-             [class.hover:bg-gray-100]="!router.url.includes('/client/lieux')">
-            <i class="bi bi-geo-alt-fill"></i>
-            <span>Explorer les lieux</span>
-          </a>
-          
           <a routerLink="/dashboard" (click)="closeMenu()"
              class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
              [class.bg-blue-50]="router.url.includes('/dashboard') && !router.url.includes('/proprietaire')"
@@ -321,6 +311,16 @@
              [class.hover:bg-orange-50]="!router.url.includes('/proprietaire/dashboard')">
             <i class="bi bi-speedometer"></i>
             <span>Dashboard propriétaire</span>
+          </a>
+          
+          <a routerLink="/proprietaire/mes-lieux" (click)="closeMenu()"
+             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
+             [class.bg-orange-50]="router.url.includes('/proprietaire/mes-lieux')"
+             [class.text-orange-600]="router.url.includes('/proprietaire/mes-lieux')"
+             [class.text-gray-700]="!router.url.includes('/proprietaire/mes-lieux')"
+             [class.hover:bg-orange-50]="!router.url.includes('/proprietaire/mes-lieux')">
+            <i class="bi bi-geo-alt-fill"></i>
+            <span>Gérer mes lieux</span>
           </a>
           
           <a routerLink="/proprietaire/mes-bornes" (click)="closeMenu()"

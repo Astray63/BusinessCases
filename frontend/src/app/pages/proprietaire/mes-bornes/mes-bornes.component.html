@@ -176,14 +176,34 @@
               <i class="bi bi-geo-alt text-orange-600"></i>
               Lieu *
             </label>
+            
+            <!-- Alerte si aucun lieu -->
+            <div *ngIf="mesLieux.length === 0" class="mb-3 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div class="flex items-start gap-3">
+                <i class="bi bi-exclamation-triangle text-yellow-600 text-xl flex-shrink-0"></i>
+                <div class="flex-1">
+                  <p class="text-sm font-semibold text-yellow-900 mb-2">Vous n'avez pas encore de lieu enregistré</p>
+                  <p class="text-xs text-yellow-800 mb-3">Pour créer une borne, vous devez d'abord créer un lieu de recharge (l'adresse où se trouve la borne).</p>
+                  <button 
+                    type="button" 
+                    class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm font-semibold flex items-center gap-2"
+                    (click)="ajouterLieu()">
+                    <i class="bi bi-plus-lg"></i>
+                    Créer mon premier lieu
+                  </button>
+                </div>
+              </div>
+            </div>
+            
             <div class="flex flex-col sm:flex-row gap-2">
               <select 
                 id="lieu" 
                 formControlName="lieu" 
-                class="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm">
+                class="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm"
+                [disabled]="mesLieux.length === 0">
                 <option value="">-- Sélectionnez un lieu --</option>
                 <option *ngFor="let lieu of mesLieux" [value]="lieu.idLieu">
-                  {{ lieu.nom }} - {{ lieu.adresse }}
+                  {{ lieu.nom }} - {{ lieu.ville }}
                 </option>
               </select>
               <button 

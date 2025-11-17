@@ -71,7 +71,7 @@ const routes: Routes = [
   // 🔄 LEGACY REDIRECTS - Pour compatibilité avec anciennes URLs
   // ============================================
   { path: 'bornes', redirectTo: 'client/recherche', pathMatch: 'full' },
-  { path: 'lieux', redirectTo: 'client/lieux', pathMatch: 'full' },
+  { path: 'lieux', redirectTo: 'proprietaire/mes-lieux', pathMatch: 'full' },
   { path: 'reservations', redirectTo: 'client/mes-reservations', pathMatch: 'full' },
   { path: 'reservation', redirectTo: 'client/mes-reservations', pathMatch: 'full' },
   { path: 'mes-bornes', redirectTo: 'proprietaire/mes-bornes', pathMatch: 'full' },
