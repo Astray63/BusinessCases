@@ -16,6 +16,8 @@ public interface ReservationService {
     List<ReservationDto> getByUser(Long userId);
 
     List<ReservationDto> getByChargingStation(Long stationId);
+    
+    List<ReservationDto> getByOwner(Long ownerId);
 
     List<ReservationDto> getAll();
 } 

@@ -141,8 +141,8 @@
               <div class="text-sm text-gray-500">{{ reservation.utilisateur.email }}</div>
             </td>
             <td class="px-6 py-4">
-              <div class="text-sm font-medium text-gray-900">{{ reservation.borne?.localisation || 'N/A' }}</div>
-              <div class="text-sm text-gray-500">{{ reservation.borne?.type || 'N/A' }} - {{ reservation.borne?.puissance || 0 }} kW</div>
+              <div class="text-sm font-medium text-gray-900">{{ reservation.borne.localisation || 'N/A' }}</div>
+              <div class="text-sm text-gray-500">{{ reservation.borne.type || 'N/A' }} - {{ reservation.borne.puissance || 0 }} kW</div>
             </td>
             <td class="px-6 py-4">
               <div class="text-sm font-medium text-gray-900">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</div>

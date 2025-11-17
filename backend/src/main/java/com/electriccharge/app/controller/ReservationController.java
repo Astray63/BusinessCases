@@ -58,6 +58,12 @@ public class ReservationController {
         return ResponseEntity.ok(ApiResponse.success(list));
     }
 
+    @GetMapping("/proprietaire/{proprietaireId}")
+    public ResponseEntity<ApiResponse<?>> getByOwner(@PathVariable Long proprietaireId) {
+        List<ReservationDto> list = reservationService.getByOwner(proprietaireId);
+        return ResponseEntity.ok(ApiResponse.success(list));
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponse<?>> getAll() {
         List<ReservationDto> list = reservationService.getAll();

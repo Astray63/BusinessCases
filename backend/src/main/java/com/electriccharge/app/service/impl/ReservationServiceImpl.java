@@ -122,6 +122,14 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<ReservationDto> getByOwner(Long ownerId) {
+        return reservationRepository.findByChargingStation_Owner_IdUtilisateur(ownerId).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<ReservationDto> getAll() {
         return reservationRepository.findAll().stream()
                 .map(this::convertToDto)

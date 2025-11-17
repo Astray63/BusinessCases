@@ -213,8 +213,8 @@
                 <div class="flex items-start gap-3">
                   <span class="text-xl">📍</span>
                   <div class="flex-1">
-                    <p class="font-bold text-gray-900 text-sm">{{ reservation.borne?.localisation || 'N/A' }}</p>
-                    <p class="text-xs text-gray-600">{{ reservation.borne?.type || 'N/A' }} - {{ reservation.borne?.puissance || 0 }} kW</p>
+                    <p class="font-bold text-gray-900 text-sm">{{ reservation.borne.localisation || 'N/A' }}</p>
+                    <p class="text-xs text-gray-600">{{ reservation.borne.type || 'N/A' }} - {{ reservation.borne.puissance || 0 }} kW</p>
                   </div>
                 </div>
 
@@ -345,8 +345,8 @@
                 <tr *ngFor="let reservation of reservationsPassees" class="hover:bg-gray-50 transition-colors duration-150">
                   <td class="px-4 py-3 text-sm text-gray-900">#{{ reservation.idReservation }}</td>
                   <td class="px-4 py-3">
-                    <p class="text-sm font-semibold text-gray-900">{{ reservation.borne?.localisation || 'N/A' }}</p>
-                    <p class="text-xs text-gray-600">{{ reservation.borne?.type || 'N/A' }}</p>
+                    <p class="text-sm font-semibold text-gray-900">{{ reservation.borne.localisation || 'N/A' }}</p>
+                    <p class="text-xs text-gray-600">{{ reservation.borne.type || 'N/A' }}</p>
                   </td>
                   <td class="px-4 py-3">
                     <p class="text-sm text-gray-900">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</p>
@@ -431,8 +431,8 @@
                 <div class="flex items-start gap-3">
                   <span class="text-xl">📍</span>
                   <div class="flex-1">
-                    <p class="font-bold text-gray-900 text-sm">{{ reservation.borne?.localisation || 'N/A' }}</p>
-                    <p class="text-xs text-gray-600">{{ reservation.borne?.type || 'N/A' }} - {{ reservation.borne?.puissance || 0 }} kW</p>
+                    <p class="font-bold text-gray-900 text-sm">{{ reservation.borne.localisation || 'N/A' }}</p>
+                    <p class="text-xs text-gray-600">{{ reservation.borne.type || 'N/A' }} - {{ reservation.borne.puissance || 0 }} kW</p>
                   </div>
                 </div>
 

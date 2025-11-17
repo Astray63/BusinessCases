@@ -127,7 +127,7 @@
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm mb-3">
             <div>
               <span class="text-gray-600">Borne:</span>
-              <p class="font-medium text-gray-900 truncate">{{ demande.borne?.localisation || 'N/A' }}</p>
+              <p class="font-medium text-gray-900 truncate">{{ demande.borne.localisation || 'N/A' }}</p>
             </div>
             <div>
               <span class="text-gray-600">Date:</span>
@@ -251,7 +251,7 @@
                   <p class="text-gray-600">{{ reservation.utilisateur.email }}</p>
                 </div>
               </td>
-              <td class="px-4 py-3 text-sm text-gray-900">{{ reservation.borne?.localisation || 'N/A' }}</td>
+              <td class="px-4 py-3 text-sm text-gray-900">{{ reservation.borne.localisation || 'N/A' }}</td>
               <td class="px-4 py-3 text-sm text-gray-900">{{ reservation.dateDebut | date:'dd/MM/yyyy HH:mm' }}</td>
               <td class="px-4 py-3 text-sm text-gray-900">{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}h</td>
               <td class="px-4 py-3 text-sm font-medium text-green-600">{{ reservation.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</td>
