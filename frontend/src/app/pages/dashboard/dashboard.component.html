@@ -7,14 +7,8 @@
         <p class="text-lg text-gray-600">Bienvenue sur votre tableau de bord</p>
       </div>
       <div class="flex flex-wrap gap-3">
-        <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold"
-              [class.bg-gradient-to-r]="currentUser.role === 'admin'"
-              [class.from-purple-500]="currentUser.role === 'admin'"
-              [class.to-pink-500]="currentUser.role === 'admin'"
-              [class.text-white]="currentUser.role === 'admin'"
-              [class.bg-blue-100]="currentUser.role !== 'admin'"
-              [class.text-blue-800]="currentUser.role !== 'admin'">
-          {{ currentUser.role === 'admin' ? '👑 Administrateur' : '👤 Utilisateur' }}
+        <span class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+          👤 Utilisateur
         </span>
         <span class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-full text-sm font-semibold" *ngIf="isProprietaire">
           ⚡ Propriétaire

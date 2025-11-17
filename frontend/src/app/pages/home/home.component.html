@@ -164,56 +164,13 @@
         </div>
         
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <div *ngFor="let borne of bornesPubliques" class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
-            <div class="p-5">
-              <div class="flex items-start justify-between mb-4">
-                <h3 class="text-base font-bold text-gray-900 flex-1 pr-3">{{ borne.localisation }}</h3>
-                <span class="px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0"
-                      [ngClass]="{
-                        'bg-green-100 text-green-800': borne.etat === 'DISPONIBLE',
-                        'bg-yellow-100 text-yellow-800': borne.etat === 'OCCUPE',
-                        'bg-red-100 text-red-800': borne.etat !== 'DISPONIBLE' && borne.etat !== 'OCCUPE'
-                      }">
-                  {{ borne.etat === 'DISPONIBLE' ? 'Disponible' : (borne.etat === 'OCCUPE' ? 'Occupée' : 'Hors service') }}
-                </span>
-              </div>
-              
-              <div class="space-y-2.5 mb-5">
-                <div class="flex items-center gap-2.5 text-gray-600 text-sm">
-                  <span class="text-lg">⚡</span>
-                  <span class="font-medium">{{ borne.type }}</span>
-                </div>
-                <div class="flex items-center gap-2.5 text-gray-600 text-sm">
-                  <span class="text-lg">🔌</span>
-                  <span class="font-medium">{{ borne.puissance }} kW</span>
-                </div>
-                <div class="flex items-center gap-2.5 text-gray-600 text-sm">
-                  <span class="text-lg">💰</span>
-                  <span class="font-medium">{{ borne.prix }}€/heure</span>
-                </div>
-                <div *ngIf="borne.latitude && borne.longitude && userLocation" class="flex items-center gap-2.5 text-gray-600 text-sm">
-                  <span class="text-lg">📍</span>
-                  <span class="font-medium">{{ calculateDistance(borne.latitude, borne.longitude) | number:'1.1-1' }} km</span>
-                </div>
-              </div>
-
-              <div class="flex gap-2.5">
-                <button 
-                  class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors duration-200 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  (click)="navigateToReservation(borne)"
-                  [disabled]="borne.etat !== 'DISPONIBLE'">
-                  <i class="bi bi-calendar-check"></i>
-                  <span>Réserver</span>
-                </button>
-                <button 
-                  class="px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200"
-                  (click)="centerMapOnBorne(borne)"
-                  title="Voir sur la carte">
-                  <i class="bi bi-geo-alt text-lg"></i>
-                </button>
-              </div>
-            </div>
-          </div>
+          <app-borne-card 
+            *ngFor="let borne of bornesPubliques"
+            [borne]="borne"
+            [userLocation]="userLocation"
+            (reserve)="navigateToReservation(borne)"
+            (viewOnMap)="centerMapOnBorne(borne)">
+          </app-borne-card>
         </div>
       </div>
 

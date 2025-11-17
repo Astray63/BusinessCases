@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BornesComponent } from './bornes.component';
 import { BorneFormComponent } from './borne-form/borne-form.component';
 import { FilterPipe } from '../../shared/pipes/filter.pipe';
+import { SharedModule } from '../../shared/shared.module';
 
 const routes: Routes = [
   { path: '', component: BornesComponent },
@@ -22,7 +23,8 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    SharedModule
   ]
 })
 export class BornesModule { } 

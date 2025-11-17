@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
-import { AdminGuard } from './guards/admin.guard';
 import { ProprietaireGuard } from './guards/proprietaire.guard';
 
 const routes: Routes = [
@@ -56,15 +55,6 @@ const routes: Routes = [
     path: 'devenir-proprietaire',
     redirectTo: 'proprietaire/mes-bornes', // Temporaire, à créer un module dédié si besoin
     pathMatch: 'full'
-  },
-  
-  // ============================================
-  // 🔧 ADMIN - Administration
-  // ============================================
-  { 
-    path: 'admin', 
-    loadChildren: () => import('./pages/admin/admin.module').then(m => m.AdminModule),
-    canActivate: [AuthGuard, AdminGuard]
   },
   
   // ============================================

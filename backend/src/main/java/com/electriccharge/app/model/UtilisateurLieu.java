@@ -28,22 +28,12 @@ public class UtilisateurLieu {
     @Id
     @Enumerated(EnumType.STRING)
     @Column(name = "type_adresse")
-    private TypeAdresse typeAdresse = TypeAdresse.PRINCIPALE;
+    private TypeAdresse typeAdresse = TypeAdresse.principale;
     
     public enum TypeAdresse {
-        PRINCIPALE("principale"),
-        SECONDAIRE("secondaire"),
-        TRAVAIL("travail");
-        
-        private final String value;
-        
-        TypeAdresse(String value) {
-            this.value = value;
-        }
-        
-        public String getValue() {
-            return value;
-        }
+        principale,
+        secondaire,
+        travail
     }
     
     @Data

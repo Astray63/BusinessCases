@@ -3,21 +3,21 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { DashboardProprietaireComponent } from './dashboard-proprietaire/dashboard-proprietaire.component';
 import { MesBornesComponent } from './mes-bornes/mes-bornes.component';
 import { DemandesReservationComponent } from './demandes-reservation/demandes-reservation.component';
 import { HistoriqueReservationsComponent } from './historique-reservations/historique-reservations.component';
 
 const routes: Routes = [
-  // Dashboard propriétaire (vue d'ensemble)
+  // Redirection vers le dashboard principal
   { 
     path: '', 
-    redirectTo: 'dashboard',
+    redirectTo: '/dashboard',
     pathMatch: 'full'
   },
   { 
     path: 'dashboard', 
-    component: DashboardProprietaireComponent
+    redirectTo: '/dashboard',
+    pathMatch: 'full'
   },
   
   // Gestion des lieux
@@ -47,7 +47,6 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-    DashboardProprietaireComponent,
     MesBornesComponent,
     DemandesReservationComponent,
     HistoriqueReservationsComponent

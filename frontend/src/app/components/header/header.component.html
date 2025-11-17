@@ -100,12 +100,12 @@
             
             <!-- Dropdown Espace Propriétaire -->
             <div *ngIf="isProprietaireMenuOpen" class="absolute left-0 top-full mt-2 w-60 bg-white rounded-lg shadow-lg border border-gray-200 py-2 animate-slideDown z-50">
-              <a routerLink="/proprietaire/dashboard" (click)="closeAllMenus()"
+              <a routerLink="/dashboard" (click)="closeAllMenus()"
                  class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors duration-200"
-                 [class.bg-orange-50]="router.url.includes('/proprietaire/dashboard')"
-                 [class.text-orange-600]="router.url.includes('/proprietaire/dashboard')">
+                 [class.bg-orange-50]="router.url === '/dashboard'"
+                 [class.text-orange-600]="router.url === '/dashboard'">
                 <i class="bi bi-speedometer"></i>
-                <span>Dashboard propriétaire</span>
+                <span>Mon tableau de bord</span>
               </a>
               
               <a routerLink="/proprietaire/mes-lieux" (click)="closeAllMenus()"
@@ -303,14 +303,14 @@
             </span>
           </div>
           
-          <a routerLink="/proprietaire/dashboard" (click)="closeMenu()"
+          <a routerLink="/dashboard" (click)="closeMenu()"
              class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200"
-             [class.bg-orange-50]="router.url.includes('/proprietaire/dashboard')"
-             [class.text-orange-600]="router.url.includes('/proprietaire/dashboard')"
-             [class.text-gray-700]="!router.url.includes('/proprietaire/dashboard')"
-             [class.hover:bg-orange-50]="!router.url.includes('/proprietaire/dashboard')">
+             [class.bg-orange-50]="router.url === '/dashboard'"
+             [class.text-orange-600]="router.url === '/dashboard'"
+             [class.text-gray-700]="router.url !== '/dashboard'"
+             [class.hover:bg-orange-50]="router.url !== '/dashboard'">
             <i class="bi bi-speedometer"></i>
-            <span>Dashboard propriétaire</span>
+            <span>Mon tableau de bord</span>
           </a>
           
           <a routerLink="/proprietaire/mes-lieux" (click)="closeMenu()"

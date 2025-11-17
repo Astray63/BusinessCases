@@ -17,12 +17,14 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
   private radiusCircle?: L.Circle;
   private viewInitialized = false;
   private readonly fallbackLocation = { lat: 48.8566, lng: 2.3522 };
+  private geocodeTimeout?: number;
   
   bornes: Borne[] = [];
   filteredBornes: Borne[] = [];
   loading = false;
   errorMessage = '';
   locating = false;
+  geocoding = false; // Nouveau: pour indiquer qu'on est en train de géocoder
   geolocationStatus: 'pending' | 'success' | 'error' = 'pending';
   geolocationMessage = '';
   
@@ -68,10 +70,6 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private requestInitialGeolocation(forceRetry = false): void {
-    if (!this.viewInitialized) {
-      return;
-    }
-
     this.locating = true;
     this.geolocationStatus = 'pending';
     this.geolocationMessage = forceRetry
@@ -84,6 +82,11 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
         this.userLocation = location;
         this.geolocationStatus = 'success';
         this.geolocationMessage = '';
+        
+        // Initialiser la carte si elle n'existe pas encore
+        if (!this.map && this.showMap) {
+          this.initMap();
+        }
       })
       .catch((error) => {
         console.error('❌ Échec géolocalisation, utilisation position par défaut (Paris)');
@@ -91,10 +94,16 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
         this.userLocation = { ...this.fallbackLocation };
         this.geolocationStatus = 'error';
         this.geolocationMessage = this.buildGeolocationErrorMessage(error);
+        
+        // Initialiser la carte si elle n'existe pas encore
+        if (!this.map && this.showMap) {
+          this.initMap();
+        }
       })
       .finally(() => {
         this.locating = false;
-        this.initMapAndLoadData();
+        // Charger les bornes
+        this.searchBornes();
       });
   }
 
@@ -126,7 +135,7 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         {
           enableHighAccuracy: true,
-          timeout: 30000,
+          timeout: 10000,
           maximumAge: 0
         }
       );
@@ -167,90 +176,13 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
         case geoError.POSITION_UNAVAILABLE:
           return '📍 Position indisponible. Vérifiez que les services de localisation sont activés sur votre appareil.';
         case geoError.TIMEOUT:
-          return '⏱️ La demande de localisation a pris trop de temps (30s). Vérifiez votre connexion GPS/WiFi ou cliquez sur "Réessayer".';
+          return '⏱️ La demande de localisation a pris trop de temps. Vérifiez votre connexion GPS/WiFi ou cliquez sur "Réessayer".';
         default:
           return 'Impossible de récupérer votre position. Nous utilisons une localisation par défaut (Paris).';
       }
     }
 
     return 'Géolocalisation indisponible. Nous affichons les bornes autour de Paris.';
-  }
-
-  private initMapAndLoadData(): void {
-    this.initMap().then(() => {
-      // Charger les bornes seulement après que la carte soit initialisée
-      this.searchBornes();
-    });
-  }
-
-  private initMap(): Promise<void> {
-    return new Promise((resolve) => {
-      if (!this.userLocation) {
-        resolve();
-        return;
-      }
-
-      // Attendre que le DOM soit prêt
-      setTimeout(() => {
-        const mapElement = document.getElementById('map');
-        if (!mapElement) {
-          console.error('Élément #map introuvable');
-          resolve();
-          return;
-        }
-
-        // Supprimer l'ancienne carte si elle existe
-        if (this.map) {
-          this.map.remove();
-        }
-
-        this.map = L.map('map').setView(
-          [this.userLocation!.lat, this.userLocation!.lng],
-          12
-        );
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '© OpenStreetMap'
-        }).addTo(this.map);
-
-        // Icône personnalisée pour l'utilisateur
-        const userIcon = L.divIcon({
-          html: '<i class="bi bi-geo-alt-fill text-primary" style="font-size: 32px;"></i>',
-          className: 'custom-marker',
-          iconSize: [32, 32],
-          iconAnchor: [16, 32]
-        });
-
-        // Marqueur position utilisateur
-        this.userMarker = L.marker([this.userLocation!.lat, this.userLocation!.lng], { icon: userIcon })
-          .addTo(this.map)
-          .bindPopup('<strong>Votre position</strong>')
-          .openPopup();
-
-        // Cercle de rayon
-        this.updateRadiusCircle();
-        
-        // Résoudre la promesse une fois la carte initialisée
-        resolve();
-      }, 100);
-    });
-  }
-
-  private updateRadiusCircle(): void {
-    if (!this.userLocation || !this.map) return;
-    
-    if (this.radiusCircle) {
-      this.radiusCircle.remove();
-    }
-
-    this.radiusCircle = L.circle([this.userLocation.lat, this.userLocation.lng], {
-      color: '#007bff',
-      fillColor: '#007bff',
-      fillOpacity: 0.1,
-      radius: this.distance * 1000,
-      weight: 2
-    }).addTo(this.map);
   }
 
   searchBornes(): void {
@@ -276,8 +208,15 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loading = false;
         if (response.result === 'SUCCESS' && response.data) {
           this.bornes = response.data;
-          this.applyLocalFilters();
-          this.updateMarkers();
+          this.filteredBornes = [...this.bornes];
+          
+          console.log('✅ Bornes chargées:', this.filteredBornes.length);
+          
+          // Mettre à jour les marqueurs sur la carte
+          if (this.map && this.showMap) {
+            this.updateMapMarkers();
+            this.updateRadiusCircle();
+          }
         } else {
           this.errorMessage = response.message || 'Erreur lors du chargement des bornes';
         }
@@ -290,165 +229,325 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private applyLocalFilters(): void {
-    console.log('🔍 Application des filtres locaux...');
-    console.log('   Recherche:', this.searchQuery);
-    console.log('   Bornes totales:', this.bornes.length);
-    
-    // Afficher les localisations disponibles
-    if (this.bornes.length > 0) {
-      console.log('   📍 Localisations disponibles:');
-      this.bornes.forEach((borne, index) => {
-        console.log(`      ${index + 1}. "${borne.localisation}"`);
-      });
+  initMap(): void {
+    console.log('=== initMap: Initialisation de la carte ===');
+    if (!this.userLocation) {
+      console.error('✗ Impossible d\'initialiser la carte: userLocation est null');
+      return;
     }
-    
-    this.filteredBornes = this.bornes.filter(borne => {
-      if (!this.searchQuery) {
-        return true; // Pas de recherche, on garde tout
+
+    try {
+      console.log('Position de la carte:', this.userLocation);
+      
+      // Vérifier si l'élément DOM existe
+      const mapElement = document.getElementById('map');
+      if (!mapElement) {
+        console.error('✗ Élément DOM #map introuvable!');
+        return;
       }
+      console.log('✓ Élément DOM #map trouvé');
+
+      // Vérifier si la carte existe déjà
+      if (this.map) {
+        console.log('Suppression de l\'ancienne carte');
+        this.map.remove();
+      }
+
+      console.log('Création de la carte Leaflet...');
+      this.map = L.map('map').setView(
+        [this.userLocation.lat, this.userLocation.lng],
+        12
+      );
+      console.log('✓ Carte créée avec succès');
+
+      console.log('Ajout de la couche de tuiles OpenStreetMap...');
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(this.map);
+      console.log('✓ Couche de tuiles ajoutée');
+
+      // Icône personnalisée pour l'utilisateur
+      const userIcon = L.divIcon({
+        html: '<div class="user-marker"><i class="bi bi-geo-alt-fill"></i></div>',
+        className: 'custom-marker-user',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32]
+      });
+
+      // Marqueur position utilisateur
+      console.log('Ajout du marqueur utilisateur...');
+      this.userMarker = L.marker([this.userLocation.lat, this.userLocation.lng], { icon: userIcon })
+        .addTo(this.map)
+        .bindPopup('<strong>Votre position</strong>')
+        .openPopup();
+      console.log('✓ Marqueur utilisateur ajouté');
+
+      // Ajouter le cercle de rayon
+      this.updateRadiusCircle();
+
+      // Ajouter les marqueurs de bornes s'il y en a déjà
+      if (this.filteredBornes.length > 0) {
+        console.log('Ajout des marqueurs de bornes existantes');
+        this.updateMapMarkers();
+      }
+    } catch (error) {
+      console.error('✗ ERREUR lors de l\'initialisation de la carte:', error);
+    }
+  }
+
+  updateMapMarkers(): void {
+    console.log('=== updateMapMarkers: Ajout des marqueurs ===');
+    
+    if (!this.map) {
+      console.error('✗ ERREUR: Carte non disponible pour ajouter les marqueurs');
+      return;
+    }
+    console.log('✓ Carte disponible');
+
+    console.log('Nombre de bornes à afficher:', this.filteredBornes.length);
+
+    // Supprimer anciens marqueurs
+    console.log('Suppression des anciens marqueurs:', this.markers.length);
+    this.markers.forEach(marker => marker.remove());
+    this.markers = [];
+
+    // Ajouter nouveaux marqueurs pour chaque borne
+    let marquersAjoutes = 0;
+    let bornesSansCoordonnees = 0;
+    
+    this.filteredBornes.forEach((borne, index) => {
+      console.log(`\n--- Traitement borne ${index + 1}/${this.filteredBornes.length} ---`);
+      console.log('  ID:', borne.idBorne);
+      console.log('  Localisation:', borne.localisation);
+      console.log('  Latitude:', borne.latitude, '(type:', typeof borne.latitude, ')');
+      console.log('  Longitude:', borne.longitude, '(type:', typeof borne.longitude, ')');
+      console.log('  État:', borne.etat);
       
-      const searchLower = this.searchQuery.toLowerCase();
-      const localisationLower = borne.localisation?.toLowerCase() || '';
-      const matches = localisationLower.includes(searchLower);
-      
-      if (!matches) {
-        console.log(`   ✗ Borne ${borne.idBorne} exclue: "${borne.localisation}" ne contient pas "${this.searchQuery}"`);
+      if (borne.latitude && borne.longitude) {
+        try {
+          const icon = this.getBorneIcon(borne.etat);
+          console.log('  ✓ Icône créée pour état:', borne.etat);
+          
+          const marker = L.marker([borne.latitude, borne.longitude], { icon })
+            .addTo(this.map)
+            .bindPopup(this.createPopupContent(borne));
+          
+          marker.on('click', () => {
+            this.selectBorne(borne);
+          });
+          
+          this.markers.push(marker);
+          marquersAjoutes++;
+          console.log('  ✓ Marqueur ajouté avec succès à la position [', borne.latitude, ',', borne.longitude, ']');
+        } catch (error) {
+          console.error('  ✗ ERREUR lors de l\'ajout du marqueur:', error);
+        }
       } else {
-        console.log(`   ✓ Borne ${borne.idBorne} incluse: "${borne.localisation}" contient "${this.searchQuery}"`);
+        bornesSansCoordonnees++;
+        console.warn('  ✗ BORNE SANS COORDONNÉES VALIDES');
+        console.warn('    Latitude présente:', !!borne.latitude);
+        console.warn('    Longitude présente:', !!borne.longitude);
       }
-      
-      return matches;
     });
+
+    console.log('\n=== RÉSUMÉ ===');
+    console.log('✓ Marqueurs ajoutés avec succès:', marquersAjoutes);
+    console.log('✗ Bornes sans coordonnées:', bornesSansCoordonnees);
+    console.log('Total bornes traitées:', this.filteredBornes.length);
+
+    // Ajuster la vue pour montrer tous les marqueurs
+    if (this.markers.length > 0 && this.userMarker) {
+      console.log('Ajustement de la vue pour afficher tous les marqueurs...');
+      const group = L.featureGroup([...this.markers, this.userMarker]);
+      this.map.fitBounds(group.getBounds().pad(0.1));
+      console.log('✓ Vue ajustée');
+    } else if (this.markers.length === 0) {
+      console.warn('⚠ AUCUN MARQUEUR À AFFICHER!');
+    }
+  }
+
+  updateRadiusCircle(): void {
+    if (!this.map || !this.userLocation) return;
+
+    // Supprimer l'ancien cercle
+    if (this.radiusCircle) {
+      this.radiusCircle.remove();
+    }
+
+    // Ajouter le nouveau cercle
+    this.radiusCircle = L.circle([this.userLocation.lat, this.userLocation.lng], {
+      radius: this.distance * 1000, // Convertir km en mètres
+      color: '#3b82f6',
+      fillColor: '#3b82f6',
+      fillOpacity: 0.1,
+      weight: 2
+    }).addTo(this.map);
+  }
+
+  getBorneIcon(etat: string): L.DivIcon {
+    let color = '#28a745'; // vert par défaut
     
-    console.log('   ✓ Bornes filtrées:', this.filteredBornes.length);
+    switch(etat) {
+      case 'DISPONIBLE':
+        color = '#28a745'; // vert
+        break;
+      case 'OCCUPE':
+        color = '#ffc107'; // jaune
+        break;
+      default:
+        color = '#dc3545'; // rouge
+        break;
+    }
+
+    return L.divIcon({
+      html: `<div class="borne-marker" style="background-color: ${color};"><i class="bi bi-lightning-charge-fill"></i></div>`,
+      className: 'custom-marker-borne',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
+    });
+  }
+
+  createPopupContent(borne: Borne): string {
+    const etatLabel = this.getEtatLabel(borne.etat);
+    const etatClass = borne.etat === 'DISPONIBLE' ? 'success' : (borne.etat === 'OCCUPE' ? 'warning' : 'danger');
+    const prix = borne.prix ? `${borne.prix}€/h` : 'N/A';
+    const distance = this.userLocation && borne.latitude && borne.longitude ? 
+      this.calculateDistance(borne.latitude, borne.longitude) : 0;
+    
+    return `
+      <div class="popup-content">
+        <h6 class="mb-2"><strong>${borne.localisation}</strong></h6>
+        <span class="badge badge-${etatClass}">${etatLabel}</span>
+        <p class="mb-1 mt-2"><strong>Type:</strong> ${borne.type}</p>
+        <p class="mb-1"><strong>Puissance:</strong> ${borne.puissance} kW</p>
+        <p class="mb-1"><strong>Prix:</strong> ${prix}</p>
+        <p class="mb-2"><strong>Distance:</strong> ${distance.toFixed(1)} km</p>
+      </div>
+    `;
+  }
+
+  selectBorne(borne: Borne): void {
+    // Centrer la carte sur la borne sélectionnée
+    if (borne.latitude && borne.longitude && this.map) {
+      this.map.setView([borne.latitude, borne.longitude], 15);
+    }
+  }
+
+  calculateDistance(lat: number, lng: number): number {
+    if (!this.userLocation) return 0;
+
+    const R = 6371; // Rayon de la Terre en km
+    const dLat = this.deg2rad(lat - this.userLocation.lat);
+    const dLon = this.deg2rad(lng - this.userLocation.lng);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.deg2rad(this.userLocation.lat)) *
+      Math.cos(this.deg2rad(lat)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+    return distance;
+  }
+
+  deg2rad(deg: number): number {
+    return deg * (Math.PI / 180);
   }
 
   onFilterChange(): void {
     console.log('📊 onFilterChange appelé');
-    console.log('   Distance:', this.distance);
-    console.log('   Prix:', this.prixMin, '-', this.prixMax);
-    console.log('   Puissance min:', this.puissanceMin);
-    console.log('   État sélectionné:', this.selectedEtat);
-    console.log('   Disponible seulement:', this.disponibleOnly);
     
-    this.updateRadiusCircle();
+    // Mettre à jour le rayon sur la carte
+    if (this.map && this.showMap) {
+      this.updateRadiusCircle();
+    }
+    
+    // Recharger les bornes avec les nouveaux filtres
     this.searchBornes();
   }
 
   onSearchChange(): void {
     console.log('🔎 onSearchChange appelé - Recherche:', this.searchQuery);
-    this.applyLocalFilters();
-    this.updateMarkers();
-  }
-
-  private updateMarkers(): void {
-    // Vérifier si la carte est initialisée
-    if (!this.map) {
-      console.warn('⚠ updateMarkers: Carte non initialisée, impossible d\'ajouter des marqueurs');
+    
+    // Annuler le timeout précédent
+    if (this.geocodeTimeout) {
+      clearTimeout(this.geocodeTimeout);
+    }
+    
+    // Si le champ est vide, ne rien faire
+    if (!this.searchQuery || this.searchQuery.trim().length === 0) {
       return;
     }
-
-    // Supprimer anciens marqueurs
-    this.markers.forEach(marker => marker.remove());
-    this.markers = [];
-
-    // Ajouter nouveaux marqueurs
-    this.filteredBornes.forEach(borne => {
-      if (borne.latitude && borne.longitude) {
-        const icon = this.getBorneIcon(borne.etat);
-        
-        const marker = L.marker([borne.latitude, borne.longitude], { icon })
-          .addTo(this.map)
-          .bindPopup(this.createPopupContent(borne));
-        
-        marker.on('click', () => {
-          this.onBorneSelect(borne);
-        });
-        
-        this.markers.push(marker);
-      }
-    });
-
-    // Ajuster la vue pour montrer tous les marqueurs
-    if (this.markers.length > 0 && this.userMarker) {
-      const group = L.featureGroup([...this.markers, this.userMarker]);
-      this.map.fitBounds(group.getBounds().pad(0.1));
+    
+    // Si la recherche contient du texte (minimum 3 caractères), attendre 500ms avant de géocoder
+    if (this.searchQuery.trim().length >= 3) {
+      this.geocodeTimeout = window.setTimeout(() => {
+        this.geocodeLocation(this.searchQuery.trim());
+      }, 500);
     }
   }
 
-  private getBorneIcon(etat: string): L.DivIcon {
-    let color = 'success';
-    let icon = 'ev-station';
+  private geocodeLocation(locationName: string): void {
+    console.log('🌍 Géocodage de:', locationName);
+    this.geocoding = true;
     
-    switch(etat) {
-      case 'DISPONIBLE':
-        color = 'success';
-        break;
-      case 'OCCUPE':
-        color = 'warning';
-        break;
-      case 'MAINTENANCE':
-        color = 'secondary';
-        break;
-      case 'HORS_SERVICE':
-        color = 'danger';
-        break;
-    }
-
-    return L.divIcon({
-      html: `<i class="bi bi-lightning-charge-fill text-${color}" style="font-size: 24px;"></i>`,
-      className: 'custom-marker',
-      iconSize: [24, 24],
-      iconAnchor: [12, 24]
-    });
-  }
-
-  private createPopupContent(borne: Borne): string {
-    const etatBadge = this.getEtatBadgeHtml(borne.etat);
-    const prix = borne.prix ? `${borne.prix}€/h` : 'N/A';
+    // Utiliser l'API Nominatim d'OpenStreetMap pour le géocodage
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}&limit=1`;
     
-    return `
-      <div class="popup-content">
-        <h6 class="mb-2"><strong>Borne ${borne.idBorne}</strong></h6>
-        <p class="mb-1"><small>${borne.localisation}</small></p>
-        ${etatBadge}
-        <p class="mb-1 mt-2"><strong>Puissance:</strong> ${borne.puissance} kW</p>
-        <p class="mb-1"><strong>Prix:</strong> ${prix}</p>
-        <p class="mb-2"><strong>Type:</strong> ${borne.type}</p>
-        <button class="btn btn-sm btn-primary w-100" onclick="window.reserveBorne(${borne.idBorne})">
-          <i class="bi bi-calendar-check"></i> Réserver
-        </button>
-      </div>
-    `;
-  }
-
-  private getEtatBadgeHtml(etat: string): string {
-    let badgeClass = 'bg-success';
-    let label = 'Disponible';
-    
-    switch(etat) {
-      case 'OCCUPE':
-        badgeClass = 'bg-warning';
-        label = 'Occupée';
-        break;
-      case 'MAINTENANCE':
-        badgeClass = 'bg-secondary';
-        label = 'Maintenance';
-        break;
-      case 'HORS_SERVICE':
-        badgeClass = 'bg-danger';
-        label = 'Hors service';
-        break;
-    }
-    
-    return `<span class="badge ${badgeClass}">${label}</span>`;
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        this.geocoding = false;
+        if (data && data.length > 0) {
+          const result = data[0];
+          const newLocation = {
+            lat: parseFloat(result.lat),
+            lng: parseFloat(result.lon)
+          };
+          
+          console.log('✅ Localisation trouvée:', newLocation);
+          
+          // Mettre à jour la position de l'utilisateur
+          this.userLocation = newLocation;
+          
+          // Mettre à jour la carte
+          if (this.map && this.showMap) {
+            // Mettre à jour le marqueur utilisateur
+            if (this.userMarker) {
+              this.userMarker.setLatLng([newLocation.lat, newLocation.lng]);
+            }
+            // Centrer sur la nouvelle position
+            this.map.setView([newLocation.lat, newLocation.lng], 12);
+            // Mettre à jour le cercle de rayon
+            this.updateRadiusCircle();
+          }
+          
+          // Recharger les bornes avec la nouvelle position
+          this.searchBornes();
+        } else {
+          console.log('❌ Aucune localisation trouvée pour:', locationName);
+        }
+      })
+      .catch(error => {
+        this.geocoding = false;
+        console.error('❌ Erreur lors du géocodage:', error);
+      });
   }
 
   onBorneSelect(borne: Borne): void {
-    // Centrer la carte sur la borne
-    if (borne.latitude && borne.longitude && this.map) {
-      this.map.setView([borne.latitude, borne.longitude], 15);
+    if (this.showMap) {
+      this.showMap = true;
+      // Attendre que la vue soit mise à jour
+      setTimeout(() => {
+        if (!this.map) {
+          this.initMap();
+        }
+        this.selectBorne(borne);
+      }, 100);
+    } else {
+      this.selectBorne(borne);
     }
   }
 
@@ -498,5 +597,16 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleView(): void {
     this.showMap = !this.showMap;
+    
+    // Si on bascule vers la vue carte et qu'elle n'est pas encore initialisée
+    if (this.showMap && !this.map && this.userLocation) {
+      // Attendre que le DOM soit mis à jour
+      setTimeout(() => {
+        this.initMap();
+        if (this.filteredBornes.length > 0) {
+          this.updateMapMarkers();
+        }
+      }, 100);
+    }
   }
-} 
+}

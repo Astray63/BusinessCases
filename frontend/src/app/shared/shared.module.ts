@@ -4,9 +4,12 @@ import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastsComponent } from '../components/toasts/toasts.component';
+import { BorneCardComponent } from '../components/borne-card/borne-card.component';
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    BorneCardComponent
+  ],
   imports: [
     CommonModule,
     RouterModule,
@@ -21,7 +24,8 @@ import { ToastsComponent } from '../components/toasts/toasts.component';
     ReactiveFormsModule,
     FormsModule,
     NgbModule,
-    ToastsComponent
+    ToastsComponent,
+    BorneCardComponent
   ]
 })
 export class SharedModule { }

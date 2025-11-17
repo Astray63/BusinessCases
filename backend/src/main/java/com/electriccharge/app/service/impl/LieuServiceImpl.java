@@ -55,7 +55,7 @@ public class LieuServiceImpl implements LieuService {
         UtilisateurLieu utilisateurLieu = new UtilisateurLieu();
         utilisateurLieu.setUtilisateur(utilisateur);
         utilisateurLieu.setLieu(savedLieu);
-        utilisateurLieu.setTypeAdresse(UtilisateurLieu.TypeAdresse.PRINCIPALE);
+        utilisateurLieu.setTypeAdresse(UtilisateurLieu.TypeAdresse.principale);
         utilisateurLieuRepository.save(utilisateurLieu);
         
         return mapToDto(savedLieu);
