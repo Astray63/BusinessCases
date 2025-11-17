@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService, AuthResponse } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
 import { ApiResponse } from '../../../models/api-response.model';
 
@@ -47,7 +47,7 @@ export class LoginComponent implements OnInit {
     const { pseudo, password } = this.loginForm.value;
 
     this.authService.login({ pseudo, password }).subscribe({
-      next: (response: ApiResponse<{token: string, user: any}>) => {
+      next: (response: ApiResponse<AuthResponse>) => {
         if (response.result === 'SUCCESS') {
           this.toastService.showSuccess(response.message || 'Connexion réussie');
           // Rediriger vers l'URL de retour avec les query params

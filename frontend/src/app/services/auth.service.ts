@@ -7,7 +7,8 @@ import { Utilisateur, UtilisateurAuth } from '../models/utilisateur.model';
 import { ApiResponse } from '../models/api-response.model';
 
 export interface AuthResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   user: Utilisateur;
 }
 
@@ -21,6 +22,9 @@ export class AuthService {
   private utilisateurApiUrl = `${environment.apiUrl}/utilisateurs`;
 
   constructor(private http: HttpClient) {
+    // Nettoyer les tokens invalides au démarrage
+    this.cleanupInvalidTokens();
+    
     const storedUser = localStorage.getItem('currentUser');
     this.currentUserSubject = new BehaviorSubject<Utilisateur | null>(
       storedUser ? JSON.parse(storedUser) : null
@@ -28,15 +32,33 @@ export class AuthService {
     this.currentUser$ = this.currentUserSubject.asObservable();
   }
 
+  private cleanupInvalidTokens(): void {
+    const token = localStorage.getItem('token');
+    if (token && token.split('.').length !== 3) {
+      console.warn('Token JWT invalide détecté au démarrage, nettoyage...');
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('tokenExpiration');
+      localStorage.removeItem('currentUser');
+    }
+  }
+
   login(credentials: UtilisateurAuth): Observable<ApiResponse<AuthResponse>> {
     return this.http.post<ApiResponse<AuthResponse>>(`${this.apiUrl}/login`, credentials)
       .pipe(
         map(response => {
-          if (response.result === 'SUCCESS' && response.data) {
+          if (response.result === 'SUCCESS' && response.data && response.data.accessToken) {
+            // Vérifier que le token a le bon format JWT
+            if (response.data.accessToken.split('.').length !== 3) {
+              console.error('Token JWT invalide reçu du backend:', response.data.accessToken);
+              throw new Error('Token JWT invalide reçu du serveur');
+            }
+            
             const expirationDate = new Date();
             expirationDate.setDate(expirationDate.getDate() + 7); // 7 jours
             
-            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('token', response.data.accessToken);
+            localStorage.setItem('refreshToken', response.data.refreshToken);
             localStorage.setItem('tokenExpiration', expirationDate.getTime().toString());
             localStorage.setItem('currentUser', JSON.stringify(response.data.user));
             this.currentUserSubject.next(response.data.user);
@@ -75,6 +97,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('tokenExpiration');
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
@@ -106,6 +129,13 @@ export class AuthService {
     const expiration = localStorage.getItem('tokenExpiration');
     
     if (!token || !user) {
+      return false;
+    }
+    
+    // Vérifier que le token a le bon format JWT (header.payload.signature)
+    if (token.split('.').length !== 3) {
+      console.warn('Token JWT invalide détecté dans isLoggedIn()');
+      this.logout();
       return false;
     }
     

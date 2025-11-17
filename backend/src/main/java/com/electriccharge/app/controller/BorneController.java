@@ -222,6 +222,18 @@ public class BorneController {
         }
     }
     
+    @GetMapping("/proprietaire/{proprietaireId}")
+    public ResponseEntity<ApiResponse<?>> getBornesByProprietaire(@PathVariable Long proprietaireId) {
+        try {
+            List<ChargingStationDto> bornes = chargingStationService.getByOwner(proprietaireId);
+            return new ResponseEntity<>(ApiResponse.success(bornes),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<?>> searchBornes(
             @RequestParam(required = false) Double latitude,

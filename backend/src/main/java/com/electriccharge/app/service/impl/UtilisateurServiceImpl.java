@@ -321,7 +321,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
     private UtilisateurDto mapToDto(Utilisateur utilisateur) {
         return new UtilisateurDto(
             utilisateur.getIdUtilisateur(),
-            utilisateur.getRole().getValue(), // role
+            utilisateur.getRole() != null ? utilisateur.getRole().getValue() : "client", // role
             utilisateur.getNom(),
             utilisateur.getPrenom(),
             utilisateur.getPseudo(),

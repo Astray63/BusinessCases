@@ -55,18 +55,15 @@ export class MesBornesComponent implements OnInit {
   }
 
   chargerDonnees(): void {
-    if (!this.currentUser) return;
+    if (!this.currentUser || !this.currentUser.idUtilisateur) return;
     
     this.isLoading = true;
     
-    // Charger les bornes
-    this.borneService.getAllBornes().subscribe({
+    // Charger uniquement les bornes du propriétaire connecté
+    this.borneService.getBornesByProprietaire(this.currentUser.idUtilisateur).subscribe({
       next: (response: any) => {
         if (response.result === 'SUCCESS' && response.data) {
-          // Filtrer les bornes du propriétaire
-          this.mesBornes = response.data.filter(
-            (b: Borne) => b.ownerId === this.currentUser?.idUtilisateur
-          );
+          this.mesBornes = response.data;
         }
         this.isLoading = false;
       },
@@ -76,7 +73,7 @@ export class MesBornesComponent implements OnInit {
       }
     });
 
-    // Charger les lieux
+    // Charger les lieux du propriétaire
     this.lieuService.getLieux().subscribe({
       next: (response: any) => {
         if (response.result === 'SUCCESS' && response.data) {

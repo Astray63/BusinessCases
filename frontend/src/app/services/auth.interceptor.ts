@@ -19,7 +19,8 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const token = localStorage.getItem('token');
     
-    if (token) {
+    // Vérifier que le token existe et a le bon format JWT (header.payload.signature)
+    if (token && token.split('.').length === 3) {
       const authReq = request.clone({
         headers: request.headers.set('Authorization', `Bearer ${token}`)
       });
@@ -35,6 +36,14 @@ export class AuthInterceptor implements HttpInterceptor {
           return throwError(() => error);
         })
       );
+    }
+    
+    // Si le token est invalide, le nettoyer
+    if (token && token.split('.').length !== 3) {
+      console.warn('Token JWT invalide détecté, nettoyage du localStorage');
+      localStorage.removeItem('token');
+      localStorage.removeItem('tokenExpiration');
+      localStorage.removeItem('currentUser');
     }
     
     return next.handle(request);
