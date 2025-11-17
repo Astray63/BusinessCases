@@ -24,7 +24,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private borneService: BorneService
-  ) {}
+  ) {
+    // Créer une référence globale pour que le popup puisse appeler la méthode de réservation
+    (window as any).reserveBorne = (borneId: number) => {
+      this.navigateToReservation(this.bornesPubliques.find(b => b.idBorne === borneId)!);
+    };
+  }
 
   ngOnInit(): void {
     console.log('=== HOME COMPONENT: ngOnInit ===');
@@ -412,6 +417,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.map) {
       this.map.remove();
     }
+    // Nettoyer la référence globale
+    delete (window as any).reserveBorne;
   }
 
   navigateToReservation(borne: Borne): void {

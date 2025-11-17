@@ -30,7 +30,7 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
   
   // Filtres
   searchQuery = '';
-  distance = 20; // km
+  distance = 1000; // km - Augmenté pour recherche nationale
   prixMin = 0;
   prixMax = 50;
   puissanceMin = 0;
@@ -44,7 +44,12 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
     private borneService: BorneService,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    // Créer une référence globale pour que le popup puisse appeler la méthode de réservation
+    (window as any).reserveBorne = (borneId: number) => {
+      this.reserverBorne(borneId);
+    };
+  }
 
   ngOnInit(): void {
     this.geolocationMessage = 'Initialisation de la géolocalisation...';
@@ -60,6 +65,8 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.map) {
       this.map.remove();
     }
+    // Nettoyer la référence globale
+    delete (window as any).reserveBorne;
   }
 
   retryGeolocation(): void {
@@ -82,11 +89,6 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
         this.userLocation = location;
         this.geolocationStatus = 'success';
         this.geolocationMessage = '';
-        
-        // Initialiser la carte si elle n'existe pas encore
-        if (!this.map && this.showMap) {
-          this.initMap();
-        }
       })
       .catch((error) => {
         console.error('❌ Échec géolocalisation, utilisation position par défaut (Paris)');
@@ -94,15 +96,17 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
         this.userLocation = { ...this.fallbackLocation };
         this.geolocationStatus = 'error';
         this.geolocationMessage = this.buildGeolocationErrorMessage(error);
-        
-        // Initialiser la carte si elle n'existe pas encore
-        if (!this.map && this.showMap) {
-          this.initMap();
-        }
       })
       .finally(() => {
         this.locating = false;
-        // Charger les bornes
+        
+        // Initialiser la carte AVANT de charger les bornes
+        if (!this.map && this.showMap && this.userLocation) {
+          console.log('📍 Initialisation de la carte avec position:', this.userLocation);
+          this.initMap();
+        }
+        
+        // Charger les bornes APRÈS l'initialisation de la carte
         this.searchBornes();
       });
   }
@@ -186,7 +190,15 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   searchBornes(): void {
-    if (!this.userLocation) return;
+    console.log('🔍 searchBornes() appelé');
+    console.log('  - userLocation:', this.userLocation);
+    console.log('  - map existe:', !!this.map);
+    console.log('  - showMap:', this.showMap);
+    
+    if (!this.userLocation) {
+      console.error('❌ searchBornes() annulé: userLocation est null');
+      return;
+    }
 
     this.loading = true;
     this.errorMessage = '';
@@ -203,27 +215,37 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.selectedEtat !== 'all') params.etat = this.selectedEtat;
     if (this.disponibleOnly) params.disponible = true;
 
+    console.log('📡 Appel API searchBornesAdvanced avec params:', params);
+
     this.borneService.searchBornesAdvanced(params).subscribe({
       next: (response: ApiResponse<Borne[]>) => {
+        console.log('📦 Réponse API reçue:', response);
         this.loading = false;
         if (response.result === 'SUCCESS' && response.data) {
           this.bornes = response.data;
           this.filteredBornes = [...this.bornes];
           
           console.log('✅ Bornes chargées:', this.filteredBornes.length);
+          console.log('  - Première borne:', this.filteredBornes[0]);
           
           // Mettre à jour les marqueurs sur la carte
           if (this.map && this.showMap) {
+            console.log('🗺️ Mise à jour de la carte...');
             this.updateMapMarkers();
             this.updateRadiusCircle();
+          } else {
+            console.warn('⚠️ Carte non disponible pour mise à jour');
+            console.warn('  - this.map:', !!this.map);
+            console.warn('  - this.showMap:', this.showMap);
           }
         } else {
+          console.error('❌ Réponse API en erreur:', response);
           this.errorMessage = response.message || 'Erreur lors du chargement des bornes';
         }
       },
       error: (error) => {
         this.loading = false;
-        console.error('Erreur lors du chargement des bornes:', error);
+        console.error('❌ Erreur lors du chargement des bornes:', error);
         this.errorMessage = 'Impossible de charger les bornes de recharge';
       }
     });
@@ -424,6 +446,11 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
         <p class="mb-1"><strong>Puissance:</strong> ${borne.puissance} kW</p>
         <p class="mb-1"><strong>Prix:</strong> ${prix}</p>
         <p class="mb-2"><strong>Distance:</strong> ${distance.toFixed(1)} km</p>
+        <div class="popup-actions">
+          <button class="btn btn-sm btn-primary" onclick="window.reserveBorne(${borne.idBorne})">
+            <i class="bi bi-calendar-check"></i> Réserver
+          </button>
+        </div>
       </div>
     `;
   }

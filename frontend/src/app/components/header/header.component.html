@@ -163,13 +163,6 @@
               <div class="px-4 py-3 border-b border-gray-200">
                 <p class="text-sm font-semibold text-gray-900">{{ currentUser.prenom }} {{ currentUser.nom }}</p>
                 <p class="text-xs text-gray-500">{{ currentUser.email }}</p>
-                <span class="inline-block mt-2 px-2 py-1 text-xs font-medium rounded-full"
-                      [class.bg-blue-100]="currentUser.role === 'user'"
-                      [class.text-blue-700]="currentUser.role === 'user'"
-                      [class.bg-purple-100]="currentUser.role === 'admin'"
-                      [class.text-purple-700]="currentUser.role === 'admin'">
-                  {{ currentUser.role === 'admin' ? 'Administrateur' : 'Utilisateur' }}
-                </span>
               </div>
               
               <!-- Menu items -->
@@ -177,13 +170,6 @@
                  class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                 <i class="bi bi-person-fill text-blue-600"></i>
                 <span>Mon profil</span>
-              </a>
-              
-              <!-- Admin -->
-              <a *ngIf="currentUser.role === 'admin'" routerLink="/admin" (click)="closeAllMenus()"
-                 class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors duration-200">
-                <i class="bi bi-shield-fill-check text-purple-600"></i>
-                <span>Administration</span>
               </a>
               
               <!-- Logout -->
@@ -351,13 +337,6 @@
              [class.hover:bg-orange-50]="!router.url.includes('/proprietaire/historique')">
             <i class="bi bi-clock-history"></i>
             <span>Historique</span>
-          </a>
-          
-          <!-- Mobile - Admin -->
-          <a *ngIf="currentUser.role === 'admin'" routerLink="/admin" (click)="closeMenu()"
-             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-            <i class="bi bi-shield-fill-check text-red-600"></i>
-            <span>Administration</span>
           </a>
           
           <!-- Mobile - Logout -->
