@@ -245,6 +245,7 @@ public class ReservationServiceImpl implements ReservationService {
         dto.setLongitude(station.getLongitude());
         dto.setPrixALaMinute(station.getPrixALaMinute());
         dto.setPuissance(station.getPuissance());
+        dto.setMedias(station.getMedias());
         dto.setInstructionSurPied(station.getInstructionSurPied());
         dto.setConnectorType(station.getConnectorType());
         dto.setDescription(station.getDescription());

@@ -9,11 +9,18 @@ import com.electriccharge.app.repository.UtilisateurRepository;
 import com.electriccharge.app.service.ChargingStationService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +35,12 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     
     @Autowired
     private ReservationRepository reservationRepository;
+    
+    @Value("${app.upload.dir:${user.home}/electriccharge/uploads/bornes}")
+    private String uploadDir;
+    
+    @Value("${app.upload.base-url:http://localhost:8080/uploads/bornes}")
+    private String uploadBaseUrl;
 
     @Override
     @Transactional
@@ -331,5 +344,116 @@ public class ChargingStationServiceImpl implements ChargingStationService {
             System.err.println("Could not load owner for station " + station.getIdBorne() + ": " + e.getMessage());
         }
         return dto;
+    }
+    
+    @Override
+    @Transactional
+    public List<String> uploadPhotos(Long borneId, MultipartFile[] photos) throws Exception {
+        System.out.println("Service: Début upload photos pour borne " + borneId);
+        System.out.println("Upload directory: " + uploadDir);
+        System.out.println("Upload base URL: " + uploadBaseUrl);
+        
+        ChargingStation station = chargingStationRepository.findById(borneId)
+                .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + borneId));
+        
+        List<String> photoUrls = new ArrayList<>();
+        
+        // Créer le répertoire d'upload s'il n'existe pas
+        Path uploadPath = Paths.get(uploadDir);
+        System.out.println("Path absolu: " + uploadPath.toAbsolutePath());
+        
+        if (!Files.exists(uploadPath)) {
+            System.out.println("Création du répertoire d'upload...");
+            Files.createDirectories(uploadPath);
+        }
+        
+        // Créer un sous-dossier pour cette borne
+        Path borneUploadPath = uploadPath.resolve("borne-" + borneId);
+        if (!Files.exists(borneUploadPath)) {
+            System.out.println("Création du répertoire pour la borne " + borneId);
+            Files.createDirectories(borneUploadPath);
+        }
+        
+        // Limiter à 5 photos au total
+        int currentPhotoCount = station.getMedias() != null ? station.getMedias().size() : 0;
+        int maxPhotos = 5;
+        int remainingSlots = maxPhotos - currentPhotoCount;
+        
+        System.out.println("Photos actuelles: " + currentPhotoCount + ", slots restants: " + remainingSlots);
+        
+        if (remainingSlots <= 0) {
+            throw new Exception("Limite de " + maxPhotos + " photos atteinte");
+        }
+        
+        int photosToUpload = Math.min(photos.length, remainingSlots);
+        
+        for (int i = 0; i < photosToUpload; i++) {
+            MultipartFile photo = photos[i];
+            
+            System.out.println("Traitement photo " + (i+1) + ": " + photo.getOriginalFilename());
+            
+            // Valider le type de fichier
+            String contentType = photo.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new Exception("Le fichier doit être une image");
+            }
+            
+            // Valider la taille (max 5MB)
+            if (photo.getSize() > 5 * 1024 * 1024) {
+                throw new Exception("La taille maximale par image est de 5MB");
+            }
+            
+            // Générer un nom de fichier unique
+            String originalFilename = photo.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String uniqueFilename = UUID.randomUUID().toString() + extension;
+            
+            // Sauvegarder le fichier
+            Path filePath = borneUploadPath.resolve(uniqueFilename);
+            Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            
+            // Générer l'URL accessible
+            String photoUrl = uploadBaseUrl + "/borne-" + borneId + "/" + uniqueFilename;
+            photoUrls.add(photoUrl);
+        }
+        
+        // Ajouter les nouvelles URLs à la liste existante
+        if (station.getMedias() == null) {
+            station.setMedias(new ArrayList<>());
+        }
+        station.getMedias().addAll(photoUrls);
+        
+        chargingStationRepository.save(station);
+        
+        return photoUrls;
+    }
+    
+    @Override
+    @Transactional
+    public void deletePhoto(Long borneId, String photoUrl) throws Exception {
+        ChargingStation station = chargingStationRepository.findById(borneId)
+                .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + borneId));
+        
+        if (station.getMedias() == null || !station.getMedias().contains(photoUrl)) {
+            throw new EntityNotFoundException("Photo non trouvée");
+        }
+        
+        // Supprimer l'URL de la liste
+        station.getMedias().remove(photoUrl);
+        chargingStationRepository.save(station);
+        
+        // Essayer de supprimer le fichier physique
+        try {
+            String filename = photoUrl.substring(photoUrl.lastIndexOf("/") + 1);
+            String borneFolder = "borne-" + borneId;
+            Path filePath = Paths.get(uploadDir).resolve(borneFolder).resolve(filename);
+            Files.deleteIfExists(filePath);
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la suppression du fichier physique: " + e.getMessage());
+            // On continue même si la suppression du fichier échoue
+        }
     }
 }

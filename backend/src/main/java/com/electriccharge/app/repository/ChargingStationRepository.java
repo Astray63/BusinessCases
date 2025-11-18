@@ -13,9 +13,11 @@ public interface ChargingStationRepository extends JpaRepository<ChargingStation
     @Query("SELECT cs FROM ChargingStation cs LEFT JOIN FETCH cs.owner WHERE cs.etat = :etat")
     List<ChargingStation> findByEtat(@Param("etat") ChargingStation.Etat etat);
     
-    List<ChargingStation> findByOwner_IdUtilisateur(Long ownerId);
+    @Query("SELECT cs FROM ChargingStation cs LEFT JOIN FETCH cs.medias WHERE cs.owner.idUtilisateur = :ownerId")
+    List<ChargingStation> findByOwner_IdUtilisateur(@Param("ownerId") Long ownerId);
     
-    List<ChargingStation> findByChargingStationLieu_Lieu_IdLieu(Long idLieu);
+    @Query("SELECT cs FROM ChargingStation cs LEFT JOIN FETCH cs.medias WHERE cs.chargingStationLieu.lieu.idLieu = :idLieu")
+    List<ChargingStation> findByChargingStationLieu_Lieu_IdLieu(@Param("idLieu") Long idLieu);
     
     @Query(value = 
         "SELECT * FROM charging_stations cs " +

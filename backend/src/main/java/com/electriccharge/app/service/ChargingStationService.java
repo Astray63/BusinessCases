@@ -1,6 +1,8 @@
 package com.electriccharge.app.service;
 
 import com.electriccharge.app.dto.ChargingStationDto;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -20,4 +22,6 @@ public interface ChargingStationService {
     List<ChargingStationDto> searchAdvanced(Double latitude, Double longitude, Double distance, 
                                              BigDecimal prixMin, BigDecimal prixMax, 
                                              Integer puissanceMin, String etat, Boolean disponible);
+    List<String> uploadPhotos(Long borneId, MultipartFile[] photos) throws Exception;
+    void deletePhoto(Long borneId, String photoUrl) throws Exception;
 }

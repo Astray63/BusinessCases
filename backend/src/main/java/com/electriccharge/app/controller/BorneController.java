@@ -9,11 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/bornes")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class BorneController {
 
     @Autowired
@@ -252,6 +254,46 @@ public class BorneController {
                     HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @PostMapping("/{id}/photos")
+    public ResponseEntity<ApiResponse<?>> uploadPhotos(
+            @PathVariable Long id,
+            @RequestParam("photos") MultipartFile[] photos) {
+        try {
+            System.out.println("Upload photos pour borne ID: " + id);
+            System.out.println("Nombre de photos reçues: " + photos.length);
+            List<String> photoUrls = chargingStationService.uploadPhotos(id, photos);
+            System.out.println("Photos uploadées avec succès: " + photoUrls);
+            return new ResponseEntity<>(ApiResponse.success("Photos uploadées avec succès", photoUrls),
+                    HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            System.err.println("Borne non trouvée: " + e.getMessage());
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Erreur lors de l'upload: " + e.getMessage());
+            return new ResponseEntity<>(ApiResponse.error("Erreur lors de l'upload des photos: " + e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @DeleteMapping("/{id}/photos")
+    public ResponseEntity<ApiResponse<?>> deletePhoto(
+            @PathVariable Long id,
+            @RequestParam String photoUrl) {
+        try {
+            chargingStationService.deletePhoto(id, photoUrl);
+            return new ResponseEntity<>(ApiResponse.success("Photo supprimée avec succès"),
+                    HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(ApiResponse.error("Erreur lors de la suppression de la photo: " + e.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

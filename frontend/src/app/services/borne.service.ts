@@ -106,4 +106,18 @@ export class BorneService {
       body: { mediaUrl }
     });
   }
+
+  // Nouveaux endpoints pour les photos
+  uploadPhotos(borneId: number, photos: File[]): Observable<ApiResponse<string[]>> {
+    const formData = new FormData();
+    photos.forEach(photo => {
+      formData.append('photos', photo);
+    });
+    return this.http.post<ApiResponse<string[]>>(`${this.apiUrl}/${borneId}/photos`, formData);
+  }
+
+  deletePhoto(borneId: number, photoUrl: string): Observable<ApiResponse<void>> {
+    const params = new HttpParams().set('photoUrl', photoUrl);
+    return this.http.delete<ApiResponse<void>>(`${this.apiUrl}/${borneId}/photos`, { params });
+  }
 }

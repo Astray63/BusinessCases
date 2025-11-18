@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 export interface Toast {
   title: string;
   message: string;
-  type: 'success' | 'error' | 'warning' | 'info';
+  type: 'success' | 'danger' | 'warning' | 'info';
 }
 
 @Injectable({
@@ -23,7 +23,7 @@ export class ToastService {
   }
 
   showError(message: string, title: string = 'Erreur'): void {
-    this.show({ type: 'error', message, title });
+    this.show({ type: 'danger', message, title });
   }
 
   showWarning(message: string, title: string = 'Attention'): void {

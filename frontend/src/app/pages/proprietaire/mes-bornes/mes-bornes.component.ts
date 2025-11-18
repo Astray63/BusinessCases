@@ -22,6 +22,11 @@ export class MesBornesComponent implements OnInit {
   
   borneForm: FormGroup;
   selectedBorne: Borne | null = null;
+  
+  // Gestion des photos
+  selectedFiles: File[] = [];
+  previewUrls: string[] = [];
+  existingPhotos: string[] = [];
 
   constructor(
     private authService: AuthService,
@@ -93,6 +98,9 @@ export class MesBornesComponent implements OnInit {
       type: 'Type 2',
       etat: 'DISPONIBLE'
     });
+    this.selectedFiles = [];
+    this.previewUrls = [];
+    this.existingPhotos = [];
     this.showModal = true;
   }
 
@@ -107,6 +115,9 @@ export class MesBornesComponent implements OnInit {
       etat: borne.etat,
       lieu: (borne as any).lieu?.idLieu || null
     });
+    this.selectedFiles = [];
+    this.previewUrls = [];
+    this.existingPhotos = borne.medias || [];
     this.showModal = true;
   }
 
@@ -114,9 +125,91 @@ export class MesBornesComponent implements OnInit {
     this.showModal = false;
     this.borneForm.reset();
     this.selectedBorne = null;
+    this.selectedFiles = [];
+    this.previewUrls = [];
+    this.existingPhotos = [];
   }
 
-  soumettreBorne(): void {
+  onFileSelected(event: any): void {
+    const files: FileList = event.target.files;
+    if (files && files.length > 0) {
+      // Limiter à 5 photos maximum
+      const maxPhotos = 5;
+      const remainingSlots = maxPhotos - (this.existingPhotos.length + this.selectedFiles.length);
+      
+      if (remainingSlots <= 0) {
+        alert(`Vous pouvez ajouter maximum ${maxPhotos} photos au total.`);
+        return;
+      }
+
+      const filesToAdd = Math.min(files.length, remainingSlots);
+      
+      for (let i = 0; i < filesToAdd; i++) {
+        const file = files[i];
+        
+        // Vérifier le type de fichier
+        if (!file.type.startsWith('image/')) {
+          alert('Seules les images sont autorisées');
+          continue;
+        }
+        
+        // Vérifier la taille (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          alert('La taille maximale par image est de 5MB');
+          continue;
+        }
+        
+        this.selectedFiles.push(file);
+        
+        // Créer une preview
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          this.previewUrls.push(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+      
+      if (filesToAdd < files.length) {
+        alert(`Seulement ${filesToAdd} photo(s) ont été ajoutée(s) (limite de ${maxPhotos} photos atteinte).`);
+      }
+    }
+  }
+
+  removeNewPhoto(index: number): void {
+    this.selectedFiles.splice(index, 1);
+    this.previewUrls.splice(index, 1);
+  }
+
+  removeExistingPhoto(index: number): void {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette photo ?')) {
+      this.existingPhotos.splice(index, 1);
+    }
+  }
+
+  // Simulation de l'upload de photos (à remplacer par un vrai upload vers le backend)
+  private async uploadPhotos(): Promise<string[]> {
+    const uploadedUrls: string[] = [];
+    
+    // Pour l'instant, on simule l'upload en convertissant les fichiers en base64
+    // Dans une vraie implémentation, il faudrait envoyer les fichiers au backend
+    for (const file of this.selectedFiles) {
+      const base64 = await this.fileToBase64(file);
+      uploadedUrls.push(base64 as string);
+    }
+    
+    return uploadedUrls;
+  }
+
+  private fileToBase64(file: File): Promise<string | ArrayBuffer | null> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async soumettreBorne(): Promise<void> {
     if (this.borneForm.invalid || !this.currentUser) return;
     
     this.isLoading = true;
@@ -159,7 +252,8 @@ export class MesBornesComponent implements OnInit {
       prixALaMinute: parseFloat(prixMinute),
       etat: formData.etat,
       ownerId: this.currentUser.idUtilisateur,
-      lieu: { idLieu: lieuId }
+      lieu: { idLieu: lieuId },
+      medias: this.existingPhotos // Garder les photos existantes
     };
 
     if (this.isEditMode && this.selectedBorne && this.selectedBorne.idBorne) {
@@ -167,9 +261,20 @@ export class MesBornesComponent implements OnInit {
       borneData.idBorne = this.selectedBorne.idBorne;
       borneData.id = this.selectedBorne.idBorne;
       this.borneService.updateBorne(this.selectedBorne.idBorne, borneData).subscribe({
-        next: (response) => {
+        next: async (response) => {
           if (response.result === 'SUCCESS') {
-            alert('Borne modifiée avec succès !');
+            // Upload des nouvelles photos après la mise à jour de la borne
+            if (this.selectedFiles.length > 0) {
+              try {
+                await this.uploadPhotosToServer(this.selectedBorne!.idBorne!);
+                alert('Borne et photos modifiées avec succès !');
+              } catch (error) {
+                console.error('Erreur lors de l\'upload des photos:', error);
+                alert('Borne modifiée, mais erreur lors de l\'upload des photos');
+              }
+            } else {
+              alert('Borne modifiée avec succès !');
+            }
             this.fermerModal();
             this.chargerDonnees();
           }
@@ -183,9 +288,22 @@ export class MesBornesComponent implements OnInit {
     } else {
       // Ajout
       this.borneService.createBorne(borneData).subscribe({
-        next: (response) => {
-          if (response.result === 'SUCCESS') {
-            alert('Borne ajoutée avec succès !');
+        next: async (response) => {
+          if (response.result === 'SUCCESS' && response.data) {
+            const borneId = response.data.idBorne || response.data.id;
+            
+            // Upload des photos après la création de la borne
+            if (this.selectedFiles.length > 0 && borneId) {
+              try {
+                await this.uploadPhotosToServer(borneId);
+                alert('Borne et photos ajoutées avec succès !');
+              } catch (error) {
+                console.error('Erreur lors de l\'upload des photos:', error);
+                alert('Borne créée, mais erreur lors de l\'upload des photos');
+              }
+            } else {
+              alert('Borne ajoutée avec succès !');
+            }
             this.fermerModal();
             this.chargerDonnees();
           }
@@ -264,5 +382,30 @@ export class MesBornesComponent implements OnInit {
 
   ajouterLieu(): void {
     this.router.navigate(['/proprietaire/mes-lieux']);
+  }
+
+  // Upload réel vers le backend
+  private uploadPhotosToServer(borneId: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.selectedFiles.length === 0) {
+        resolve();
+        return;
+      }
+
+      this.borneService.uploadPhotos(borneId, this.selectedFiles).subscribe({
+        next: (response) => {
+          if (response.result === 'SUCCESS') {
+            console.log('Photos uploadées avec succès:', response.data);
+            resolve();
+          } else {
+            reject(new Error('Erreur lors de l\'upload des photos'));
+          }
+        },
+        error: (error) => {
+          console.error('Erreur lors de l\'upload:', error);
+          reject(error);
+        }
+      });
+    });
   }
 }

@@ -438,14 +438,25 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
     const distance = this.userLocation && borne.latitude && borne.longitude ? 
       this.calculateDistance(borne.latitude, borne.longitude) : 0;
     
+    // Préparer l'image de la borne
+    const photoHtml = borne.medias && borne.medias.length > 0
+      ? `<div style="width: 100%; height: 150px; overflow: hidden; border-radius: 8px; margin-bottom: 12px;">
+           <img src="${borne.medias[0]}" alt="Photo de la borne" style="width: 100%; height: 100%; object-fit: cover;">
+         </div>`
+      : `<div style="width: 100%; height: 150px; background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+           <i class="bi bi-lightning-charge-fill" style="font-size: 3rem; color: #3b82f6; opacity: 0.5;"></i>
+         </div>`;
+    
     return `
-      <div class="popup-content">
+      <div class="popup-content" style="min-width: 280px;">
+        ${photoHtml}
         <h6 class="mb-2"><strong>${borne.localisation}</strong></h6>
         <span class="badge badge-${etatClass}">${etatLabel}</span>
         <p class="mb-1 mt-2"><strong>Type:</strong> ${borne.type}</p>
         <p class="mb-1"><strong>Puissance:</strong> ${borne.puissance} kW</p>
         <p class="mb-1"><strong>Prix:</strong> ${prix}</p>
         <p class="mb-2"><strong>Distance:</strong> ${distance.toFixed(1)} km</p>
+        ${borne.medias && borne.medias.length > 1 ? `<p class="mb-2" style="font-size: 0.875rem; color: #6b7280;"><i class="bi bi-camera"></i> ${borne.medias.length} photo(s) disponible(s)</p>` : ''}
         <div class="popup-actions">
           <button class="btn btn-sm btn-primary" onclick="window.reserveBorne(${borne.idBorne})">
             <i class="bi bi-calendar-check"></i> Réserver
