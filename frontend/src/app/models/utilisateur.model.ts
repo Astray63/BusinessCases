@@ -26,6 +26,21 @@ export interface UtilisateurAuth {
   password: string;
 }
 
+export interface RegisterRequest {
+  utilisateur: {
+    nom: string;
+    prenom: string;
+    pseudo: string;
+    email: string;
+    dateNaissance: Date;
+    role: string;
+    iban?: string;
+    adressePhysique?: string;
+    medias?: string;
+  };
+  motDePasse: string;
+}
+
 export interface AuthResponse {
   token: string;
   user: Utilisateur;

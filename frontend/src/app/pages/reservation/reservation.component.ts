@@ -120,7 +120,7 @@ export class ReservationComponent implements OnInit {
     this.isLoading = true;
 
     // Charger les réservations de l'utilisateur
-    this.reservationService.getReservationsByCurrentUser(currentUser.idUtilisateur).subscribe({
+    this.reservationService.getReservationsByUser(currentUser.idUtilisateur).subscribe({
       next: (response: ApiResponse<Reservation[]>) => {
         this.reservations = response.data || [];
         this.categoriserReservations();

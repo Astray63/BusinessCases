@@ -9,6 +9,7 @@ import { Utilisateur } from '../../models/utilisateur.model';
 import { DashboardStats } from '../../models/dashboard-stats.model';
 import { Reservation } from '../../models/reservation.model';
 import { Borne } from '../../models/borne.model';
+import { ApiResponse } from '../../models/api-response.model';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -242,30 +243,30 @@ export class DashboardComponent implements OnInit {
     if (!this.currentUser) return;
     
     this.loading = true;
-    this.reservationService.getMesReservationsClient(this.currentUser.idUtilisateur).subscribe({
-      next: (response) => {
+    this.reservationService.getReservationsByUser(this.currentUser.idUtilisateur).subscribe({
+      next: (response: ApiResponse<Reservation[]>) => {
         if (response.result === 'SUCCESS' && response.data) {
           let filtered = response.data;
           
           // Appliquer les filtres de date
           if (this.filterDateDebut) {
             const dateDebut = new Date(this.filterDateDebut);
-            filtered = filtered.filter(r => new Date(r.dateDebut) >= dateDebut);
+            filtered = filtered.filter((r: Reservation) => new Date(r.dateDebut) >= dateDebut);
           }
           
           if (this.filterDateFin) {
             const dateFin = new Date(this.filterDateFin);
-            filtered = filtered.filter(r => new Date(r.dateFin) <= dateFin);
+            filtered = filtered.filter((r: Reservation) => new Date(r.dateFin) <= dateFin);
           }
           
           // Filtrer les réservations passées
           const now = new Date();
           this.allPastReservations = filtered
-            .filter(r => {
+            .filter((r: Reservation) => {
               const dateFin = new Date(r.dateFin);
               return r.statut === 'TERMINEE' || r.statut === 'ANNULEE' || dateFin < now;
             })
-            .sort((a, b) => new Date(b.dateDebut).getTime() - new Date(a.dateDebut).getTime());
+            .sort((a: Reservation, b: Reservation) => new Date(b.dateDebut).getTime() - new Date(a.dateDebut).getTime());
           
           // Recalculer la pagination
           this.currentPagePast = 1;
@@ -274,7 +275,7 @@ export class DashboardComponent implements OnInit {
         }
         this.loading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         this.loading = false;
       }
     });

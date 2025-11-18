@@ -2,84 +2,55 @@ import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { BorneService } from '../../services/borne.service';
+import { GeolocationService, GeolocationPosition } from '../../services/geolocation.service';
+import { MapService } from '../../services/map.service';
 import { Borne } from '../../models/borne.model';
 import { ApiResponse } from '../../models/api-response.model';
-import * as L from 'leaflet';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html'
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
-  private map!: L.Map;
-  private markers: L.Marker[] = [];
-  private userMarker?: L.Marker;
+  private readonly MAP_ID = 'public-map';
   
   isLoggedIn = false;
   bornesPubliques: Borne[] = [];
   isLoading = false;
-  userLocation: { lat: number; lng: number } | null = null;
+  userLocation: GeolocationPosition | null = null;
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    private borneService: BorneService
-  ) {
-    // Créer une référence globale pour que le popup puisse appeler la méthode de réservation
-    (window as any).reserveBorne = (borneId: number) => {
-      this.navigateToReservation(this.bornesPubliques.find(b => b.idBorne === borneId)!);
-    };
-  }
+    private borneService: BorneService,
+    private geolocationService: GeolocationService,
+    private mapService: MapService
+  ) {}
 
   ngOnInit(): void {
     this.isLoggedIn = this.authService.isLoggedIn();
-    this.getUserLocationAsync();
+    this.getUserLocation();
   }
 
   ngAfterViewInit(): void {
-    // Map will be initialized once geolocation is obtained
-  }
-
-  private async getUserLocationAsync(): Promise<void> {
-    try {
-      this.userLocation = await this.requestGeolocation();
-    } catch (error: any) {
-      // Fallback to default location (Paris)
-      this.userLocation = { lat: 48.8566, lng: 2.3522 };
+    if (this.userLocation) {
+      setTimeout(() => this.initMap(), 100);
     }
-    
-    this.initMap();
-    this.loadBornesPubliques();
   }
 
-  private requestGeolocation(): Promise<{ lat: number; lng: number }> {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error('Geolocation not supported'));
-        return;
+  private getUserLocation(): void {
+    this.geolocationService.getCurrentPosition().subscribe({
+      next: (position) => {
+        this.userLocation = position;
+        this.initMap();
+        this.loadBornesPubliques();
+      },
+      error: () => {
+        this.userLocation = { lat: 48.8566, lng: 2.3522 };
+        this.initMap();
+        this.loadBornesPubliques();
       }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
-        },
-        (error) => {
-          reject(error);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
     });
-  }
-
-  getUserLocation(): void {
-    // Deprecated - using getUserLocationAsync() instead
   }
 
   initMap(): void {
@@ -88,125 +59,38 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     try {
-      const mapElement = document.getElementById('public-map');
+      const mapElement = document.getElementById(this.MAP_ID);
       if (!mapElement) {
         return;
       }
 
-      if (this.map) {
-        this.map.remove();
-      }
-
-      this.map = L.map('public-map').setView(
-        [this.userLocation.lat, this.userLocation.lng],
-        12
-      );
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(this.map);
-
-      const userIcon = L.divIcon({
-        html: '<div class="user-marker"><i class="bi bi-geo-alt-fill"></i></div>',
-        className: 'custom-marker-user',
-        iconSize: [32, 32],
-        iconAnchor: [16, 32]
+      this.mapService.initializeMap({
+        containerId: this.MAP_ID,
+        center: this.userLocation,
+        zoom: 12
       });
 
-      this.userMarker = L.marker([this.userLocation.lat, this.userLocation.lng], { icon: userIcon })
-        .addTo(this.map)
-        .bindPopup('<strong>Votre position</strong>')
-        .openPopup();
-
+      this.mapService.addUserMarker(this.MAP_ID, this.userLocation, 'Votre position');
       this.updateMapMarkers();
     } catch (error) {
-      // Silent fail - map initialization error
+      // Silent fail
     }
   }
 
   updateMapMarkers(): void {
-    if (!this.map) {
-      return;
-    }
+    // Calculer la distance pour chaque borne
+    const bornesAvecDistance = this.bornesPubliques.map(borne => ({
+      ...borne,
+      distance: borne.latitude && borne.longitude 
+        ? this.calculateDistance(borne.latitude, borne.longitude)
+        : undefined
+    }));
 
-    // Remove old markers
-    this.markers.forEach(marker => marker.remove());
-    this.markers = [];
-
-    // Add new markers for each borne
-    this.bornesPubliques.forEach((borne) => {
-      if (borne.latitude && borne.longitude) {
-        try {
-          const icon = this.getBorneIcon(borne.etat);
-          
-          const marker = L.marker([borne.latitude, borne.longitude], { icon })
-            .addTo(this.map)
-            .bindPopup(this.createPopupContent(borne));
-          
-          marker.on('click', () => {
-            this.selectBorne(borne);
-          });
-          
-          this.markers.push(marker);
-        } catch (error) {
-          // Silent fail for individual marker
-        }
-      }
-    });
-
-    // Adjust view to show all markers
-    if (this.markers.length > 0 && this.userMarker) {
-      const group = L.featureGroup([...this.markers, this.userMarker]);
-      this.map.fitBounds(group.getBounds().pad(0.1));
-    }
-  }
-
-  getBorneIcon(etat: string): L.DivIcon {
-    let color = '#28a745'; // vert par défaut
-    
-    switch(etat) {
-      case 'DISPONIBLE':
-        color = '#28a745'; // vert
-        break;
-      case 'OCCUPE':
-        color = '#ffc107'; // jaune
-        break;
-      default:
-        color = '#dc3545'; // rouge
-        break;
-    }
-
-    return L.divIcon({
-      html: `<div class="borne-marker" style="background-color: ${color};"><i class="bi bi-lightning-charge-fill"></i></div>`,
-      className: 'custom-marker-borne',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32]
-    });
-  }
-
-  createPopupContent(borne: Borne): string {
-    const etatLabel = borne.etat === 'DISPONIBLE' ? 'Disponible' : (borne.etat === 'OCCUPE' ? 'Occupée' : 'Hors service');
-    const etatClass = borne.etat === 'DISPONIBLE' ? 'success' : (borne.etat === 'OCCUPE' ? 'warning' : 'danger');
-    const prix = borne.prix ? `${borne.prix}€/h` : 'N/A';
-    const distance = this.userLocation ? this.calculateDistance(borne.latitude!, borne.longitude!) : 0;
-    
-    return `
-      <div class="popup-content">
-        <h6 class="mb-2"><strong>${borne.localisation}</strong></h6>
-        <span class="badge badge-${etatClass}">${etatLabel}</span>
-        <p class="mb-1 mt-2"><strong>Type:</strong> ${borne.type}</p>
-        <p class="mb-1"><strong>Puissance:</strong> ${borne.puissance} kW</p>
-        <p class="mb-1"><strong>Prix:</strong> ${prix}</p>
-        <p class="mb-2"><strong>Distance:</strong> ${distance.toFixed(1)} km</p>
-        <div class="popup-actions">
-          <button class="btn btn-sm btn-primary" onclick="window.reserveBorne(${borne.idBorne})">
-            <i class="bi bi-calendar-check"></i> Réserver
-          </button>
-        </div>
-      </div>
-    `;
+    this.mapService.addBorneMarkers(
+      this.MAP_ID,
+      bornesAvecDistance,
+      (borne) => this.selectBorne(borne)
+    );
   }
 
   loadBornesPubliques(): void {
@@ -215,10 +99,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (response: ApiResponse<Borne[]>) => {
         this.bornesPubliques = response.data || [];
         this.isLoading = false;
-        
-        if (this.map) {
-          this.updateMapMarkers();
-        }
+        this.updateMapMarkers();
       },
       error: (error: any) => {
         this.isLoading = false;
@@ -227,37 +108,27 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   selectBorne(borne: Borne): void {
-    // Centrer la carte sur la borne sélectionnée
-    if (borne.latitude && borne.longitude && this.map) {
-      this.map.setView([borne.latitude, borne.longitude], 15);
+    if (borne.latitude && borne.longitude) {
+      this.mapService.setView(this.MAP_ID, {
+        lat: borne.latitude,
+        lng: borne.longitude
+      }, 15);
     }
   }
 
   centerMapOnBorne(borne: Borne): void {
     this.selectBorne(borne);
-    // Scroll jusqu'à la carte
-    document.getElementById('public-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById(this.MAP_ID)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   calculateDistance(lat: number, lng: number): number {
     if (!this.userLocation) return 0;
-
-    const R = 6371; // Rayon de la Terre en km
-    const dLat = this.deg2rad(lat - this.userLocation.lat);
-    const dLon = this.deg2rad(lng - this.userLocation.lng);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.deg2rad(this.userLocation.lat)) *
-      Math.cos(this.deg2rad(lat)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-    return distance;
-  }
-
-  deg2rad(deg: number): number {
-    return deg * (Math.PI / 180);
+    return this.geolocationService.calculateDistance(
+      this.userLocation.lat,
+      this.userLocation.lng,
+      lat,
+      lng
+    );
   }
 
   navigateToAction(): void {
@@ -269,11 +140,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.map) {
-      this.map.remove();
-    }
-    // Nettoyer la référence globale
-    delete (window as any).reserveBorne;
+    this.mapService.destroyMap(this.MAP_ID);
   }
 
   navigateToReservation(borne: Borne): void {

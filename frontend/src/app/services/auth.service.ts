@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { Utilisateur, UtilisateurAuth } from '../models/utilisateur.model';
+import { Utilisateur, UtilisateurAuth, RegisterRequest } from '../models/utilisateur.model';
 import { ApiResponse } from '../models/api-response.model';
 
 export interface AuthResponse {
@@ -66,7 +66,7 @@ export class AuthService {
   }
 
   register(user: any, motDePasse: string): Observable<ApiResponse<AuthResponse>> {
-    const registerRequest = {
+    const registerRequest: RegisterRequest = {
       utilisateur: {
         nom: user.nom,
         prenom: user.prenom,
@@ -74,9 +74,9 @@ export class AuthService {
         email: user.email,
         dateNaissance: user.dateNaissance,
         role: 'client',
-        iban: '',
-        adressePhysique: '',
-        medias: ''
+        iban: user.iban || '',
+        adressePhysique: user.adressePhysique || '',
+        medias: user.medias || ''
       },
       motDePasse: motDePasse
     };

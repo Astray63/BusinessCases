@@ -3,6 +3,7 @@ package com.electriccharge.app.controller;
 import com.electriccharge.app.dto.ApiResponse;
 import com.electriccharge.app.dto.ReservationDto;
 import com.electriccharge.app.model.Utilisateur;
+import com.electriccharge.app.security.AuthenticationFacade;
 import com.electriccharge.app.service.PdfReceiptService;
 import com.electriccharge.app.service.ReservationService;
 import jakarta.validation.Valid;
@@ -13,8 +14,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,10 +26,15 @@ public class ReservationController {
 
     private final ReservationService reservationService;
     private final PdfReceiptService pdfReceiptService;
+    private final AuthenticationFacade authenticationFacade;
 
-    public ReservationController(ReservationService reservationService, PdfReceiptService pdfReceiptService) {
+    public ReservationController(
+            ReservationService reservationService, 
+            PdfReceiptService pdfReceiptService,
+            AuthenticationFacade authenticationFacade) {
         this.reservationService = reservationService;
         this.pdfReceiptService = pdfReceiptService;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @PostMapping
@@ -125,14 +129,12 @@ public class ReservationController {
             // Si requesterId n'est pas fourni, essayer de l'obtenir depuis le contexte d'authentification
             Long actualRequesterId = requesterId;
             if (actualRequesterId == null) {
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                logger.debug("Authentication: {}, Principal: {}", 
-                    authentication != null ? authentication.getName() : "null",
-                    authentication != null ? authentication.getPrincipal().getClass().getSimpleName() : "null");
-                    
-                if (authentication != null && authentication.getPrincipal() instanceof Utilisateur) {
-                    Utilisateur user = (Utilisateur) authentication.getPrincipal();
-                    actualRequesterId = user.getIdUtilisateur();
+                actualRequesterId = authenticationFacade.getPrincipal()
+                        .filter(principal -> principal instanceof Utilisateur)
+                        .map(principal -> ((Utilisateur) principal).getIdUtilisateur())
+                        .orElse(null);
+                
+                if (actualRequesterId != null) {
                     logger.debug("RequesterId extrait du contexte d'authentification: {}", actualRequesterId);
                 }
             }

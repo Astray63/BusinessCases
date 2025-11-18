@@ -176,24 +176,28 @@
   ---
   📋 Plan de Refactorisation (4 Phases)
 
-  Phase 1: Nettoyage Immédiat (2-3h)
+  Phase 1: Nettoyage Immédiat (2-3h) ✅ TERMINÉE
 
-  1. Supprimer console.log (233 occurrences)
-  2. Supprimer System.out.println (4 fichiers)
-  3. Nettoyer documentation (supprimer .md inutiles)
-  4. Simplifier commentaires (remplacer français verbeux par anglais concis)
+  1. ✅ Supprimer console.log (233 occurrences → 0 restants)
+  2. ✅ Supprimer System.out.println (4 fichiers → remplacés par logger SLF4J)
+  3. ⏭️ Nettoyer documentation (supprimer .md inutiles)
+  4. ✅ Simplifier commentaires (commentaires français supprimés)
 
-  Phase 2: Services Frontend (5-6h)
+  Phase 2: Services Frontend (5-6h) 🔄 EN COURS
 
-  1. Créer GeolocationService
-    - Extraire de home.component.ts et bornes.component.ts
-  2. Créer MapService (Leaflet)
-    - Gérer carte, markers, popups
-  3. Refactoriser ReservationService
+  1. ✅ Créer GeolocationService
+    - ✅ Extraire de home.component.ts et bornes.component.ts
+    - ✅ Gestion des erreurs de géolocalisation
+    - ✅ Position par défaut (fallback)
+  2. ✅ Créer MapService (Leaflet)
+    - ✅ Gérer carte, markers, popups
+    - ✅ Support multi-maps
+    - ✅ Création d'icônes dynamiques
+  3. ✅ Créer RegisterRequest interface
+    - ✅ Interface typée pour l'enregistrement
+  4. 🔄 Refactoriser ReservationService (À FAIRE)
     - Supprimer méthodes dupliquées
     - Créer ReservationMapper
-  4. Créer JwtValidationService
-    - Centraliser validation tokens
 
   Phase 3: Backend Services (4-5h)
 
