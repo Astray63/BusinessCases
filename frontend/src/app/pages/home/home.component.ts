@@ -423,12 +423,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   navigateToReservation(borne: Borne): void {
     if (this.isLoggedIn) {
-      this.router.navigate(['/reservation'], { 
+      this.router.navigate(['/client/mes-reservations'], { 
         queryParams: { borneId: borne.idBorne } 
       });
     } else {
       this.router.navigate(['/auth/login'], { 
-        queryParams: { returnUrl: '/reservation', borneId: borne.idBorne } 
+        queryParams: { returnUrl: '/client/mes-reservations', borneId: borne.idBorne } 
       });
     }
   }

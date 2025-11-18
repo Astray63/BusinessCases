@@ -1,10 +1,11 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import * as L from 'leaflet';
 import { BorneService } from '../../services/borne.service';
 import { AuthService } from '../../services/auth.service';
 import { Borne } from '../../models/borne.model';
 import { ApiResponse } from '../../models/api-response.model';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-bornes',
@@ -18,6 +19,7 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
   private viewInitialized = false;
   private readonly fallbackLocation = { lat: 48.8566, lng: 2.3522 };
   private geocodeTimeout?: number;
+  private navigationSubscription: any;
   
   bornes: Borne[] = [];
   filteredBornes: Borne[] = [];
@@ -49,6 +51,19 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
     (window as any).reserveBorne = (borneId: number) => {
       this.reserverBorne(borneId);
     };
+    
+    // S'abonner aux événements de navigation pour recharger les données
+    this.navigationSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        // Si on navigue vers cette route, recharger les données
+        if (event.url.includes('/client/recherche') || event.url.includes('/bornes')) {
+          console.log('🔄 Navigation détectée vers recherche, rechargement des données...');
+          if (this.userLocation) {
+            this.searchBornes();
+          }
+        }
+      });
   }
 
   ngOnInit(): void {
@@ -67,6 +82,11 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     // Nettoyer la référence globale
     delete (window as any).reserveBorne;
+    
+    // Désabonner de la navigation
+    if (this.navigationSubscription) {
+      this.navigationSubscription.unsubscribe();
+    }
   }
 
   retryGeolocation(): void {
@@ -597,12 +617,12 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
     
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/auth/login'], { 
-        queryParams: { returnUrl: '/bornes' } 
+        queryParams: { returnUrl: '/client/recherche' } 
       });
       return;
     }
     
-    this.router.navigate(['/reservation'], { 
+    this.router.navigate(['/client/mes-reservations'], { 
       queryParams: { borneId: borneId } 
     });
   }
