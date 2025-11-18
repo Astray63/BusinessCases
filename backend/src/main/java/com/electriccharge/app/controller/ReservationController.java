@@ -101,6 +101,10 @@ public class ReservationController {
 
     @GetMapping("/proprietaire/{proprietaireId}")
     public ResponseEntity<ApiResponse<?>> getByOwner(@PathVariable Long proprietaireId) {
+        if (proprietaireId == null) {
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("L'ID du propriétaire est requis"));
+        }
         List<ReservationDto> list = reservationService.getByOwner(proprietaireId);
         return ResponseEntity.ok(ApiResponse.success(list));
     }

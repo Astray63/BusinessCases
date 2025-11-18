@@ -1,305 +1,643 @@
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-6" *ngIf="currentUser && !loading">
-  <!-- En-tête avec message de bienvenue -->
-  <header class="mb-8 bg-white rounded-2xl shadow-lg p-8">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div>
-        <h1 class="text-4xl font-bold text-gray-900 mb-2">Bonjour, {{ currentUser.prenom }} 👋</h1>
-        <p class="text-lg text-gray-600">Bienvenue sur votre tableau de bord</p>
+<div class="min-h-screen bg-gray-50 p-6" *ngIf="currentUser && !loading">
+  <!-- En-tête moderne -->
+  <header class="mb-8">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 bg-slate-700 rounded-xl flex items-center justify-center shadow-md">
+        <i class="bi bi-speedometer2 text-2xl text-white"></i>
       </div>
-      <div class="flex flex-wrap gap-3">
-        <span class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
-          👤 Utilisateur
-        </span>
-        <span class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-full text-sm font-semibold" *ngIf="isProprietaire">
-          ⚡ Propriétaire
-        </span>
+      <div>
+        <h1 class="text-4xl font-bold text-gray-900">Tableau de bord</h1>
+        <p class="text-gray-600 mt-1">Bienvenue {{ currentUser.prenom }}, voici un aperçu de vos activités</p>
       </div>
     </div>
   </header>
 
-  <!-- Section Statistiques Client -->
-  <section class="mb-12">
-    <div class="mb-6">
-      <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-        <span class="text-blue-600">🔵</span>
-        Mes réservations
-      </h2>
+  <!-- Mes réservations en cours -->
+  <section class="mb-8">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center shadow-md">
+        <i class="bi bi-lightning-charge-fill text-xl text-white"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900">Mes réservations en cours</h2>
     </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-      <!-- Card 1: Total réservations -->
-      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-        <div class="flex items-start justify-between">
-          <div class="flex-1">
-            <p class="text-gray-600 text-sm font-medium mb-2">Réservations totales</p>
-            <p class="text-4xl font-bold text-blue-600 mb-1">{{ dashboardStats?.clientStats?.totalReservations || 0 }}</p>
-            <p class="text-xs text-gray-500">{{ dashboardStats?.clientStats?.reservationsCeMois || 0 }} ce mois-ci</p>
-          </div>
-          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-            <i class="bi bi-calendar-check text-2xl text-blue-600"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 2: Actives -->
-      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-        <div class="flex items-start justify-between">
-          <div class="flex-1">
-            <p class="text-gray-600 text-sm font-medium mb-2">Actives</p>
-            <p class="text-4xl font-bold text-green-600 mb-1">{{ dashboardStats?.clientStats?.reservationsEnCours || 0 }}</p>
-            <p class="text-xs text-gray-500">En cours d'utilisation</p>
-          </div>
-          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-            <i class="bi bi-lightning-charge-fill text-2xl text-green-600"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 3: Terminées -->
-      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-        <div class="flex items-start justify-between">
-          <div class="flex-1">
-            <p class="text-gray-600 text-sm font-medium mb-2">Terminées</p>
-            <p class="text-4xl font-bold text-cyan-600 mb-1">{{ dashboardStats?.clientStats?.reservationsTerminees || 0 }}</p>
-            <p class="text-xs text-gray-500">Complétées avec succès</p>
-          </div>
-          <div class="w-12 h-12 bg-cyan-100 rounded-lg flex items-center justify-center">
-            <i class="bi bi-check-circle-fill text-2xl text-cyan-600"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 4: Dépenses -->
-      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-        <div class="flex items-start justify-between">
-          <div class="flex-1">
-            <p class="text-gray-600 text-sm font-medium mb-2">Dépenses du mois</p>
-            <p class="text-4xl font-bold text-amber-600 mb-1">{{ dashboardStats?.clientStats?.montantMoisEnCours | currency:'EUR':'symbol':'1.0-0' }}</p>
-            <p class="text-xs text-gray-500">Total: {{ dashboardStats?.clientStats?.montantTotalDepense | currency:'EUR':'symbol':'1.0-0' }}</p>
-          </div>
-          <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
-            <i class="bi bi-wallet2 text-2xl text-amber-600"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Prochaine réservation -->
-    <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg p-6 text-white mb-6" *ngIf="dashboardStats?.clientStats?.prochaineReservation">
-      <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-        <span>🎯</span>
-        Prochaine réservation
-      </h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white/10 rounded-lg p-4 backdrop-blur-sm">
-        <div>
-          <p class="text-sm opacity-90">Borne</p>
-          <p class="font-semibold text-lg">{{ dashboardStats?.clientStats?.prochaineReservation?.borne?.nom }}</p>
-        </div>
-        <div>
-          <p class="text-sm opacity-90">Lieu</p>
-          <p class="font-semibold text-lg">{{ dashboardStats?.clientStats?.prochaineReservation?.borne?.localisation }}</p>
-        </div>
-        <div>
-          <p class="text-sm opacity-90">Début</p>
-          <p class="font-semibold text-lg">{{ dashboardStats?.clientStats?.prochaineReservation?.dateDebut | date:'dd/MM/yyyy à HH:mm' }}</p>
-        </div>
-        <div>
-          <p class="text-sm opacity-90">Fin</p>
-          <p class="font-semibold text-lg">{{ dashboardStats?.clientStats?.prochaineReservation?.dateFin | date:'dd/MM/yyyy à HH:mm' }}</p>
-        </div>
+    <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-calendar-event text-gray-600"></i>
+                  Date début
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-calendar-check text-gray-600"></i>
+                  Date fin
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-geo-alt text-gray-600"></i>
+                  Borne & Lieu
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-currency-euro text-gray-600"></i>
+                  Montant
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-info-circle text-gray-600"></i>
+                  Statut
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-100">
+            <tr *ngFor="let reservation of activeReservations" class="hover:bg-gray-50 transition-colors duration-200">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-semibold text-gray-900">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</div>
+                <div class="text-xs text-gray-500">{{ reservation.dateDebut | date:'HH:mm' }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-semibold text-gray-900">{{ reservation.dateFin | date:'dd/MM/yyyy' }}</div>
+                <div class="text-xs text-gray-500">{{ reservation.dateFin | date:'HH:mm' }}</div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm font-semibold text-gray-900">{{ reservation.borne?.nom }}</div>
+                <div class="text-xs text-gray-500 flex items-center gap-1">
+                  <i class="bi bi-pin-map-fill"></i>
+                  {{ reservation.borne?.localisation }}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-bold text-green-600">{{ reservation.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-3 py-1.5 inline-flex items-center gap-1.5 text-xs font-bold rounded-full shadow-sm" [ngClass]="getStatutClass(reservation.statut)">
+                  <i class="bi bi-circle-fill" style="font-size: 6px;"></i>
+                  {{ getStatutLabel(reservation.statut) }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="!activeReservations || activeReservations.length === 0">
+              <td colspan="5" class="px-6 py-12 text-center">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                    <i class="bi bi-inbox text-3xl text-gray-400"></i>
+                  </div>
+                  <p class="text-sm font-medium text-gray-500">Aucune réservation en cours</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-
-    <!-- Actions rapides Client -->
-    <div class="flex flex-wrap gap-4">
-      <button class="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
-              (click)="reserverBorne()">
-        <i class="bi bi-search text-xl"></i>
-        <span>Rechercher une borne</span>
-      </button>
-      <button class="flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-800 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
-              (click)="voirMesReservations()">
-        <i class="bi bi-list-ul text-xl"></i>
-        <span>Voir toutes mes réservations</span>
+    <div class="mt-4">
+      <button (click)="voirMesReservations()" 
+              class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-semibold transition-colors">
+        <i class="bi bi-arrow-right-circle"></i>
+        Voir toutes mes réservations
       </button>
     </div>
   </section>
 
-  <!-- Section Propriétaire -->
-  <section class="mb-12" *ngIf="isProprietaire && dashboardStats?.ownerStats">
-    <div class="mb-6">
-      <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-        <span class="text-green-600">🟢</span>
-        Mes bornes de recharge
-      </h2>
+  <!-- Mes réservations passées -->
+  <section class="mb-8">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 bg-slate-600 rounded-lg flex items-center justify-center shadow-md">
+        <i class="bi bi-clock-history text-xl text-white"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900">Mes réservations passées</h2>
     </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-      <!-- Card 1: Bornes totales -->
-      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-        <div class="flex items-start justify-between">
-          <div class="flex-1">
-            <p class="text-gray-600 text-sm font-medium mb-2">Bornes totales</p>
-            <p class="text-4xl font-bold text-purple-600 mb-1">{{ dashboardStats?.ownerStats?.totalBornes }}</p>
-            <p class="text-xs text-gray-500">{{ dashboardStats?.ownerStats?.bornesDisponibles }} disponibles</p>
-          </div>
-          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-            <i class="bi bi-ev-station-fill text-2xl text-purple-600"></i>
-          </div>
+    
+    <!-- Filtres modernisés -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6 border border-gray-200">
+      <div class="flex flex-wrap gap-4 items-end">
+        <div class="flex-1 min-w-[200px]">
+          <label class="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
+            <i class="bi bi-calendar-range text-slate-600"></i>
+            Date début
+          </label>
+          <input type="date" 
+                 [(ngModel)]="filterDateDebut" 
+                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all">
         </div>
-      </div>
-
-      <!-- Card 2: Revenus -->
-      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-        <div class="flex items-start justify-between">
-          <div class="flex-1">
-            <p class="text-gray-600 text-sm font-medium mb-2">Revenus ce mois</p>
-            <p class="text-4xl font-bold text-emerald-600 mb-1">{{ dashboardStats?.ownerStats?.revenusEstimesMois | currency:'EUR':'symbol':'1.0-0' }}</p>
-            <p class="text-xs text-gray-500">Total: {{ dashboardStats?.ownerStats?.revenusTotaux | currency:'EUR':'symbol':'1.0-0' }}</p>
-          </div>
-          <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-            <i class="bi bi-currency-euro text-2xl text-emerald-600"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 3: Demandes -->
-      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-        <div class="flex items-start justify-between">
-          <div class="flex-1">
-            <p class="text-gray-600 text-sm font-medium mb-2">Demandes en attente</p>
-            <p class="text-4xl font-bold text-red-600 mb-1">{{ dashboardStats?.ownerStats?.demandesEnAttente }}</p>
-            <p class="text-xs text-gray-500">À traiter rapidement</p>
-          </div>
-          <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-            <i class="bi bi-inbox-fill text-2xl text-red-600"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 4: Taux d'occupation -->
-      <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-        <div class="flex items-start justify-between">
-          <div class="flex-1">
-            <p class="text-gray-600 text-sm font-medium mb-2">Taux d'occupation</p>
-            <p class="text-4xl font-bold text-teal-600 mb-1">{{ dashboardStats?.ownerStats?.tauxOccupationMoyen }}%</p>
-            <p class="text-xs text-gray-500">{{ dashboardStats?.ownerStats?.totalReservations }} réservations</p>
-          </div>
-          <div class="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
-            <i class="bi bi-graph-up-arrow text-2xl text-teal-600"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- État des bornes -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-shadow">
-        <div class="text-4xl font-bold text-green-600 mb-2">{{ dashboardStats?.ownerStats?.bornesDisponibles }}</div>
-        <div class="text-sm font-medium text-gray-600">Disponibles</div>
-        <div class="mt-2 h-2 bg-green-200 rounded-full">
-          <div class="h-full bg-green-600 rounded-full" style="width: 100%"></div>
-        </div>
-      </div>
-      <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-shadow">
-        <div class="text-4xl font-bold text-orange-600 mb-2">{{ dashboardStats?.ownerStats?.bornesOccupees }}</div>
-        <div class="text-sm font-medium text-gray-600">Occupées</div>
-        <div class="mt-2 h-2 bg-orange-200 rounded-full">
-          <div class="h-full bg-orange-600 rounded-full" style="width: 100%"></div>
-        </div>
-      </div>
-      <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-shadow">
-        <div class="text-4xl font-bold text-blue-600 mb-2">{{ dashboardStats?.ownerStats?.bornesMaintenance }}</div>
-        <div class="text-sm font-medium text-gray-600">En maintenance</div>
-        <div class="mt-2 h-2 bg-blue-200 rounded-full">
-          <div class="h-full bg-blue-600 rounded-full" style="width: 100%"></div>
-        </div>
-      </div>
-      <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-shadow">
-        <div class="text-4xl font-bold text-red-600 mb-2">{{ dashboardStats?.ownerStats?.bornesHorsService }}</div>
-        <div class="text-sm font-medium text-gray-600">Hors service</div>
-        <div class="mt-2 h-2 bg-red-200 rounded-full">
-          <div class="h-full bg-red-600 rounded-full" style="width: 100%"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Borne la plus populaire -->
-    <div class="bg-gradient-to-r from-orange-500 to-pink-600 rounded-xl shadow-lg p-6 text-white mb-6" *ngIf="dashboardStats?.ownerStats?.borneLaPlusReservee">
-      <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-        <span>⭐</span>
-        Borne la plus réservée
-      </h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-white/10 rounded-lg p-4 backdrop-blur-sm">
-        <div>
-          <p class="text-sm opacity-90">Nom</p>
-          <p class="font-semibold text-lg">{{ dashboardStats?.ownerStats?.borneLaPlusReservee?.nom }}</p>
+        <div class="flex-1 min-w-[200px]">
+          <label class="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
+            <i class="bi bi-calendar-range text-slate-600"></i>
+            Date fin
+          </label>
+          <input type="date" 
+                 [(ngModel)]="filterDateFin" 
+                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all">
         </div>
         <div>
-          <p class="text-sm opacity-90">Localisation</p>
-          <p class="font-semibold text-lg">{{ dashboardStats?.ownerStats?.borneLaPlusReservee?.localisation }}</p>
-        </div>
-        <div>
-          <p class="text-sm opacity-90">Puissance</p>
-          <p class="font-semibold text-lg">{{ dashboardStats?.ownerStats?.borneLaPlusReservee?.puissance }} kW</p>
-        </div>
-        <div>
-          <p class="text-sm opacity-90">Prix</p>
-          <p class="font-semibold text-lg">{{ dashboardStats?.ownerStats?.borneLaPlusReservee?.prixALaMinute | currency:'EUR':'symbol':'1.2-2' }}/min</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Actions rapides Propriétaire -->
-    <div class="flex flex-wrap gap-4">
-      <button class="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
-              (click)="ajouterBorne()">
-        <i class="bi bi-plus-circle-fill text-xl"></i>
-        <span>Ajouter une borne</span>
-      </button>
-      <button class="flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
-              (click)="voirMesBornes()">
-        <i class="bi bi-lightning-charge text-xl"></i>
-        <span>Gérer mes bornes</span>
-      </button>
-      <button class="flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-800 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
-              (click)="voirDemandesReservation()">
-        <i class="bi bi-inbox text-xl"></i>
-        <span>Voir les demandes</span>
-      </button>
-    </div>
-  </section>
-
-  <!-- Call to Action - Devenir propriétaire -->
-  <section *ngIf="!isProprietaire">
-    <div class="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 rounded-2xl shadow-2xl overflow-hidden">
-      <div class="p-8 md:p-12">
-        <div class="text-center mb-8">
-          <div class="text-6xl mb-4">💡</div>
-          <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Vous possédez une borne de recharge ?</h2>
-          <p class="text-lg text-white/90 max-w-2xl mx-auto">Mettez-la en location et générez des revenus passifs tout en aidant la communauté !</p>
-        </div>
-        
-        <div class="flex justify-center mb-8">
-          <button class="px-8 py-4 bg-white text-purple-600 font-bold text-lg rounded-lg hover:bg-gray-100 transition-all duration-200 transform hover:scale-105 shadow-xl"
-                  (click)="devenirProprietaire()">
-            <i class="bi bi-lightning-charge-fill mr-2"></i>
-            Devenir propriétaire
+          <button (click)="applyFilters()" 
+                  class="px-6 py-2.5 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2">
+            <i class="bi bi-funnel-fill"></i>
+            Filtrer
           </button>
         </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center text-white">
-            <i class="bi bi-check-circle-fill text-3xl mb-3"></i>
-            <p class="font-semibold">Revenus complémentaires</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-calendar-event"></i>
+                  Date début
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-calendar-check"></i>
+                  Date fin
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-geo-alt"></i>
+                  Borne & Lieu
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-currency-euro"></i>
+                  Montant
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-info-circle"></i>
+                  Statut
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-file-earmark-pdf"></i>
+                  Reçu
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-100">
+            <tr *ngFor="let reservation of pastReservations" class="hover:bg-gray-50 transition-colors duration-200">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-semibold text-gray-900">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</div>
+                <div class="text-xs text-gray-500">{{ reservation.dateDebut | date:'HH:mm' }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-semibold text-gray-900">{{ reservation.dateFin | date:'dd/MM/yyyy' }}</div>
+                <div class="text-xs text-gray-500">{{ reservation.dateFin | date:'HH:mm' }}</div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm font-semibold text-gray-900">{{ reservation.borne?.nom }}</div>
+                <div class="text-xs text-gray-500 flex items-center gap-1">
+                  <i class="bi bi-pin-map-fill"></i>
+                  {{ reservation.borne?.localisation }}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-bold text-gray-900">{{ reservation.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-3 py-1.5 inline-flex items-center gap-1.5 text-xs font-bold rounded-full shadow-sm" [ngClass]="getStatutClass(reservation.statut)">
+                  <i class="bi bi-circle-fill" style="font-size: 6px;"></i>
+                  {{ getStatutLabel(reservation.statut) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <button (click)="downloadReceipt(reservation.idReservation)" 
+                        class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all"
+                        *ngIf="reservation.receiptPath">
+                  <i class="bi bi-file-earmark-pdf"></i>
+                  PDF
+                </button>
+                <span class="text-gray-400 text-xs" *ngIf="!reservation.receiptPath">Non disponible</span>
+              </td>
+            </tr>
+            <tr *ngIf="!pastReservations || pastReservations.length === 0">
+              <td colspan="6" class="px-6 py-12 text-center">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                    <i class="bi bi-archive text-3xl text-gray-400"></i>
+                  </div>
+                  <p class="text-sm font-medium text-gray-500">Aucune réservation passée</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination modernisée -->
+      <div class="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200" *ngIf="allPastReservations.length > 0">
+        <div class="flex-1 flex justify-between sm:hidden">
+          <button (click)="previousPagePast()" 
+                  [disabled]="currentPagePast === 1"
+                  class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            Précédent
+          </button>
+          <button (click)="nextPagePast()" 
+                  [disabled]="currentPagePast === totalPagesPast"
+                  class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            Suivant
+          </button>
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
+              <i class="bi bi-file-text text-gray-600"></i>
+            </div>
+            <p class="text-sm font-semibold text-gray-700">
+              Page <span class="text-slate-700">{{ currentPagePast }}</span> sur <span class="text-slate-700">{{ totalPagesPast }}</span>
+            </p>
           </div>
-          <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center text-white">
-            <i class="bi bi-check-circle-fill text-3xl mb-3"></i>
-            <p class="font-semibold">Gestion simplifiée</p>
+          <div>
+            <nav class="relative z-0 inline-flex rounded-lg shadow-sm gap-1" aria-label="Pagination">
+              <button (click)="firstPagePast()" 
+                      [disabled]="currentPagePast === 1"
+                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="bi bi-chevron-double-left"></i>
+              </button>
+              <button (click)="previousPagePast()" 
+                      [disabled]="currentPagePast === 1"
+                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              <button (click)="nextPagePast()" 
+                      [disabled]="currentPagePast === totalPagesPast"
+                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+              <button (click)="lastPagePast()" 
+                      [disabled]="currentPagePast === totalPagesPast"
+                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="bi bi-chevron-double-right"></i>
+              </button>
+            </nav>
           </div>
-          <div class="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center text-white">
-            <i class="bi bi-check-circle-fill text-3xl mb-3"></i>
-            <p class="font-semibold">Impact écologique positif</p>
+        </div>
+      </div>
+    </div>
+    <div class="mt-6">
+      <button (click)="exporterReservations()" 
+              class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+        <i class="bi bi-file-earmark-excel"></i>
+        Exporter toutes les réservations (Excel)
+      </button>
+    </div>
+  </section>
+
+  <!-- Lieux de recharge (Section propriétaire) -->
+  <section class="mb-8" *ngIf="isProprietaire && dashboardStats?.ownerStats">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center shadow-md">
+        <i class="bi bi-ev-station-fill text-xl text-white"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900">Lieux de recharge</h2>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-all duration-300" *ngFor="let borne of recentBornes">
+        <div class="flex items-start gap-4">
+          <div class="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
+            <i class="bi bi-lightning-charge-fill text-2xl text-white"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-xl font-bold text-gray-900 mb-3">{{ borne.nom }}</h3>
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center gap-2 text-sm text-gray-600">
+                <div class="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center">
+                  <i class="bi bi-geo-alt-fill text-slate-600"></i>
+                </div>
+                <span class="font-medium">{{ borne.localisation }}</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm text-gray-600">
+                <div class="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center">
+                  <i class="bi bi-lightning-fill text-amber-600"></i>
+                </div>
+                <span class="font-medium">Puissance: {{ borne.puissance }} kW</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm text-gray-600">
+                <div class="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center">
+                  <i class="bi bi-currency-euro text-emerald-600"></i>
+                </div>
+                <span class="font-medium">{{ borne.prixALaMinute | currency:'EUR':'symbol':'1.2-2' }}/min</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2 pt-4 border-t border-gray-100">
+              <button (click)="modifierBorne(borne)" 
+                      class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
+                <i class="bi bi-pencil-fill"></i>
+                Modifier
+              </button>
+              <button (click)="parametresBorne(borne)" 
+                      class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
+                <i class="bi bi-gear-fill"></i>
+                Paramètres
+              </button>
+              <button (click)="supprimerBorne(borne)" 
+                      class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
+                <i class="bi bi-trash-fill"></i>
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-4">
+      <button (click)="ajouterBorne()" 
+              class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+        <i class="bi bi-plus-circle-fill"></i>
+        Ajouter une borne
+      </button>
+      <button (click)="voirMesBornes()" 
+              class="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 text-blue-600 font-bold border-2 border-blue-600 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
+        <i class="bi bi-lightning-charge-fill"></i>
+        Gérer mes bornes
+      </button>
+    </div>
+  </section>
+
+  <!-- Demandes de réservations à traiter (Section propriétaire) -->
+  <section class="mb-8" *ngIf="isProprietaire && dashboardStats?.ownerStats">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 bg-amber-600 rounded-lg flex items-center justify-center shadow-md">
+        <i class="bi bi-inbox-fill text-xl text-white"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900">Demandes de réservations à traiter</h2>
+      <span class="ml-auto px-4 py-2 bg-amber-600 text-white font-bold rounded-full shadow-md" *ngIf="pendingRequests && pendingRequests.length > 0">
+        {{ pendingRequests.length }}
+      </span>
+    </div>
+    <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-calendar-event"></i>
+                  Date début
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-calendar-check"></i>
+                  Date fin
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-person-circle"></i>
+                  Utilisateur
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-geo-alt"></i>
+                  Borne & Lieu
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-currency-euro"></i>
+                  Montant
+                </div>
+              </th>
+              <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center justify-center gap-2">
+                  <i class="bi bi-gear-fill"></i>
+                  Actions
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-100">
+            <tr *ngFor="let demande of pendingRequests" class="hover:bg-gray-50 transition-colors duration-200">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-semibold text-gray-900">{{ demande.dateDebut | date:'dd/MM/yyyy' }}</div>
+                <div class="text-xs text-gray-500">{{ demande.dateDebut | date:'HH:mm' }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-semibold text-gray-900">{{ demande.dateFin | date:'dd/MM/yyyy' }}</div>
+                <div class="text-xs text-gray-500">{{ demande.dateFin | date:'HH:mm' }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center gap-2">
+                  <div class="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center text-white font-bold">
+                    {{ demande.utilisateur?.prenom?.charAt(0) }}{{ demande.utilisateur?.nom?.charAt(0) }}
+                  </div>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-900">{{ demande.utilisateur?.prenom }} {{ demande.utilisateur?.nom }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm font-semibold text-gray-900">{{ demande.borne?.nom }}</div>
+                <div class="text-xs text-gray-500 flex items-center gap-1">
+                  <i class="bi bi-pin-map-fill"></i>
+                  {{ demande.borne?.localisation }}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-bold text-emerald-600">{{ demande.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <button (click)="accepterDemande(demande.idReservation)" 
+                          class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          [disabled]="loading">
+                    <i class="bi bi-check-circle-fill"></i>
+                    Accepter
+                  </button>
+                  <button (click)="refuserDemande(demande.idReservation)" 
+                          class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          [disabled]="loading">
+                    <i class="bi bi-x-circle-fill"></i>
+                    Refuser
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!pendingRequests || pendingRequests.length === 0">
+              <td colspan="6" class="px-6 py-12 text-center">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                    <i class="bi bi-check-circle text-3xl text-gray-400"></i>
+                  </div>
+                  <p class="text-sm font-medium text-gray-500">Aucune demande en attente</p>
+                  <p class="text-xs text-gray-400">Toutes les demandes ont été traitées</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demandes de réservations traitées (Section propriétaire) -->
+  <section class="mb-8" *ngIf="isProprietaire && dashboardStats?.ownerStats">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 bg-slate-600 rounded-lg flex items-center justify-center shadow-md">
+        <i class="bi bi-check2-all text-xl text-white"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900">Demandes de réservations traitées</h2>
+    </div>
+    <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-calendar-event"></i>
+                  Date début
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-calendar-check"></i>
+                  Date fin
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-person-circle"></i>
+                  Utilisateur
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-geo-alt"></i>
+                  Borne & Lieu
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-currency-euro"></i>
+                  Montant
+                </div>
+              </th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-info-circle"></i>
+                  Statut
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-100">
+            <tr *ngFor="let demande of processedRequests" class="hover:bg-gray-50 transition-colors duration-200">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-semibold text-gray-900">{{ demande.dateDebut | date:'dd/MM/yyyy' }}</div>
+                <div class="text-xs text-gray-500">{{ demande.dateDebut | date:'HH:mm' }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-semibold text-gray-900">{{ demande.dateFin | date:'dd/MM/yyyy' }}</div>
+                <div class="text-xs text-gray-500">{{ demande.dateFin | date:'HH:mm' }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center gap-2">
+                  <div class="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center text-white font-bold">
+                    {{ demande.utilisateur?.prenom?.charAt(0) }}{{ demande.utilisateur?.nom?.charAt(0) }}
+                  </div>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-900">{{ demande.utilisateur?.prenom }} {{ demande.utilisateur?.nom }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="text-sm font-semibold text-gray-900">{{ demande.borne?.nom }}</div>
+                <div class="text-xs text-gray-500 flex items-center gap-1">
+                  <i class="bi bi-pin-map-fill"></i>
+                  {{ demande.borne?.localisation }}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-bold text-gray-900">{{ demande.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-3 py-1.5 inline-flex items-center gap-1.5 text-xs font-bold rounded-full shadow-sm" [ngClass]="getStatutClass(demande.statut)">
+                  <i class="bi bi-circle-fill" style="font-size: 6px;"></i>
+                  {{ getStatutLabel(demande.statut) }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="!processedRequests || processedRequests.length === 0">
+              <td colspan="6" class="px-6 py-12 text-center">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                    <i class="bi bi-hourglass text-3xl text-gray-400"></i>
+                  </div>
+                  <p class="text-sm font-medium text-gray-500">Aucune demande traitée</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination modernisée -->
+      <div class="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200" *ngIf="allProcessedRequests.length > 0">
+        <div class="flex-1 flex justify-between sm:hidden">
+          <button (click)="previousPageProcessed()" 
+                  [disabled]="currentPageProcessed === 1"
+                  class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            Précédent
+          </button>
+          <button (click)="nextPageProcessed()" 
+                  [disabled]="currentPageProcessed === totalPagesProcessed"
+                  class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            Suivant
+          </button>
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
+              <i class="bi bi-file-text text-gray-600"></i>
+            </div>
+            <p class="text-sm font-semibold text-gray-700">
+              Page <span class="text-slate-700">{{ currentPageProcessed }}</span> sur <span class="text-slate-700">{{ totalPagesProcessed }}</span>
+            </p>
+          </div>
+          <div>
+            <nav class="relative z-0 inline-flex rounded-lg shadow-sm gap-1" aria-label="Pagination">
+              <button (click)="firstPageProcessed()" 
+                      [disabled]="currentPageProcessed === 1"
+                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="bi bi-chevron-double-left"></i>
+              </button>
+              <button (click)="previousPageProcessed()" 
+                      [disabled]="currentPageProcessed === 1"
+                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              <button (click)="nextPageProcessed()" 
+                      [disabled]="currentPageProcessed === totalPagesProcessed"
+                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+              <button (click)="lastPageProcessed()" 
+                      [disabled]="currentPageProcessed === totalPagesProcessed"
+                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="bi bi-chevron-double-right"></i>
+              </button>
+            </nav>
           </div>
         </div>
       </div>
