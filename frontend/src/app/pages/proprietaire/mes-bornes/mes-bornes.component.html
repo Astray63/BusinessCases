@@ -253,6 +253,21 @@
             </p>
           </div>
 
+          <!-- Nom -->
+          <div>
+            <label for="nom" class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <i class="bi bi-tag text-orange-600"></i>
+              Nom de la borne *
+            </label>
+            <input 
+              type="text" 
+              id="nom" 
+              formControlName="nom" 
+              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm"
+              placeholder="Ex: Borne 3, Borne principale, Borne parking">
+            <p class="mt-1.5 text-xs text-gray-500">Nom pour identifier facilement cette borne</p>
+          </div>
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <!-- Type de prise -->
             <div>
@@ -278,18 +293,112 @@
             <div>
               <label for="puissance" class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                 <i class="bi bi-lightning text-orange-600"></i>
-                Puissance (kW) *
+                Puissance *
+              </label>
+              <select 
+                id="puissance" 
+                formControlName="puissance" 
+                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm">
+                <option value="">-- Sélectionnez --</option>
+                <option value="3.7">3,7 kVA</option>
+                <option value="7.4">7,4 kVA</option>
+                <option value="11">11 kVA</option>
+                <option value="22">22 kVA</option>
+                <option value="50">50 kVA</option>
+                <option value="100">100 kVA</option>
+                <option value="150">150 kVA</option>
+                <option value="350">350 kVA</option>
+              </select>
+              <p class="mt-1.5 text-xs text-gray-500">Puissance max de charge</p>
+            </div>
+          </div>
+
+          <!-- Ville -->
+          <div>
+            <label for="ville" class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <i class="bi bi-building text-orange-600"></i>
+              Ville *
+            </label>
+            <input 
+              type="text" 
+              id="ville" 
+              formControlName="ville" 
+              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm"
+              placeholder="Ex: Paris, Lyon, Marseille">
+            <p class="mt-1.5 text-xs text-gray-500">Ville où se trouve la borne</p>
+          </div>
+
+          <!-- Coordonnées GPS -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+            <!-- Latitude -->
+            <div>
+              <label for="latitude" class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <i class="bi bi-geo text-orange-600"></i>
+                Latitude *
               </label>
               <input 
                 type="number" 
-                id="puissance" 
-                formControlName="puissance" 
+                id="latitude" 
+                formControlName="latitude" 
                 class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm"
-                placeholder="Ex: 7.4, 11, 22"
-                min="1"
-                step="0.1">
-              <p class="mt-1.5 text-xs text-gray-500">Puissance max de charge</p>
+                placeholder="Ex: 48.856614"
+                step="0.000001">
+              <p class="mt-1.5 text-xs text-gray-500">Coordonnée latitude</p>
             </div>
+
+            <!-- Longitude -->
+            <div>
+              <label for="longitude" class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                <i class="bi bi-geo-alt text-orange-600"></i>
+                Longitude *
+              </label>
+              <input 
+                type="number" 
+                id="longitude" 
+                formControlName="longitude" 
+                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm"
+                placeholder="Ex: 2.352222"
+                step="0.000001">
+              <p class="mt-1.5 text-xs text-gray-500">Coordonnée longitude</p>
+            </div>
+          </div>
+
+          <!-- Bouton utiliser ma position -->
+          <div>
+            <button 
+              type="button" 
+              class="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold flex items-center gap-2"
+              (click)="utiliserMaPosition()">
+              <i class="bi bi-crosshair"></i>
+              Utiliser ma position
+            </button>
+          </div>
+
+          <!-- Instruction -->
+          <div>
+            <label for="instruction" class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <i class="bi bi-file-text text-orange-600"></i>
+              Instructions d'accès
+            </label>
+            <textarea 
+              id="instruction" 
+              formControlName="instruction" 
+              rows="4"
+              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm resize-none"
+              placeholder="Ex: Tournez à droite dès que vous avez passé le portail d'entrée.&#10;La borne se situé à 20 mètres de distance par rapport au portail d'entrée."></textarea>
+            <p class="mt-1.5 text-xs text-gray-500">Indiquez comment accéder à la borne (facultatif)</p>
+          </div>
+
+          <!-- Sur pied -->
+          <div class="flex items-center gap-3">
+            <input 
+              type="checkbox" 
+              id="surPied" 
+              formControlName="surPied" 
+              class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500">
+            <label for="surPied" class="text-sm font-medium text-gray-700 cursor-pointer">
+              Sur pied
+            </label>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">

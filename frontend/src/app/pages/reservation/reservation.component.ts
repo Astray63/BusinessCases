@@ -52,7 +52,11 @@ export class ReservationComponent implements OnInit {
       dateDebut: ['', Validators.required],
       heureDebut: ['', Validators.required],
       dateFin: ['', Validators.required],
-      heureFin: ['', Validators.required]
+      heureFin: ['', Validators.required],
+      numeroCarteBancaire: ['', [Validators.required, Validators.pattern(/^\d{16}$/)]],
+      moisExpiration: ['', Validators.required],
+      anneeExpiration: ['', Validators.required],
+      cvv: ['', [Validators.required, Validators.pattern(/^\d{3,4}$/)]]
     });
 
     this.filtreForm = this.fb.group({
@@ -199,26 +203,49 @@ export class ReservationComponent implements OnInit {
       return;
     }
 
-    const reservationPayload: any = {
-      utilisateurId: currentUser.idUtilisateur,
-      chargingStationId: formValues.borneId,
-      dateDebut: dateDebut.toISOString(),
-      dateFin: dateFin.toISOString()
-    };
+    // Simulation de paiement
+    const montantTotal = this.calculerMontant();
     
-    this.reservationService.createReservation(reservationPayload).subscribe({
-      next: (response: ApiResponse<Reservation>) => {
-        this.toastService.showSuccess(response.message || 'Réservation créée avec succès ! Le propriétaire a été notifié.');
-        this.reservationForm.reset();
-        this.loadReservations();
-        this.isLoading = false;
-      },
-      error: (err: any) => {
-        const errorMsg = err.error?.message || 'Erreur lors de la création de la réservation';
-        this.toastService.showError(errorMsg);
-        this.isLoading = false;
-      }
-    });
+    // Simuler un délai de traitement du paiement
+    setTimeout(() => {
+      // Vérifier le format de la carte (validation déjà faite par le formulaire)
+      const numeroCarteBancaire = formValues.numeroCarteBancaire;
+      const cvv = formValues.cvv;
+      
+      // Simulation : le paiement est toujours accepté si le format est bon
+      console.log('💳 Simulation de paiement');
+      console.log('Numéro de carte:', numeroCarteBancaire);
+      console.log('CVV:', cvv);
+      console.log('Montant:', montantTotal, '€');
+      console.log('✅ Paiement effectué avec succès !');
+      
+      // Afficher un message de confirmation de paiement
+      this.toastService.showSuccess(`Paiement de ${montantTotal.toFixed(2)}€ effectué avec succès !`);
+
+      const reservationPayload: any = {
+        utilisateurId: currentUser.idUtilisateur,
+        chargingStationId: formValues.borneId,
+        dateDebut: dateDebut.toISOString(),
+        dateFin: dateFin.toISOString()
+      };
+      
+      this.reservationService.createReservation(reservationPayload).subscribe({
+        next: (response: ApiResponse<Reservation>) => {
+          this.toastService.showSuccess(response.message || 'Réservation créée avec succès ! Le propriétaire a été notifié.');
+          this.reservationForm.reset();
+          this.selectedBorne = null;
+          this.currentPhotoIndex = 0;
+          this.loadReservations();
+          this.changerTab('en-cours');
+          this.isLoading = false;
+        },
+        error: (err: any) => {
+          const errorMsg = err.error?.message || 'Erreur lors de la création de la réservation';
+          this.toastService.showError(errorMsg);
+          this.isLoading = false;
+        }
+      });
+    }, 1500); // Délai de 1.5s pour simuler le traitement du paiement
   }
 
   // Annuler une réservation
@@ -486,6 +513,40 @@ export class ReservationComponent implements OnInit {
 
   getCurrentDate(): string {
     return new Date().toISOString().split('T')[0];
+  }
+
+  calculerMontant(): number {
+    if (!this.selectedBorne) return 0;
+    
+    const dateDebut = this.reservationForm.get('dateDebut')?.value;
+    const heureDebut = this.reservationForm.get('heureDebut')?.value;
+    const dateFin = this.reservationForm.get('dateFin')?.value;
+    const heureFin = this.reservationForm.get('heureFin')?.value;
+    
+    if (!dateDebut || !heureDebut || !dateFin || !heureFin) return 0;
+    
+    const debut = new Date(`${dateDebut}T${heureDebut}`);
+    const fin = new Date(`${dateFin}T${heureFin}`);
+    
+    const dureeMs = fin.getTime() - debut.getTime();
+    const dureeHeures = dureeMs / (1000 * 60 * 60);
+    
+    return dureeHeures * (this.selectedBorne.prix || 0);
+  }
+
+  calculerDureeHeures(): number {
+    const dateDebut = this.reservationForm.get('dateDebut')?.value;
+    const heureDebut = this.reservationForm.get('heureDebut')?.value;
+    const dateFin = this.reservationForm.get('dateFin')?.value;
+    const heureFin = this.reservationForm.get('heureFin')?.value;
+    
+    if (!dateDebut || !heureDebut || !dateFin || !heureFin) return 0;
+    
+    const debut = new Date(`${dateDebut}T${heureDebut}`);
+    const fin = new Date(`${dateFin}T${heureFin}`);
+    
+    const dureeMs = fin.getTime() - debut.getTime();
+    return dureeMs / (1000 * 60 * 60);
   }
 
   // Navigation dans la galerie de photos

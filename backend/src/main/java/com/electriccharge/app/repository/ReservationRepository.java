@@ -11,13 +11,13 @@ import java.util.Optional;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     
-    @Query("SELECT r FROM Reservation r JOIN FETCH r.utilisateur JOIN FETCH r.chargingStation cs LEFT JOIN FETCH cs.medias WHERE r.utilisateur.idUtilisateur = :idUtilisateur")
+    @Query("SELECT r FROM Reservation r JOIN FETCH r.utilisateur JOIN FETCH r.chargingStation cs LEFT JOIN FETCH cs.owner LEFT JOIN FETCH cs.medias WHERE r.utilisateur.idUtilisateur = :idUtilisateur")
     List<Reservation> findByUtilisateur_IdUtilisateur(Long idUtilisateur);
     
-    @Query("SELECT r FROM Reservation r JOIN FETCH r.utilisateur JOIN FETCH r.chargingStation cs LEFT JOIN FETCH cs.medias WHERE r.chargingStation.idBorne = :idBorne")
+    @Query("SELECT r FROM Reservation r JOIN FETCH r.utilisateur JOIN FETCH r.chargingStation cs LEFT JOIN FETCH cs.owner LEFT JOIN FETCH cs.medias WHERE r.chargingStation.idBorne = :idBorne")
     List<Reservation> findByChargingStation_IdBorne(Long idBorne);
     
-    @Query("SELECT r FROM Reservation r JOIN FETCH r.utilisateur JOIN FETCH r.chargingStation cs LEFT JOIN FETCH cs.medias WHERE r.chargingStation.owner.idUtilisateur = :proprietaireId")
+    @Query("SELECT r FROM Reservation r JOIN FETCH r.utilisateur JOIN FETCH r.chargingStation cs LEFT JOIN FETCH cs.owner LEFT JOIN FETCH cs.medias WHERE r.chargingStation.owner.idUtilisateur = :proprietaireId")
     List<Reservation> findByChargingStation_Owner_IdUtilisateur(Long proprietaireId);
     
     List<Reservation> findByEtat(String etat);
@@ -28,15 +28,22 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("""
         SELECT r FROM Reservation r 
         WHERE r.chargingStation.idBorne = :idBorne 
+        AND r.etat IN ('CONFIRMEE', 'ACTIVE', 'TERMINEE')
         AND ((r.dateDebut BETWEEN :dateDebut AND :dateFin) 
         OR (r.dateFin BETWEEN :dateDebut AND :dateFin)
         OR (:dateDebut BETWEEN r.dateDebut AND r.dateFin))
         """)
     List<Reservation> findConflictingReservations(Long idBorne, LocalDateTime dateDebut, LocalDateTime dateFin);
     
-    @Query("SELECT r FROM Reservation r JOIN FETCH r.utilisateur JOIN FETCH r.chargingStation cs LEFT JOIN FETCH cs.medias WHERE r.numeroReservation = :id")
+    @Query("SELECT r FROM Reservation r JOIN FETCH r.utilisateur JOIN FETCH r.chargingStation cs LEFT JOIN FETCH cs.owner LEFT JOIN FETCH cs.medias WHERE r.numeroReservation = :id")
     Optional<Reservation> findWithDetails(Long id);
     
     @Query("SELECT COUNT(r) > 0 FROM Reservation r WHERE r.chargingStation.idBorne = :borneId AND r.etat IN ('EN_COURS', 'CONFIRMEE') AND r.dateFin >= CURRENT_TIMESTAMP")
     boolean hasActiveReservations(Long borneId);
+    
+    @Query("SELECT r FROM Reservation r WHERE r.etat = 'EN_ATTENTE' AND r.createdAt < :expirationTime")
+    List<Reservation> findExpiredPendingReservations(LocalDateTime expirationTime);
+    
+    @Query("SELECT r FROM Reservation r WHERE r.etat = 'EN_ATTENTE' AND r.dateDebut < :now")
+    List<Reservation> findPastPendingReservations(LocalDateTime now);
 }

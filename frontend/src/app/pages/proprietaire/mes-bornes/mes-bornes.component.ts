@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { BorneService } from '../../../services/borne.service';
 import { LieuService } from '../../../services/lieu.service';
+import { ToastService } from '../../../services/toast.service';
 import { Utilisateur } from '../../../models/utilisateur.model';
 import { Borne } from '../../../models/borne.model';
 import { Lieu } from '../../../models/lieu.model';
@@ -33,15 +34,22 @@ export class MesBornesComponent implements OnInit {
     private borneService: BorneService,
     private lieuService: LieuService,
     private router: Router,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private toastService: ToastService
   ) {
     this.borneForm = this.fb.group({
+      nom: ['', Validators.required],
       localisation: ['', Validators.required],
       type: ['Type 2', Validators.required],
       puissance: ['', [Validators.required, Validators.min(1)]],
       prix: ['', [Validators.required, Validators.min(0)]],
       etat: ['DISPONIBLE', Validators.required],
-      lieu: [null, Validators.required]
+      lieu: [null, Validators.required],
+      ville: ['', Validators.required],
+      latitude: ['', Validators.required],
+      longitude: ['', Validators.required],
+      instruction: [''],
+      surPied: [false]
     });
   }
 
@@ -138,7 +146,7 @@ export class MesBornesComponent implements OnInit {
       const remainingSlots = maxPhotos - (this.existingPhotos.length + this.selectedFiles.length);
       
       if (remainingSlots <= 0) {
-        alert(`Vous pouvez ajouter maximum ${maxPhotos} photos au total.`);
+        this.toastService.showWarning(`Vous pouvez ajouter maximum ${maxPhotos} photos au total.`);
         return;
       }
 
@@ -149,13 +157,13 @@ export class MesBornesComponent implements OnInit {
         
         // Vérifier le type de fichier
         if (!file.type.startsWith('image/')) {
-          alert('Seules les images sont autorisées');
+          this.toastService.showError('Seules les images sont autorisées');
           continue;
         }
         
         // Vérifier la taille (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
-          alert('La taille maximale par image est de 5MB');
+          this.toastService.showError('La taille maximale par image est de 5MB');
           continue;
         }
         
@@ -170,7 +178,7 @@ export class MesBornesComponent implements OnInit {
       }
       
       if (filesToAdd < files.length) {
-        alert(`Seulement ${filesToAdd} photo(s) ont été ajoutée(s) (limite de ${maxPhotos} photos atteinte).`);
+        this.toastService.showWarning(`Seulement ${filesToAdd} photo(s) ont été ajoutée(s) (limite de ${maxPhotos} photos atteinte).`);
       }
     }
   }
@@ -222,13 +230,13 @@ export class MesBornesComponent implements OnInit {
     console.log('Lieu ID converti:', lieuId);
     console.log('Mes lieux disponibles:', this.mesLieux.map(l => ({ id: l.idLieu, nom: l.nom })));
     
-    // Récupérer le lieu sélectionné pour obtenir ses coordonnées
+    // Récupérer le lieu sélectionné
     const lieuSelectionne = this.mesLieux.find(l => l.idLieu === lieuId);
     
     console.log('Lieu sélectionné:', lieuSelectionne);
     
     if (!lieuSelectionne) {
-      alert('Veuillez sélectionner un lieu valide');
+      this.toastService.showError('Veuillez sélectionner un lieu valide');
       this.isLoading = false;
       return;
     }
@@ -239,20 +247,22 @@ export class MesBornesComponent implements OnInit {
     
     const borneData: any = {
       numero: `BORNE-${Date.now()}`, // Générer un numéro unique
-      nom: `${lieuSelectionne.nom} - ${formData.type}`,
+      nom: formData.nom || `${lieuSelectionne.nom} - ${formData.type}`,
       localisation: formData.localisation,
-      address: lieuSelectionne.adresse || `${lieuSelectionne.numero || ''} ${lieuSelectionne.rue || ''} ${lieuSelectionne.codePostal} ${lieuSelectionne.ville}`.trim(),
-      latitude: lieuSelectionne.latitude || 0,
-      longitude: lieuSelectionne.longitude || 0,
+      address: `${formData.ville}`, // Utiliser la ville du formulaire
+      latitude: parseFloat(formData.latitude) || 0,
+      longitude: parseFloat(formData.longitude) || 0,
       type: formData.type,
       connectorType: formData.type,
-      puissance: parseInt(formData.puissance),
+      puissance: parseFloat(formData.puissance),
       prix: prixHoraire,
       hourlyRate: prixHoraire,
       prixALaMinute: parseFloat(prixMinute),
       etat: formData.etat,
       ownerId: this.currentUser.idUtilisateur,
       lieu: { idLieu: lieuId },
+      instruction: formData.instruction || '',
+      surPied: formData.surPied || false,
       medias: this.existingPhotos // Garder les photos existantes
     };
 
@@ -267,13 +277,13 @@ export class MesBornesComponent implements OnInit {
             if (this.selectedFiles.length > 0) {
               try {
                 await this.uploadPhotosToServer(this.selectedBorne!.idBorne!);
-                alert('Borne et photos modifiées avec succès !');
+                this.toastService.showSuccess('Borne et photos modifiées avec succès !');
               } catch (error) {
                 console.error('Erreur lors de l\'upload des photos:', error);
-                alert('Borne modifiée, mais erreur lors de l\'upload des photos');
+                this.toastService.showWarning('Borne modifiée, mais erreur lors de l\'upload des photos');
               }
             } else {
-              alert('Borne modifiée avec succès !');
+              this.toastService.showSuccess('Borne modifiée avec succès !');
             }
             this.fermerModal();
             this.chargerDonnees();
@@ -281,7 +291,7 @@ export class MesBornesComponent implements OnInit {
         },
         error: (error) => {
           console.error('Erreur lors de la modification:', error);
-          alert('Erreur lors de la modification de la borne');
+          this.toastService.showError('Erreur lors de la modification de la borne');
           this.isLoading = false;
         }
       });
@@ -296,13 +306,13 @@ export class MesBornesComponent implements OnInit {
             if (this.selectedFiles.length > 0 && borneId) {
               try {
                 await this.uploadPhotosToServer(borneId);
-                alert('Borne et photos ajoutées avec succès !');
+                this.toastService.showSuccess('Borne et photos ajoutées avec succès !');
               } catch (error) {
                 console.error('Erreur lors de l\'upload des photos:', error);
-                alert('Borne créée, mais erreur lors de l\'upload des photos');
+                this.toastService.showWarning('Borne créée, mais erreur lors de l\'upload des photos');
               }
             } else {
-              alert('Borne ajoutée avec succès !');
+              this.toastService.showSuccess('Borne ajoutée avec succès !');
             }
             this.fermerModal();
             this.chargerDonnees();
@@ -310,7 +320,7 @@ export class MesBornesComponent implements OnInit {
         },
         error: (error) => {
           console.error('Erreur lors de l\'ajout:', error);
-          alert('Erreur lors de l\'ajout de la borne');
+          this.toastService.showError('Erreur lors de l\'ajout de la borne');
           this.isLoading = false;
         }
       });
@@ -326,13 +336,13 @@ export class MesBornesComponent implements OnInit {
     this.borneService.deleteBorne(idBorne).subscribe({
       next: (response) => {
         if (response.result === 'SUCCESS') {
-          alert('Borne supprimée avec succès !');
+          this.toastService.showSuccess('Borne supprimée avec succès !');
           this.chargerDonnees();
         }
       },
       error: (error) => {
         console.error('Erreur lors de la suppression:', error);
-        alert('Erreur lors de la suppression de la borne');
+        this.toastService.showError('Erreur lors de la suppression de la borne');
         this.isLoading = false;
       }
     });
@@ -348,13 +358,13 @@ export class MesBornesComponent implements OnInit {
     this.borneService.updateBorne(idBorne, borneData).subscribe({
       next: (response) => {
         if (response.result === 'SUCCESS') {
-          alert(`État changé en ${nouvelEtat}`);
+          this.toastService.showSuccess(`État changé en ${nouvelEtat}`);
           this.chargerDonnees();
         }
       },
       error: (error) => {
         console.error('Erreur lors du changement d\'état:', error);
-        alert('Erreur lors du changement d\'état');
+        this.toastService.showError('Erreur lors du changement d\'état');
         this.isLoading = false;
       }
     });
@@ -382,6 +392,46 @@ export class MesBornesComponent implements OnInit {
 
   ajouterLieu(): void {
     this.router.navigate(['/proprietaire/mes-lieux']);
+  }
+
+  utiliserMaPosition(): void {
+    if (!navigator.geolocation) {
+      this.toastService.showError('La géolocalisation n\'est pas supportée par votre navigateur');
+      return;
+    }
+
+    this.isLoading = true;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.borneForm.patchValue({
+          latitude: position.coords.latitude.toFixed(6),
+          longitude: position.coords.longitude.toFixed(6)
+        });
+        this.isLoading = false;
+        this.toastService.showSuccess('Position récupérée avec succès !');
+      },
+      (error) => {
+        this.isLoading = false;
+        let errorMessage = 'Impossible de récupérer votre position';
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Vous avez refusé l\'accès à la géolocalisation';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Votre position est indisponible';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'La demande de géolocalisation a expiré';
+            break;
+        }
+        this.toastService.showError(errorMessage);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
   }
 
   // Upload réel vers le backend

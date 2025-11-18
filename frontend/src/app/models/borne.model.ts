@@ -18,6 +18,9 @@ export interface Borne {
   dateModification?: Date;
   medias?: string[];
   instructionSurPied?: string;
+  instruction?: string; // Instructions d'accès
+  surPied?: boolean; // Si la borne est sur pied
+  ville?: string; // Ville
   connectorType?: string;
   description?: string;
   occupee?: boolean;

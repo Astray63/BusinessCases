@@ -74,7 +74,10 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setTotalPrice(totalPrice);
 
         Reservation saved = reservationRepository.save(reservation);
-        return convertToDto(saved);
+        
+        // Reload with details to avoid lazy loading issues
+        return convertToDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
+                .orElse(saved));
     }
 
     @Override
@@ -88,7 +91,10 @@ public class ReservationServiceImpl implements ReservationService {
         }
         reservation.setEtat(Reservation.EtatReservation.ANNULEE);
         Reservation saved = reservationRepository.save(reservation);
-        return convertToDto(saved);
+        
+        // Reload with details to avoid lazy loading issues
+        return convertToDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
+                .orElse(saved));
     }
 
     @Override
@@ -98,7 +104,10 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
         reservation.setEtat(Reservation.EtatReservation.TERMINEE);
         Reservation saved = reservationRepository.save(reservation);
-        return convertToDto(saved);
+        
+        // Reload with details to avoid lazy loading issues
+        return convertToDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
+                .orElse(saved));
     }
 
     @Override
@@ -120,6 +129,15 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalArgumentException("Seules les réservations en attente peuvent être acceptées");
         }
         
+        // Vérifier qu'il n'y a pas de conflit avec d'autres réservations confirmées
+        var conflicts = reservationRepository.findConflictingReservations(
+                reservation.getChargingStation().getIdBorne(), 
+                reservation.getDateDebut(), 
+                reservation.getDateFin());
+        if (!conflicts.isEmpty()) {
+            throw new IllegalArgumentException("Conflit de réservation : la plage horaire est maintenant occupée par une autre réservation confirmée");
+        }
+        
         // Changer le statut
         reservation.setEtat(Reservation.EtatReservation.CONFIRMEE);
         
@@ -134,7 +152,10 @@ public class ReservationServiceImpl implements ReservationService {
         }
         
         Reservation saved = reservationRepository.save(reservation);
-        return convertToDto(saved);
+        
+        // Reload with details to avoid lazy loading issues
+        return convertToDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
+                .orElse(saved));
     }
 
     @Override
@@ -160,7 +181,10 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setEtat(Reservation.EtatReservation.REFUSEE);
         
         Reservation saved = reservationRepository.save(reservation);
-        return convertToDto(saved);
+        
+        // Reload with details to avoid lazy loading issues
+        return convertToDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
+                .orElse(saved));
     }
 
     @Override
@@ -245,7 +269,15 @@ public class ReservationServiceImpl implements ReservationService {
         dto.setLongitude(station.getLongitude());
         dto.setPrixALaMinute(station.getPrixALaMinute());
         dto.setPuissance(station.getPuissance());
-        dto.setMedias(station.getMedias());
+        
+        // Safely handle lazy loading of medias
+        try {
+            dto.setMedias(station.getMedias());
+        } catch (Exception e) {
+            logger.warn("Could not load medias for station {}", station.getIdBorne());
+            dto.setMedias(new java.util.ArrayList<>());
+        }
+        
         dto.setInstructionSurPied(station.getInstructionSurPied());
         dto.setConnectorType(station.getConnectorType());
         dto.setDescription(station.getDescription());

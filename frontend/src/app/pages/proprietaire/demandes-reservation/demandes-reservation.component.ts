@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { ReservationService } from '../../../services/reservation.service';
+import { ToastService } from '../../../services/toast.service';
 import { Utilisateur } from '../../../models/utilisateur.model';
 import { Reservation } from '../../../models/reservation.model';
 
@@ -17,7 +18,8 @@ export class DemandesReservationComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private reservationService: ReservationService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -81,13 +83,13 @@ export class DemandesReservationComponent implements OnInit {
     this.reservationService.accepterReservation(idReservation, this.currentUser.idUtilisateur).subscribe({
       next: (response) => {
         if (response.result === 'SUCCESS') {
-          alert('Réservation acceptée avec succès !');
+          this.toastService.showSuccess('Réservation acceptée avec succès !');
           this.chargerDemandes();
         }
       },
       error: (error) => {
         console.error('Erreur lors de l\'acceptation:', error);
-        alert('Erreur lors de l\'acceptation de la réservation');
+        this.toastService.showError('Erreur lors de l\'acceptation de la réservation');
         this.isLoading = false;
       }
     });
@@ -103,13 +105,13 @@ export class DemandesReservationComponent implements OnInit {
     this.reservationService.refuserReservation(idReservation, this.currentUser.idUtilisateur, motif).subscribe({
       next: (response) => {
         if (response.result === 'SUCCESS') {
-          alert('Réservation refusée');
+          this.toastService.showSuccess('Réservation refusée');
           this.chargerDemandes();
         }
       },
       error: (error) => {
         console.error('Erreur lors du refus:', error);
-        alert('Erreur lors du refus de la réservation');
+        this.toastService.showError('Erreur lors du refus de la réservation');
         this.isLoading = false;
       }
     });
