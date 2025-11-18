@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Script pour recréer la base de données electricity_business
+# Script pour recréer la base de données electricity
 
-DB_NAME="electricity_business"
+DB_NAME="electricity"
 DB_USER="postgres"
 DB_HOST="localhost"
 DB_PORT="5432"

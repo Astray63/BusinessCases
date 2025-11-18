@@ -37,664 +37,500 @@
         (click)="changerTab('passees')">
         <i class="bi bi-archive mr-2"></i>Passées <span class="ml-1">({{ reservationsPassees.length }})</span>
       </button>
-      <button 
-        *ngIf="isProprietaire"
-        class="px-4 py-2.5 rounded-md text-sm font-medium transition-colors duration-200"
-        [class.bg-blue-600]="activeTab === 'proprietaire'"
-        [class.text-white]="activeTab === 'proprietaire'"
-        [class.text-gray-700]="activeTab !== 'proprietaire'"
-        [class.hover:bg-gray-100]="activeTab !== 'proprietaire'"
-        (click)="changerTab('proprietaire')">
-        <i class="bi bi-building mr-2"></i>Mes bornes <span class="ml-1">({{ reservationsProprietaire.length }})</span>
-      </button>
+      @if (isProprietaire) {
+        <button 
+          class="px-4 py-2.5 rounded-md text-sm font-medium transition-colors duration-200"
+          [class.bg-blue-600]="activeTab === 'proprietaire'"
+          [class.text-white]="activeTab === 'proprietaire'"
+          [class.text-gray-700]="activeTab !== 'proprietaire'"
+          [class.hover:bg-gray-100]="activeTab !== 'proprietaire'"
+          (click)="changerTab('proprietaire')">
+          <i class="bi bi-building mr-2"></i>Mes bornes <span class="ml-1">({{ reservationsProprietaire.length }})</span>
+        </button>
+      }
     </div>
 
     <!-- Contenu des onglets -->
     <div class="mt-6">
       
       <!-- ONGLET: Nouvelle réservation -->
-      <div *ngIf="activeTab === 'nouvelle'" class="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Effectuer une réservation</h2>
-        
-        <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      @if (activeTab === 'nouvelle') {
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Effectuer une réservation</h2>
           
-          <!-- Sélection de la borne -->
-          <div>
-            <label for="borneId" class="block text-sm font-medium text-gray-700 mb-2">
-              Borne de recharge <span class="text-red-500">*</span>
-            </label>
-            <div class="flex gap-2">
-              <select 
-                id="borneId" 
-                formControlName="borneId" 
-                class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                (change)="selectionnerBorne($event)">
-                <option value="">-- Sélectionnez une borne disponible --</option>
-                <option *ngFor="let borne of bornesDisponibles" [value]="borne.idBorne">
-                  {{ borne.nom || borne.localisation }} - {{ borne.type }} ({{ borne.puissance }} kW) - {{ borne.prix }}€/h
-                </option>
-              </select>
-              <a 
-                routerLink="/client/recherche" 
-                class="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap flex items-center gap-2">
-                <i class="bi bi-search"></i>
-                <span class="hidden sm:inline">Trouver une borne</span>
-              </a>
-            </div>
-            <p class="mt-1 text-sm text-gray-500">Seules les bornes disponibles sont affichées</p>
-          </div>
-
-          <!-- Informations de la borne sélectionnée -->
-          <div *ngIf="selectedBorne" class="bg-blue-50 border border-blue-200 rounded-lg p-5">
-            <h4 class="text-lg font-bold text-gray-900 mb-4">Détails de la borne</h4>
+          <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()" class="space-y-6">
             
-            <!-- Galerie de photos de la borne -->
-            <div *ngIf="selectedBorne.medias && selectedBorne.medias.length > 0" class="mb-4">
-              <!-- Photo principale -->
-              <div class="relative rounded-lg overflow-hidden border border-blue-300 mb-2">
-                <img 
-                  [src]="selectedBorne.medias[currentPhotoIndex]" 
-                  alt="Photo de la borne" 
-                  class="w-full h-64 object-cover">
+            <!-- Sélection de la borne -->
+            <div>
+              <label for="borneId" class="block text-sm font-medium text-gray-700 mb-2">
+                Borne de recharge <span class="text-red-500">*</span>
+              </label>
+              <div class="flex gap-2">
+                <select 
+                  id="borneId" 
+                  formControlName="borneId" 
+                  class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  (change)="selectionnerBorne($event)">
+                  <option value="">-- Sélectionnez une borne disponible --</option>
+                  @for (borne of bornesDisponibles; track borne.idBorne) {
+                    <option [value]="borne.idBorne">
+                      {{ borne.nom || borne.localisation }} - {{ borne.type }} ({{ borne.puissance }} kW) - {{ borne.prix }}€/h
+                    </option>
+                  }
+                </select>
+                <a 
+                  routerLink="/client/recherche" 
+                  class="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap flex items-center gap-2">
+                  <i class="bi bi-search"></i>
+                  <span class="hidden sm:inline">Trouver une borne</span>
+                </a>
+              </div>
+              <p class="mt-1 text-sm text-gray-500">Seules les bornes disponibles sont affichées</p>
+            </div>
+
+            <!-- Informations de la borne sélectionnée -->
+            @if (selectedBorne) {
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-5">
+                <h4 class="text-lg font-bold text-gray-900 mb-4">Détails de la borne</h4>
                 
-                <!-- Boutons de navigation si plusieurs photos -->
-                <div *ngIf="selectedBorne.medias.length > 1" class="absolute inset-0 flex items-center justify-between p-2">
-                  <button 
-                    type="button"
-                    class="w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors duration-200"
-                    (click)="previousPhoto()">
-                    <i class="bi bi-chevron-left text-xl"></i>
-                  </button>
-                  <button 
-                    type="button"
-                    class="w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors duration-200"
-                    (click)="nextPhoto()">
-                    <i class="bi bi-chevron-right text-xl"></i>
-                  </button>
-                </div>
+                <!-- Galerie de photos de la borne -->
+                @if (selectedBorne.medias && selectedBorne.medias.length > 0) {
+                  <div class="mb-4">
+                    <!-- Photo principale -->
+                    <div class="relative rounded-lg overflow-hidden border border-blue-300 mb-2">
+                      <img 
+                        [src]="selectedBorne.medias[currentPhotoIndex]" 
+                        alt="Photo de la borne" 
+                        class="w-full h-64 object-cover">
+                      
+                      <!-- Boutons de navigation si plusieurs photos -->
+                      @if (selectedBorne.medias.length > 1) {
+                        <div class="absolute inset-0 flex items-center justify-between p-2">
+                          <button 
+                            type="button"
+                            class="w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors duration-200"
+                            (click)="previousPhoto()">
+                            <i class="bi bi-chevron-left text-xl"></i>
+                          </button>
+                          <button 
+                            type="button"
+                            class="w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors duration-200"
+                            (click)="nextPhoto()">
+                            <i class="bi bi-chevron-right text-xl"></i>
+                          </button>
+                        </div>
+                      }
+                      
+                      <!-- Indicateur de position -->
+                      @if (selectedBorne.medias.length > 1) {
+                        <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full">
+                          <span class="text-white text-xs font-medium">
+                            {{ currentPhotoIndex + 1 }} / {{ selectedBorne.medias.length }}
+                          </span>
+                        </div>
+                      }
+                    </div>
+                    
+                    <!-- Miniatures -->
+                    @if (selectedBorne.medias.length > 1) {
+                      <div class="flex gap-2 overflow-x-auto pb-2">
+                        @for (media of selectedBorne.medias; track media; let i = $index) {
+                          <button
+                            type="button"
+                            class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200"
+                            [class.border-blue-500]="i === currentPhotoIndex"
+                            [class.border-transparent]="i !== currentPhotoIndex"
+                            [class.opacity-50]="i !== currentPhotoIndex"
+                            (click)="currentPhotoIndex = i">
+                            <img 
+                              [src]="media" 
+                              alt="Photo {{ i + 1 }}" 
+                              class="w-full h-full object-cover">
+                          </button>
+                        }
+                      </div>
+                    }
+                    
+                    <p class="text-xs text-gray-600 mt-2 flex items-center gap-1">
+                      <i class="bi bi-camera"></i>
+                      {{ selectedBorne.medias.length }} photo(s) disponible(s)
+                    </p>
+                  </div>
+                } @else {
+                  <div class="mb-4 h-64 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center border border-blue-300">
+                    <i class="bi bi-lightning-charge-fill text-6xl text-blue-600 opacity-50"></i>
+                  </div>
+                }
                 
-                <!-- Indicateur de position -->
-                <div *ngIf="selectedBorne.medias.length > 1" class="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full">
-                  <span class="text-white text-xs font-medium">
-                    {{ currentPhotoIndex + 1 }} / {{ selectedBorne.medias.length }}
-                  </span>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <span class="text-sm text-gray-600">Localisation:</span>
+                    <p class="font-semibold text-gray-900">{{ selectedBorne.localisation }}</p>
+                  </div>
+                  <div>
+                    <span class="text-sm text-gray-600">Type:</span>
+                    <p class="font-semibold text-gray-900">{{ selectedBorne.type }}</p>
+                  </div>
+                  <div>
+                    <span class="text-sm text-gray-600">Puissance:</span>
+                    <p class="font-semibold text-gray-900">{{ selectedBorne.puissance }} kW</p>
+                  </div>
+                  <div>
+                    <span class="text-sm text-gray-600">Prix:</span>
+                    <p class="font-semibold text-gray-900">{{ selectedBorne.prix }}€/heure</p>
+                  </div>
                 </div>
               </div>
-              
-              <!-- Miniatures -->
-              <div *ngIf="selectedBorne.medias.length > 1" class="flex gap-2 overflow-x-auto pb-2">
-                <button
-                  type="button"
-                  *ngFor="let media of selectedBorne.medias; let i = index"
-                  class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200"
-                  [class.border-blue-500]="i === currentPhotoIndex"
-                  [class.border-transparent]="i !== currentPhotoIndex"
-                  [class.opacity-50]="i !== currentPhotoIndex"
-                  (click)="currentPhotoIndex = i">
-                  <img 
-                    [src]="media" 
-                    alt="Photo {{ i + 1 }}" 
-                    class="w-full h-full object-cover">
-                </button>
-              </div>
-              
-              <p class="text-xs text-gray-600 mt-2 flex items-center gap-1">
-                <i class="bi bi-camera"></i>
-                {{ selectedBorne.medias.length }} photo(s) disponible(s)
-              </p>
-            </div>
-            <div *ngIf="!selectedBorne.medias || selectedBorne.medias.length === 0" class="mb-4 h-64 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center border border-blue-300">
-              <i class="bi bi-lightning-charge-fill text-6xl text-blue-600 opacity-50"></i>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4">
+            }
+
+            <!-- Plage horaire -->
+            <div class="grid md:grid-cols-2 gap-4">
               <div>
-                <span class="text-sm text-gray-600">Localisation:</span>
-                <p class="font-semibold text-gray-900">{{ selectedBorne.localisation }}</p>
+                <label for="dateDebut" class="block text-sm font-medium text-gray-700 mb-2">
+                  Date de début <span class="text-red-500">*</span>
+                </label>
+                <input 
+                  type="date" 
+                  id="dateDebut" 
+                  formControlName="dateDebut" 
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  [min]="getCurrentDate()">
               </div>
               <div>
-                <span class="text-sm text-gray-600">Type:</span>
-                <p class="font-semibold text-gray-900">{{ selectedBorne.type }}</p>
+                <label for="heureDebut" class="block text-sm font-medium text-gray-700 mb-2">
+                  Heure de début <span class="text-red-500">*</span>
+                </label>
+                <input 
+                  type="time" 
+                  id="heureDebut" 
+                  formControlName="heureDebut" 
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               </div>
-              <div>
-                <span class="text-sm text-gray-600">Puissance:</span>
-                <p class="font-semibold text-gray-900">{{ selectedBorne.puissance }} kW</p>
-              </div>
-              <div>
-                <span class="text-sm text-gray-600">Prix:</span>
-                <p class="font-semibold text-gray-900">{{ selectedBorne.prix }}€/heure</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Plage horaire -->
-          <div class="grid md:grid-cols-2 gap-4">
-            <div>
-              <label for="dateDebut" class="block text-sm font-medium text-gray-700 mb-2">
-                Date de début <span class="text-red-500">*</span>
-              </label>
-              <input 
-                type="date" 
-                id="dateDebut" 
-                formControlName="dateDebut" 
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                [min]="getCurrentDate()">
-            </div>
-            <div>
-              <label for="heureDebut" class="block text-sm font-medium text-gray-700 mb-2">
-                Heure de début <span class="text-red-500">*</span>
-              </label>
-              <input 
-                type="time" 
-                id="heureDebut" 
-                formControlName="heureDebut" 
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
-          </div>
-
-          <div class="grid md:grid-cols-2 gap-4">
-            <div>
-              <label for="dateFin" class="block text-sm font-medium text-gray-700 mb-2">
-                Date de fin <span class="text-red-500">*</span>
-              </label>
-              <input 
-                type="date" 
-                id="dateFin" 
-                formControlName="dateFin" 
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                [min]="getCurrentDate()">
-            </div>
-            <div>
-              <label for="heureFin" class="block text-sm font-medium text-gray-700 mb-2">
-                Heure de fin <span class="text-red-500">*</span>
-              </label>
-              <input 
-                type="time" 
-                id="heureFin" 
-                formControlName="heureFin" 
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
-          </div>
-
-          <!-- Montant à régler -->
-          <div *ngIf="selectedBorne && reservationForm.get('dateDebut')?.value && reservationForm.get('heureDebut')?.value && reservationForm.get('dateFin')?.value && reservationForm.get('heureFin')?.value" class="bg-green-50 border border-green-200 rounded-lg p-4">
-            <div class="flex items-center justify-between">
-              <span class="text-sm font-medium text-gray-700">Montant à régler :</span>
-              <span class="text-2xl font-bold text-green-700">{{ calculerMontant() | number:'1.2-2' }} €</span>
-            </div>
-            <p class="text-xs text-gray-600 mt-2">
-              Durée : {{ calculerDureeHeures() }} heure(s) × {{ selectedBorne.prix }}€/h
-            </p>
-          </div>
-
-          <!-- Informations de paiement -->
-          <div class="border-t border-gray-200 pt-6 space-y-4">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">Informations de paiement</h3>
-            
-            <!-- Numéro de carte bancaire -->
-            <div>
-              <label for="numeroCarteBancaire" class="block text-sm font-medium text-gray-700 mb-2">
-                Numéro de la carte bancaire <span class="text-red-500">*</span>
-              </label>
-              <input 
-                type="text" 
-                id="numeroCarteBancaire" 
-                formControlName="numeroCarteBancaire" 
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="1234 5678 9012 3456"
-                maxlength="16">
-              <p class="mt-1 text-sm text-gray-500">16 chiffres sans espaces</p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-4">
-              <!-- Mois/Année d'expiration -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Mois / Année d'expiration <span class="text-red-500">*</span>
+                <label for="dateFin" class="block text-sm font-medium text-gray-700 mb-2">
+                  Date de fin <span class="text-red-500">*</span>
                 </label>
-                <div class="flex gap-2">
-                  <select 
-                    formControlName="moisExpiration" 
-                    class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">Mois</option>
-                    <option value="Janvier">Janvier</option>
-                    <option value="Février">Février</option>
-                    <option value="Mars">Mars</option>
-                    <option value="Avril">Avril</option>
-                    <option value="Mai">Mai</option>
-                    <option value="Juin">Juin</option>
-                    <option value="Juillet">Juillet</option>
-                    <option value="Août">Août</option>
-                    <option value="Septembre">Septembre</option>
-                    <option value="Octobre">Octobre</option>
-                    <option value="Novembre">Novembre</option>
-                    <option value="Décembre">Décembre</option>
-                  </select>
-                  <input 
-                    type="number" 
-                    formControlName="anneeExpiration" 
-                    class="w-28 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="2024"
-                    min="2024"
-                    max="2040">
-                </div>
+                <input 
+                  type="date" 
+                  id="dateFin" 
+                  formControlName="dateFin" 
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  [min]="getCurrentDate()">
               </div>
-
-              <!-- CVV -->
               <div>
-                <label for="cvv" class="block text-sm font-medium text-gray-700 mb-2">
-                  CVV <span class="text-red-500">*</span>
+                <label for="heureFin" class="block text-sm font-medium text-gray-700 mb-2">
+                  Heure de fin <span class="text-red-500">*</span>
+                </label>
+                <input 
+                  type="time" 
+                  id="heureFin" 
+                  formControlName="heureFin" 
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+            </div>
+
+            <!-- Montant à régler -->
+            @if (selectedBorne && reservationForm.get('dateDebut')?.value && reservationForm.get('heureDebut')?.value && reservationForm.get('dateFin')?.value && reservationForm.get('heureFin')?.value) {
+              <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium text-gray-700">Montant à régler :</span>
+                  <span class="text-2xl font-bold text-green-700">{{ calculerMontant() | number:'1.2-2' }} €</span>
+                </div>
+                <p class="text-xs text-gray-600 mt-2">
+                  Durée : {{ calculerDureeHeures() }} heure(s) × {{ selectedBorne.prix }}€/h
+                </p>
+              </div>
+            }
+
+            <!-- Informations de paiement -->
+            <div class="border-t border-gray-200 pt-6 space-y-4">
+              <h3 class="text-lg font-bold text-gray-900 mb-4">Informations de paiement</h3>
+              
+              <!-- Numéro de carte bancaire -->
+              <div>
+                <label for="numeroCarteBancaire" class="block text-sm font-medium text-gray-700 mb-2">
+                  Numéro de la carte bancaire <span class="text-red-500">*</span>
                 </label>
                 <input 
                   type="text" 
-                  id="cvv" 
-                  formControlName="cvv" 
+                  id="numeroCarteBancaire" 
+                  formControlName="numeroCarteBancaire" 
                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="123"
-                  maxlength="3">
-                <p class="mt-1 text-sm text-gray-500">3 chiffres au dos de la carte</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Actions -->
-          <div class="flex gap-3 pt-2">
-            <button 
-              type="submit" 
-              class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              [disabled]="isLoading || reservationForm.invalid">
-              <span *ngIf="!isLoading"><i class="bi bi-calendar-check mr-2"></i>Réserver</span>
-              <span *ngIf="isLoading"><i class="bi bi-hourglass-split mr-2"></i>En cours...</span>
-            </button>
-            <button 
-              type="button" 
-              class="px-6 py-2.5 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors duration-200"
-              (click)="reservationForm.reset()"
-              [disabled]="isLoading">
-              Réinitialiser
-            </button>
-          </div>
-
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p class="text-sm text-blue-800">
-              <i class="bi bi-info-circle mr-2"></i>
-              Une notification sera automatiquement envoyée au propriétaire de la borne après votre réservation.
-            </p>
-          </div>
-        </form>
-      </div>
-
-      <!-- ONGLET: Réservations en cours -->
-      <div *ngIf="activeTab === 'en-cours'">
-        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-4">
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">Réservations en cours</h2>
-          <p class="text-gray-600">Réservations en attente de validation ou confirmées</p>
-        </div>
-
-        <div *ngIf="reservationsEnCours.length === 0" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <i class="bi bi-calendar-x text-5xl text-gray-300 mb-3 block"></i>
-          <p class="text-gray-500">Aucune réservation en cours</p>
-        </div>
-
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <div 
-            *ngFor="let reservation of reservationsEnCours" 
-            class="bg-white border rounded-lg shadow-sm overflow-hidden"
-            [class.border-yellow-300]="reservation.statut === 'EN_ATTENTE'"
-            [class.border-green-300]="reservation.statut === 'CONFIRMEE'"
-            [class.border-gray-200]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'">
-            
-            <!-- Photo de la borne -->
-            <ng-container *ngIf="reservation.borne?.medias as medias; else noPhotoCard">
-              <div *ngIf="medias.length > 0; else noPhotoCard" class="h-40 overflow-hidden bg-gray-100">
-                <img 
-                  [src]="medias[0]" 
-                  alt="Photo de la borne" 
-                  class="w-full h-full object-cover">
-              </div>
-            </ng-container>
-            <ng-template #noPhotoCard>
-              <div class="h-40 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
-                <i class="bi bi-lightning-charge-fill text-5xl text-blue-600 opacity-50"></i>
-              </div>
-            </ng-template>
-            
-            <div class="p-5">
-              <div class="flex items-center justify-between mb-4">
-                <span class="text-sm font-semibold text-gray-500">#{{ reservation.idReservation }}</span>
-                <span class="px-2.5 py-1 rounded-full text-xs font-semibold"
-                      [class.bg-yellow-100]="reservation.statut === 'EN_ATTENTE'"
-                      [class.text-yellow-800]="reservation.statut === 'EN_ATTENTE'"
-                      [class.bg-green-100]="reservation.statut === 'CONFIRMEE'"
-                      [class.text-green-800]="reservation.statut === 'CONFIRMEE'"
-                      [class.bg-gray-100]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'"
-                      [class.text-gray-800]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'">
-                  {{ getStatutLabel(reservation.statut) }}
-                </span>
+                  placeholder="1234 5678 9012 3456"
+                  maxlength="16">
+                <p class="mt-1 text-sm text-gray-500">16 chiffres sans espaces</p>
               </div>
 
-              <div class="space-y-3 mb-5">
-                <div class="flex items-start gap-3">
-                  <span class="text-xl">📍</span>
-                  <div class="flex-1">
-                    <p class="font-bold text-gray-900 text-sm">{{ reservation.borne.localisation || 'N/A' }}</p>
-                    <p class="text-xs text-gray-600">{{ reservation.borne.type || 'N/A' }} - {{ reservation.borne.puissance || 0 }} kW</p>
+              <div class="grid md:grid-cols-2 gap-4">
+                <!-- Mois/Année d'expiration -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Mois / Année d'expiration <span class="text-red-500">*</span>
+                  </label>
+                  <div class="flex gap-2">
+                    <select 
+                      formControlName="moisExpiration" 
+                      class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">Mois</option>
+                      <option value="Janvier">Janvier</option>
+                      <option value="Février">Février</option>
+                      <option value="Mars">Mars</option>
+                      <option value="Avril">Avril</option>
+                      <option value="Mai">Mai</option>
+                      <option value="Juin">Juin</option>
+                      <option value="Juillet">Juillet</option>
+                      <option value="Août">Août</option>
+                      <option value="Septembre">Septembre</option>
+                      <option value="Octobre">Octobre</option>
+                      <option value="Novembre">Novembre</option>
+                      <option value="Décembre">Décembre</option>
+                    </select>
+                    <input 
+                      type="number" 
+                      formControlName="anneeExpiration" 
+                      class="w-28 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="2024"
+                      min="2024"
+                      max="2040">
                   </div>
                 </div>
 
-                <div class="flex items-start gap-3">
-                  <span class="text-xl">📅</span>
-                  <div class="flex-1">
-                    <p class="font-bold text-gray-900 text-sm">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</p>
-                    <p class="text-xs text-gray-600">{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</p>
-                  </div>
-                </div>
-
-                <div class="flex items-start gap-3">
-                  <span class="text-xl">⏱️</span>
-                  <div class="flex-1">
-                    <p class="font-bold text-gray-900 text-sm">Durée</p>
-                    <p class="text-xs text-gray-600">{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</p>
-                  </div>
-                </div>
-
-                <div class="flex items-start gap-3" *ngIf="reservation.montantTotal">
-                  <span class="text-xl">💰</span>
-                  <div class="flex-1">
-                    <p class="font-bold text-gray-900 text-sm">Montant</p>
-                    <p class="text-xs text-gray-600">{{ reservation.montantTotal }} €</p>
-                  </div>
+                <!-- CVV -->
+                <div>
+                  <label for="cvv" class="block text-sm font-medium text-gray-700 mb-2">
+                    CVV <span class="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="cvv" 
+                    formControlName="cvv" 
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="123"
+                    maxlength="3">
+                  <p class="mt-1 text-sm text-gray-500">3 chiffres au dos de la carte</p>
                 </div>
               </div>
-
-              <div class="flex gap-2">
-                <button 
-                  *ngIf="hasReceipt(reservation)"
-                  class="flex-1 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50"
-                  (click)="telechargerRecu(reservation.idReservation)"
-                  [disabled]="isLoading">
-                  <i class="bi bi-file-pdf mr-2"></i>Reçu PDF
-                </button>
-                <button 
-                  [class.flex-1]="hasReceipt(reservation)"
-                  [class.w-full]="!hasReceipt(reservation)"
-                  class="px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
-                  (click)="cancelReservation(reservation.idReservation)"
-                  [disabled]="isLoading">
-                  <i class="bi bi-x-circle mr-2"></i>Annuler
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ONGLET: Réservations passées -->
-      <div *ngIf="activeTab === 'passees'">
-        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-4">
-          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
-            <div>
-              <h2 class="text-2xl font-bold text-gray-900 mb-1">Réservations passées</h2>
-              <p class="text-gray-600">Historique de vos réservations terminées</p>
-            </div>
-            
-            <!-- Actions d'export -->
-            <button 
-              class="px-4 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              (click)="exporterExcel()"
-              [disabled]="reservationsPassees.length === 0 || isLoading">
-              <i class="bi bi-file-earmark-excel mr-2"></i>Exporter Excel
-            </button>
-          </div>
-
-          <!-- Filtres -->
-          <form [formGroup]="filtreForm" class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-            <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1.5">Statut</label>
-              <select formControlName="statut" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">Tous</option>
-                <option value="TERMINEE">Terminée</option>
-                <option value="ANNULEE">Annulée</option>
-                <option value="REFUSEE">Refusée</option>
-              </select>
             </div>
 
-            <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1.5">Date début</label>
-              <input type="date" formControlName="dateDebut" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <!-- Actions -->
+            <div class="flex gap-3 pt-2">
+              <button 
+                type="submit" 
+                class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="isLoading || reservationForm.invalid">
+                @if (!isLoading) {
+                  <span><i class="bi bi-calendar-check mr-2"></i>Réserver</span>
+                } @else {
+                  <span><i class="bi bi-hourglass-split mr-2"></i>En cours...</span>
+                }
+              </button>
+              <button 
+                type="button" 
+                class="px-6 py-2.5 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                (click)="reservationForm.reset()"
+                [disabled]="isLoading">
+                Réinitialiser
+              </button>
             </div>
 
-            <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1.5">Date fin</label>
-              <input type="date" formControlName="dateFin" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
-
-            <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1.5">Borne</label>
-              <select formControlName="borneId" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">Toutes</option>
-                <option *ngFor="let borne of bornes" [value]="borne.idBorne">
-                  {{ borne.localisation }}
-                </option>
-              </select>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p class="text-sm text-blue-800">
+                <i class="bi bi-info-circle mr-2"></i>
+                Une notification sera automatiquement envoyée au propriétaire de la borne après votre réservation.
+              </p>
             </div>
           </form>
+        </div>
+      }
 
-          <div class="flex gap-2">
-            <button 
-              type="button" 
-              class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200"
-              (click)="appliquerFiltre()">
-              <i class="bi bi-funnel mr-2"></i>Filtrer
-            </button>
-            <button 
-              type="button" 
-              class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-300 transition-colors duration-200"
-              (click)="reinitialiserFiltre()"
-              *ngIf="filtreActif">
-              <i class="bi bi-x-circle mr-2"></i>Réinitialiser
-            </button>
+      <!-- ONGLET: Réservations en cours -->
+      @if (activeTab === 'en-cours') {
+        <div>
+          <div class="bg-white rounded-lg border border-gray-200 p-6 mb-4">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Réservations en cours</h2>
+            <p class="text-gray-600">Réservations en attente de validation ou confirmées</p>
           </div>
-        </div>
 
-        <div *ngIf="reservationsPassees.length === 0" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <i class="bi bi-archive text-5xl text-gray-300 mb-3 block"></i>
-          <p class="text-gray-500">Aucune réservation passée</p>
-        </div>
+          @if (reservationsEnCours.length === 0) {
+            <div class="bg-white rounded-lg border border-gray-200 p-12 text-center">
+              <i class="bi bi-calendar-x text-5xl text-gray-300 mb-3 block"></i>
+              <p class="text-gray-500">Aucune réservation en cours</p>
+            </div>
+          }
 
-        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden" *ngIf="reservationsPassees.length > 0">
-          <div class="overflow-x-auto">
-            <table class="w-full">
-              <thead class="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Photo</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Borne</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Durée</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Statut</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Montant</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-200">
-                <tr *ngFor="let reservation of reservationsPassees" class="hover:bg-gray-50 transition-colors duration-150">
-                  <td class="px-4 py-3 text-sm text-gray-900">#{{ reservation.idReservation }}</td>
-                  <td class="px-4 py-3">
-                    <ng-container *ngIf="reservation.borne?.medias as medias; else noPhotoThumb">
-                      <div *ngIf="medias.length > 0; else noPhotoThumb" class="w-16 h-16 overflow-hidden rounded-lg">
-                        <img 
-                          [src]="medias[0]" 
-                          alt="Photo de la borne" 
-                          class="w-full h-full object-cover">
-                      </div>
-                    </ng-container>
-                    <ng-template #noPhotoThumb>
-                      <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
-                        <i class="bi bi-lightning-charge-fill text-2xl text-blue-600 opacity-50"></i>
-                      </div>
-                    </ng-template>
-                  </td>
-                  <td class="px-4 py-3">
-                    <p class="text-sm font-semibold text-gray-900">{{ reservation.borne.localisation || 'N/A' }}</p>
-                    <p class="text-xs text-gray-600">{{ reservation.borne.type || 'N/A' }}</p>
-                  </td>
-                  <td class="px-4 py-3">
-                    <p class="text-sm text-gray-900">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</p>
-                    <p class="text-xs text-gray-600">{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</p>
-                  </td>
-                  <td class="px-4 py-3 text-sm text-gray-900">{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</td>
-                  <td class="px-4 py-3">
-                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold inline-block"
-                          [class.bg-green-100]="reservation.statut === 'TERMINEE'"
-                          [class.text-green-800]="reservation.statut === 'TERMINEE'"
-                          [class.bg-gray-100]="reservation.statut === 'ANNULEE'"
-                          [class.text-gray-800]="reservation.statut === 'ANNULEE'"
-                          [class.bg-red-100]="reservation.statut === 'REFUSEE'"
-                          [class.text-red-800]="reservation.statut === 'REFUSEE'">
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            @for (reservation of reservationsEnCours; track reservation.idReservation) {
+              <div 
+                class="bg-white border rounded-lg shadow-sm overflow-hidden"
+                [class.border-yellow-300]="reservation.statut === 'EN_ATTENTE'"
+                [class.border-green-300]="reservation.statut === 'CONFIRMEE'"
+                [class.border-gray-200]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'">
+                
+                <!-- Photo de la borne -->
+                @if (reservation.borne.medias?.length) {
+                  <div class="h-40 overflow-hidden bg-gray-100">
+                    <img 
+                      [src]="reservation.borne.medias![0]" 
+                      alt="Photo de la borne" 
+                      class="w-full h-full object-cover">
+                  </div>
+                } @else {
+                  <div class="h-40 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+                    <i class="bi bi-lightning-charge-fill text-5xl text-blue-600 opacity-50"></i>
+                  </div>
+                }
+                
+                <div class="p-5">
+                  <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-semibold text-gray-500">#{{ reservation.idReservation }}</span>
+                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold"
+                          [class.bg-yellow-100]="reservation.statut === 'EN_ATTENTE'"
+                          [class.text-yellow-800]="reservation.statut === 'EN_ATTENTE'"
+                          [class.bg-green-100]="reservation.statut === 'CONFIRMEE'"
+                          [class.text-green-800]="reservation.statut === 'CONFIRMEE'"
+                          [class.bg-gray-100]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'"
+                          [class.text-gray-800]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'">
                       {{ getStatutLabel(reservation.statut) }}
                     </span>
-                    <p *ngIf="reservation.motifRefus" class="text-xs text-red-600 mt-1">{{ reservation.motifRefus }}</p>
-                  </td>
-                  <td class="px-4 py-3">
-                    <span *ngIf="reservation.montantTotal" class="text-sm font-semibold text-gray-900">{{ reservation.montantTotal }} €</span>
-                    <span *ngIf="!reservation.montantTotal" class="text-sm text-gray-400">-</span>
-                  </td>
-                  <td class="px-4 py-3">
+                  </div>
+
+                  <div class="space-y-3 mb-5">
+                    <div class="flex items-start gap-3">
+                      <span class="text-xl">📍</span>
+                      <div class="flex-1">
+                        <p class="font-bold text-gray-900 text-sm">{{ reservation.borne.localisation || 'N/A' }}</p>
+                        <p class="text-xs text-gray-600">{{ reservation.borne.type || 'N/A' }} - {{ reservation.borne.puissance || 0 }} kW</p>
+                      </div>
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                      <span class="text-xl">📅</span>
+                      <div class="flex-1">
+                        <p class="font-bold text-gray-900 text-sm">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</p>
+                        <p class="text-xs text-gray-600">{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</p>
+                      </div>
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                      <span class="text-xl">⏱️</span>
+                      <div class="flex-1">
+                        <p class="font-bold text-gray-900 text-sm">Durée</p>
+                        <p class="text-xs text-gray-600">{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</p>
+                      </div>
+                    </div>
+
+                    @if (reservation.montantTotal) {
+                      <div class="flex items-start gap-3">
+                        <span class="text-xl">💰</span>
+                        <div class="flex-1">
+                          <p class="font-bold text-gray-900 text-sm">Montant</p>
+                          <p class="text-xs text-gray-600">{{ reservation.montantTotal }} €</p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="flex gap-2">
+                    @if (hasReceipt(reservation)) {
+                      <button 
+                        class="flex-1 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50"
+                        (click)="telechargerRecu(reservation.idReservation)"
+                        [disabled]="isLoading">
+                        <i class="bi bi-file-pdf mr-2"></i>Reçu PDF
+                      </button>
+                    }
                     <button 
-                      *ngIf="hasReceipt(reservation)"
-                      class="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors duration-200"
-                      (click)="telechargerRecu(reservation.idReservation)"
+                      [class.flex-1]="hasReceipt(reservation)"
+                      [class.w-full]="!hasReceipt(reservation)"
+                      class="px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
+                      (click)="cancelReservation(reservation.idReservation)"
                       [disabled]="isLoading">
-                      <i class="bi bi-file-pdf mr-1"></i>Reçu PDF
+                      <i class="bi bi-x-circle mr-2"></i>Annuler
                     </button>
-                    <span *ngIf="!hasReceipt(reservation)" class="text-xs text-gray-400">-</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
         </div>
-      </div>
+      }
 
-      <!-- ONGLET: Gestion propriétaire -->
-      <div *ngIf="activeTab === 'proprietaire' && isProprietaire">
-        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-4">
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">Réservations de mes bornes</h2>
-          <p class="text-gray-600">Gérez les demandes de réservation pour vos bornes</p>
-        </div>
+      <!-- ONGLET: Réservations passées -->
+      @if (activeTab === 'passees') {
+        <div>
+          <div class="bg-white rounded-lg border border-gray-200 p-6 mb-4">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+              <div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-1">Réservations passées</h2>
+                <p class="text-gray-600">Historique de vos réservations terminées</p>
+              </div>
+              
+              <!-- Actions d'export -->
+              <button 
+                class="px-4 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                (click)="exporterExcel()"
+                [disabled]="reservationsPassees.length === 0 || isLoading">
+                <i class="bi bi-file-earmark-excel mr-2"></i>Exporter Excel
+              </button>
+            </div>
 
-        <div *ngIf="reservationsProprietaire.length === 0" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <i class="bi bi-building text-5xl text-gray-300 mb-3 block"></i>
-          <p class="text-gray-500">Aucune réservation pour vos bornes</p>
-        </div>
-
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <div 
-            *ngFor="let reservation of reservationsProprietaire" 
-            class="bg-white border rounded-lg shadow-sm overflow-hidden"
-            [class.border-yellow-300]="reservation.statut === 'EN_ATTENTE'"
-            [class.border-green-300]="reservation.statut === 'CONFIRMEE'"
-            [class.border-gray-200]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'">
-            
-            <div class="p-5">
-              <div class="flex items-center justify-between mb-4">
-                <span class="text-sm font-semibold text-gray-500">#{{ reservation.idReservation }}</span>
-                <span class="px-2.5 py-1 rounded-full text-xs font-semibold"
-                      [class.bg-yellow-100]="reservation.statut === 'EN_ATTENTE'"
-                      [class.text-yellow-800]="reservation.statut === 'EN_ATTENTE'"
-                      [class.bg-green-100]="reservation.statut === 'CONFIRMEE'"
-                      [class.text-green-800]="reservation.statut === 'CONFIRMEE'"
-                      [class.bg-gray-100]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'"
-                      [class.text-gray-800]="reservation.statut !== 'EN_ATTENTE' && reservation.statut !== 'CONFIRMEE'">
-                  {{ getStatutLabel(reservation.statut) }}
-                </span>
+            <!-- Filtres -->
+            <form [formGroup]="filtreForm" class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1.5">Statut</label>
+                <select formControlName="statut" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">Tous</option>
+                  <option value="TERMINEE">Terminée</option>
+                  <option value="ANNULEE">Annulée</option>
+                  <option value="REFUSEE">Refusée</option>
+                </select>
               </div>
 
-              <div class="space-y-3 mb-5">
-                <div class="flex items-start gap-3">
-                  <span class="text-xl">👤</span>
-                  <div class="flex-1">
-                    <p class="font-bold text-gray-900 text-sm">{{ reservation.utilisateur.prenom }} {{ reservation.utilisateur.nom }}</p>
-                    <p class="text-xs text-gray-600">{{ reservation.utilisateur.email }}</p>
-                  </div>
-                </div>
-
-                <div class="flex items-start gap-3">
-                  <span class="text-xl">📍</span>
-                  <div class="flex-1">
-                    <p class="font-bold text-gray-900 text-sm">{{ reservation.borne.localisation || 'N/A' }}</p>
-                    <p class="text-xs text-gray-600">{{ reservation.borne.type || 'N/A' }} - {{ reservation.borne.puissance || 0 }} kW</p>
-                  </div>
-                </div>
-
-                <div class="flex items-start gap-3">
-                  <span class="text-xl">📅</span>
-                  <div class="flex-1">
-                    <p class="font-bold text-gray-900 text-sm">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</p>
-                    <p class="text-xs text-gray-600">{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</p>
-                  </div>
-                </div>
-
-                <div class="flex items-start gap-3">
-                  <span class="text-xl">⏱️</span>
-                  <div class="flex-1">
-                    <p class="font-bold text-gray-900 text-sm">Durée</p>
-                    <p class="text-xs text-gray-600">{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</p>
-                  </div>
-                </div>
-
-                <div class="flex items-start gap-3" *ngIf="reservation.montantTotal">
-                  <span class="text-xl">💰</span>
-                  <div class="flex-1">
-                    <p class="font-bold text-gray-900 text-sm">Revenu estimé</p>
-                    <p class="text-xs text-gray-600">{{ reservation.montantTotal }} €</p>
-                  </div>
-                </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1.5">Date début</label>
+                <input type="date" formControlName="dateDebut" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               </div>
 
-              <div *ngIf="reservation.statut === 'EN_ATTENTE'" class="flex gap-2">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1.5">Date fin</label>
+                <input type="date" formControlName="dateFin" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1.5">Borne</label>
+                <select formControlName="borneId" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">Toutes</option>
+                  @for (borne of bornes; track borne.idBorne) {
+                    <option [value]="borne.idBorne">
+                      {{ borne.localisation }}
+                    </option>
+                  }
+                </select>
+              </div>
+            </form>
+
+            <div class="flex gap-2">
+              <button 
+                type="button" 
+                class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                (click)="appliquerFiltre()">
+                <i class="bi bi-funnel mr-2"></i>Filtrer
+              </button>
+              @if (filtreActif) {
                 <button 
-                  class="flex-1 px-4 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50"
-                  (click)="accepterReservation(reservation.idReservation)"
-                  [disabled]="isLoading">
-                  <i class="bi bi-check-circle mr-2"></i>Accepter
+                  type="button" 
+                  class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                  (click)="reinitialiserFiltre()">
+                  <i class="bi bi-x-circle mr-2"></i>Réinitialiser
                 </button>
-                <button 
-                  class="flex-1 px-4 py-2.5 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
-                  (click)="refuserReservation(reservation.idReservation)"
-                  [disabled]="isLoading">
-                  <i class="bi bi-x-circle mr-2"></i>Refuser
-                </button>
-              </div>
-
-              <div *ngIf="reservation.statut !== 'EN_ATTENTE' && hasReceipt(reservation)" class="flex gap-2">
-                <button 
-                  class="w-full px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50"
-                  (click)="telechargerRecu(reservation.idReservation)"
-                  [disabled]="isLoading">
-                  <i class="bi bi-file-pdf mr-2"></i>Télécharger le reçu
-                </button>
-              </div>
-
-              <div *ngIf="reservation.statut !== 'EN_ATTENTE' && !hasReceipt(reservation)" class="text-center py-2">
-                <span class="text-sm font-medium text-gray-600">
-                  {{ getStatutLabel(reservation.statut) }}
-                </span>
-              </div>
+              }
             </div>
           </div>
         </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Loader global -->
-  <div *ngIf="isLoading" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 shadow-xl">
-      <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3"></div>
-      <p class="text-gray-700 font-medium">Chargement...</p>
+      }
     </div>
   </div>
 </div>

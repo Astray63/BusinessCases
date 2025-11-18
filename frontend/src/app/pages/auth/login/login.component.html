@@ -40,12 +40,16 @@
                 autocomplete="username">
               <i class="bi bi-person-fill absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm sm:text-base"></i>
             </div>
-            <div *ngIf="loginForm.get('pseudo')?.invalid && loginForm.get('pseudo')?.touched" class="mt-1.5 sm:mt-2">
-              <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
-                <i class="bi bi-exclamation-circle"></i>
-                <span *ngIf="loginForm.get('pseudo')?.errors?.['required']">Le nom d'utilisateur est obligatoire</span>
-              </p>
-            </div>
+            @if (loginForm.get('pseudo')?.invalid && loginForm.get('pseudo')?.touched) {
+              <div class="mt-1.5 sm:mt-2">
+                <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
+                  <i class="bi bi-exclamation-circle"></i>
+                  @if (loginForm.get('pseudo')?.errors?.['required']) {
+                    <span>Le nom d'utilisateur est obligatoire</span>
+                  }
+                </p>
+              </div>
+            }
           </div>
           
           <!-- Mot de passe -->
@@ -68,12 +72,16 @@
                 autocomplete="current-password">
               <i class="bi bi-lock-fill absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm sm:text-base"></i>
             </div>
-            <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="mt-1.5 sm:mt-2">
-              <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
-                <i class="bi bi-exclamation-circle"></i>
-                <span *ngIf="loginForm.get('password')?.errors?.['required']">Le mot de passe est obligatoire</span>
-              </p>
-            </div>
+            @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+              <div class="mt-1.5 sm:mt-2">
+                <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
+                  <i class="bi bi-exclamation-circle"></i>
+                  @if (loginForm.get('password')?.errors?.['required']) {
+                    <span>Le mot de passe est obligatoire</span>
+                  }
+                </p>
+              </div>
+            }
           </div>
 
           <!-- Mot de passe oublié -->
@@ -88,14 +96,18 @@
             type="submit" 
             class="w-full py-3 sm:py-3.5 px-4 bg-gradient-to-br from-blue-600 to-blue-800 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl text-sm sm:text-base"
             [disabled]="loading || loginForm.invalid">
-            <span *ngIf="!loading" class="flex items-center gap-2">
-              <i class="bi bi-box-arrow-in-right text-base sm:text-lg"></i>
-              <span>Se connecter</span>
-            </span>
-            <span *ngIf="loading" class="flex items-center gap-2">
-              <span class="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>Connexion...</span>
-            </span>
+            @if (!loading) {
+              <span class="flex items-center gap-2">
+                <i class="bi bi-box-arrow-in-right text-base sm:text-lg"></i>
+                <span>Se connecter</span>
+              </span>
+            }
+            @if (loading) {
+              <span class="flex items-center gap-2">
+                <span class="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span>Connexion...</span>
+              </span>
+            }
           </button>
 
           <!-- Divider -->

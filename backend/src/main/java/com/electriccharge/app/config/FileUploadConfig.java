@@ -28,13 +28,8 @@ public class FileUploadConfig implements WebMvcConfigurer {
             throw new RuntimeException("Could not create upload directory!", e);
         }
 
-    // Mapper l'URL /uploads/bornes/** vers le répertoire de fichiers
-    registry.addResourceHandler("/uploads/bornes/**")
-        .addResourceLocations("file:" + uploadDir + "/");
-
-    // Certaines routes de l'API sont préfixées par /api. On ajoute donc aussi le mapping
-    // /api/uploads/bornes/** pour que les URLs générées avec ce préfixe fonctionnent.
-    registry.addResourceHandler("/api/uploads/bornes/**")
-        .addResourceLocations("file:" + uploadDir + "/");
+        // Mapper l'URL /uploads/bornes/** vers le répertoire de fichiers
+        registry.addResourceHandler("/uploads/bornes/**")
+                .addResourceLocations("file:" + uploadDir + "/");
     }
 }

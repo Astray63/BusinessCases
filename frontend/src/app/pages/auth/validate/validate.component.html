@@ -18,24 +18,34 @@
           maxlength="6"
           pattern="[0-9]*"
         >
-        <div *ngIf="submitted && f['code'].errors" class="invalid-feedback">
-          <div *ngIf="f['code'].errors['required']">Le code est requis</div>
-          <div *ngIf="f['code'].errors['minlength'] || f['code'].errors['maxlength']">
-            Le code doit contenir 6 caractères
+        @if (submitted && f['code'].errors) {
+          <div class="invalid-feedback">
+            @if (f['code'].errors['required']) {
+              <div>Le code est requis</div>
+            }
+            @if (f['code'].errors['minlength'] || f['code'].errors['maxlength']) {
+              <div>
+                Le code doit contenir 6 caractères
+              </div>
+            }
           </div>
-        </div>
+        }
       </div>
 
-      <div *ngIf="errorMessage" class="alert alert-danger">
-        {{ errorMessage }}
-      </div>
+      @if (errorMessage) {
+        <div class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+      }
 
       <button 
         type="submit" 
         class="btn btn-primary btn-block"
         [disabled]="loading"
       >
-        <span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+        @if (loading) {
+          <span class="spinner-border spinner-border-sm mr-1"></span>
+        }
         Valider mon compte
       </button>
     </form>

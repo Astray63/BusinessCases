@@ -125,14 +125,17 @@
       <div class="relative rounded-lg overflow-hidden shadow-lg mb-10 bg-white">
         <div id="public-map" class="w-full h-[500px]"></div>
         
-        <div *ngIf="isLoading" class="absolute inset-0 bg-white/95 flex flex-col items-center justify-center z-50">
-          <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-3"></div>
-          <p class="text-base font-medium text-gray-700">Chargement des bornes...</p>
-        </div>
+        @if (isLoading) {
+          <div class="absolute inset-0 bg-white/95 flex flex-col items-center justify-center z-50">
+            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-3"></div>
+            <p class="text-base font-medium text-gray-700">Chargement des bornes...</p>
+          </div>
+        }
       </div>
 
       <!-- Liste des bornes sous la carte -->
-      <div *ngIf="!isLoading && bornesPubliques.length > 0" class="space-y-6">
+      @if (!isLoading && bornesPubliques.length > 0) {
+        <div class="space-y-6">
         <div class="flex items-center justify-between">
           <h3 class="text-xl font-bold text-gray-900">
             {{ bornesPubliques.length }} borne(s) disponible(s)
@@ -140,20 +143,24 @@
         </div>
         
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <app-borne-card 
-            *ngFor="let borne of bornesPubliques"
-            [borne]="borne"
-            [userLocation]="userLocation"
-            (reserve)="navigateToReservation(borne)"
-            (viewOnMap)="centerMapOnBorne(borne)">
-          </app-borne-card>
+          @for (borne of bornesPubliques; track borne.idBorne) {
+            <app-borne-card 
+              [borne]="borne"
+              [userLocation]="userLocation"
+              (reserve)="navigateToReservation(borne)"
+              (viewOnMap)="centerMapOnBorne(borne)">
+            </app-borne-card>
+          }
         </div>
       </div>
+      }
 
-      <div *ngIf="!isLoading && bornesPubliques.length === 0" class="text-center py-16 bg-white rounded-lg border border-gray-200">
-        <i class="bi bi-lightning-charge text-5xl text-gray-300 mb-3 block"></i>
-        <p class="text-lg text-gray-500">Aucune borne disponible pour le moment</p>
-      </div>
+      @if (!isLoading && bornesPubliques.length === 0) {
+        <div class="text-center py-16 bg-white rounded-lg border border-gray-200">
+          <i class="bi bi-lightning-charge text-5xl text-gray-300 mb-3 block"></i>
+          <p class="text-lg text-gray-500">Aucune borne disponible pour le moment</p>
+        </div>
+      }
     </div>
   </section>
 

@@ -25,11 +25,12 @@
         <span class="text-lg">💰</span>
         <span class="font-medium">{{ borne.prix }}€/heure</span>
       </div>
-      <div *ngIf="showDistance && borne.latitude && borne.longitude && userLocation" 
-           class="flex items-center gap-2.5 text-gray-600 text-sm">
-        <span class="text-lg">📍</span>
-        <span class="font-medium">{{ calculateDistance() | number:'1.1-1' }} km</span>
-      </div>
+      @if (showDistance && borne.latitude && borne.longitude && userLocation) {
+        <div class="flex items-center gap-2.5 text-gray-600 text-sm">
+          <span class="text-lg">📍</span>
+          <span class="font-medium">{{ calculateDistance() | number:'1.1-1' }} km</span>
+        </div>
+      }
     </div>
 
     <div class="flex gap-2.5">

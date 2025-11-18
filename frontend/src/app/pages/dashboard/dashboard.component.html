@@ -1,4 +1,5 @@
-<div class="min-h-screen bg-gray-50 p-6" *ngIf="currentUser && !loading">
+@if (currentUser && !loading) {
+  <div class="min-h-screen bg-gray-50 p-6">
   <!-- En-tête moderne -->
   <header class="mb-8">
     <div class="flex items-center gap-3">
@@ -58,7 +59,8 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-100">
-            <tr *ngFor="let reservation of activeReservations" class="hover:bg-gray-50 transition-colors duration-200">
+            @for (reservation of activeReservations; track reservation.idReservation) {
+              <tr class="hover:bg-gray-50 transition-colors duration-200">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm font-semibold text-gray-900">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</div>
                 <div class="text-xs text-gray-500">{{ reservation.dateDebut | date:'HH:mm' }}</div>
@@ -84,8 +86,10 @@
                 </span>
               </td>
             </tr>
-            <tr *ngIf="!activeReservations || activeReservations.length === 0">
-              <td colspan="5" class="px-6 py-12 text-center">
+            }
+            @if (!activeReservations || activeReservations.length === 0) {
+              <tr>
+                <td colspan="5" class="px-6 py-12 text-center">
                 <div class="flex flex-col items-center gap-3">
                   <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                     <i class="bi bi-inbox text-3xl text-gray-400"></i>
@@ -94,6 +98,7 @@
                 </div>
               </td>
             </tr>
+            }
           </tbody>
         </table>
       </div>
@@ -191,7 +196,8 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-100">
-            <tr *ngFor="let reservation of pastReservations" class="hover:bg-gray-50 transition-colors duration-200">
+            @for (reservation of pastReservations; track reservation.idReservation) {
+            <tr class="hover:bg-gray-50 transition-colors duration-200">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm font-semibold text-gray-900">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</div>
                 <div class="text-xs text-gray-500">{{ reservation.dateDebut | date:'HH:mm' }}</div>
@@ -217,16 +223,21 @@
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm">
+                @if (reservation.receiptPath) {
                 <button (click)="downloadReceipt(reservation.idReservation)" 
-                        class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all"
-                        *ngIf="reservation.receiptPath">
+                        class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all">
                   <i class="bi bi-file-earmark-pdf"></i>
                   PDF
                 </button>
-                <span class="text-gray-400 text-xs" *ngIf="!reservation.receiptPath">Non disponible</span>
+                }
+                @if (!reservation.receiptPath) {
+                <span class="text-gray-400 text-xs">Non disponible</span>
+                }
               </td>
             </tr>
-            <tr *ngIf="!pastReservations || pastReservations.length === 0">
+            }
+            @if (!pastReservations || pastReservations.length === 0) {
+            <tr>
               <td colspan="6" class="px-6 py-12 text-center">
                 <div class="flex flex-col items-center gap-3">
                   <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
@@ -236,12 +247,14 @@
                 </div>
               </td>
             </tr>
+            }
           </tbody>
         </table>
       </div>
       
       <!-- Pagination modernisée -->
-      <div class="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200" *ngIf="allPastReservations.length > 0">
+      @if (allPastReservations.length > 0) {
+      <div class="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
         <div class="flex-1 flex justify-between sm:hidden">
           <button (click)="previousPagePast()" 
                   [disabled]="currentPagePast === 1"
@@ -289,6 +302,7 @@
           </div>
         </div>
       </div>
+      }
     </div>
     <div class="mt-6">
       <button (click)="exporterReservations()" 
@@ -300,7 +314,8 @@
   </section>
 
   <!-- Lieux de recharge (Section propriétaire) -->
-  <section class="mb-8" *ngIf="isProprietaire && dashboardStats?.ownerStats">
+  @if (isProprietaire && dashboardStats?.ownerStats) {
+  <section class="mb-8">
     <div class="flex items-center gap-3 mb-6">
       <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center shadow-md">
         <i class="bi bi-ev-station-fill text-xl text-white"></i>
@@ -309,7 +324,8 @@
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-      <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-all duration-300" *ngFor="let borne of recentBornes">
+      @for (borne of recentBornes; track borne.idBorne) {
+      <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
         <div class="flex items-start gap-4">
           <div class="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
             <i class="bi bi-lightning-charge-fill text-2xl text-white"></i>
@@ -356,6 +372,7 @@
           </div>
         </div>
       </div>
+      }
     </div>
 
     <div class="flex gap-4">
@@ -371,17 +388,21 @@
       </button>
     </div>
   </section>
+  }
 
   <!-- Demandes de réservations à traiter (Section propriétaire) -->
-  <section class="mb-8" *ngIf="isProprietaire && dashboardStats?.ownerStats">
+  @if (isProprietaire && dashboardStats?.ownerStats) {
+  <section class="mb-8">
     <div class="flex items-center gap-3 mb-6">
       <div class="w-10 h-10 bg-amber-600 rounded-lg flex items-center justify-center shadow-md">
         <i class="bi bi-inbox-fill text-xl text-white"></i>
       </div>
       <h2 class="text-2xl font-bold text-gray-900">Demandes de réservations à traiter</h2>
-      <span class="ml-auto px-4 py-2 bg-amber-600 text-white font-bold rounded-full shadow-md" *ngIf="pendingRequests && pendingRequests.length > 0">
+      @if (pendingRequests && pendingRequests.length > 0) {
+      <span class="ml-auto px-4 py-2 bg-amber-600 text-white font-bold rounded-full shadow-md">
         {{ pendingRequests.length }}
       </span>
+      }
     </div>
     <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
       <div class="overflow-x-auto">
@@ -427,7 +448,8 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-100">
-            <tr *ngFor="let demande of pendingRequests" class="hover:bg-gray-50 transition-colors duration-200">
+            @for (demande of pendingRequests; track demande.idReservation) {
+            <tr class="hover:bg-gray-50 transition-colors duration-200">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm font-semibold text-gray-900">{{ demande.dateDebut | date:'dd/MM/yyyy' }}</div>
                 <div class="text-xs text-gray-500">{{ demande.dateDebut | date:'HH:mm' }}</div>
@@ -473,7 +495,9 @@
                 </div>
               </td>
             </tr>
-            <tr *ngIf="!pendingRequests || pendingRequests.length === 0">
+            }
+            @if (!pendingRequests || pendingRequests.length === 0) {
+            <tr>
               <td colspan="6" class="px-6 py-12 text-center">
                 <div class="flex flex-col items-center gap-3">
                   <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
@@ -484,14 +508,17 @@
                 </div>
               </td>
             </tr>
+            }
           </tbody>
         </table>
       </div>
     </div>
   </section>
+  }
 
   <!-- Demandes de réservations traitées (Section propriétaire) -->
-  <section class="mb-8" *ngIf="isProprietaire && dashboardStats?.ownerStats">
+  @if (isProprietaire && dashboardStats?.ownerStats) {
+  <section class="mb-8">
     <div class="flex items-center gap-3 mb-6">
       <div class="w-10 h-10 bg-slate-600 rounded-lg flex items-center justify-center shadow-md">
         <i class="bi bi-check2-all text-xl text-white"></i>
@@ -542,7 +569,8 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-100">
-            <tr *ngFor="let demande of processedRequests" class="hover:bg-gray-50 transition-colors duration-200">
+            @for (demande of processedRequests; track demande.idReservation) {
+            <tr class="hover:bg-gray-50 transition-colors duration-200">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm font-semibold text-gray-900">{{ demande.dateDebut | date:'dd/MM/yyyy' }}</div>
                 <div class="text-xs text-gray-500">{{ demande.dateDebut | date:'HH:mm' }}</div>
@@ -578,7 +606,9 @@
                 </span>
               </td>
             </tr>
-            <tr *ngIf="!processedRequests || processedRequests.length === 0">
+            }
+            @if (!processedRequests || processedRequests.length === 0) {
+            <tr>
               <td colspan="6" class="px-6 py-12 text-center">
                 <div class="flex flex-col items-center gap-3">
                   <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
@@ -588,12 +618,14 @@
                 </div>
               </td>
             </tr>
+            }
           </tbody>
         </table>
       </div>
       
       <!-- Pagination modernisée -->
-      <div class="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200" *ngIf="allProcessedRequests.length > 0">
+      @if (allProcessedRequests.length > 0) {
+      <div class="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
         <div class="flex-1 flex justify-between sm:hidden">
           <button (click)="previousPageProcessed()" 
                   [disabled]="currentPageProcessed === 1"
@@ -641,18 +673,24 @@
           </div>
         </div>
       </div>
+      }
     </div>
   </section>
+  }
 </div>
+}
 
 <!-- Loading State -->
-<div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6" *ngIf="loading">
-  <div class="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-blue-600 mb-6"></div>
-  <p class="text-gray-600 text-xl font-medium">Chargement de votre tableau de bord...</p>
-</div>
+@if (loading) {
+  <div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
+    <div class="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-blue-600 mb-6"></div>
+    <p class="text-gray-600 text-xl font-medium">Chargement de votre tableau de bord...</p>
+  </div>
+}
 
 <!-- Empty State -->
-<div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6" *ngIf="!currentUser && !loading">
+@if (!currentUser && !loading) {
+  <div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
   <div class="text-center bg-white rounded-2xl shadow-xl p-12 max-w-md">
     <div class="text-6xl mb-6">🔒</div>
     <h2 class="text-3xl font-bold text-gray-900 mb-4">Accès non autorisé</h2>
@@ -662,4 +700,5 @@
       Se connecter
     </button>
   </div>
-</div>
+  </div>
+}

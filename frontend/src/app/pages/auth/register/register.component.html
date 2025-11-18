@@ -19,13 +19,15 @@
       <!-- Formulaire -->
       <div class="px-6 py-6 sm:px-8 sm:py-8">
         <!-- Message d'erreur -->
-        <div *ngIf="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-          <i class="bi bi-exclamation-triangle-fill text-red-600 text-lg flex-shrink-0 mt-0.5"></i>
-          <div>
-            <p class="text-sm font-semibold text-red-800 mb-1">Erreur d'inscription</p>
-            <p class="text-sm text-red-700">{{ errorMessage }}</p>
+        @if (errorMessage) {
+          <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <i class="bi bi-exclamation-triangle-fill text-red-600 text-lg flex-shrink-0 mt-0.5"></i>
+            <div>
+              <p class="text-sm font-semibold text-red-800 mb-1">Erreur d'inscription</p>
+              <p class="text-sm text-red-700">{{ errorMessage }}</p>
+            </div>
           </div>
-        </div>
+        }
 
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5 sm:space-y-6">
           
@@ -47,12 +49,16 @@
                   'border-gray-300': !(submitted && f['nom'].errors)
                 }"
                 placeholder="Votre nom">
-              <div *ngIf="submitted && f['nom'].errors" class="mt-1.5">
-                <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
-                  <i class="bi bi-exclamation-circle"></i>
-                  <span *ngIf="f['nom'].errors['required']">Le nom est requis</span>
-                </p>
-              </div>
+              @if (submitted && f['nom'].errors) {
+                <div class="mt-1.5">
+                  <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
+                    <i class="bi bi-exclamation-circle"></i>
+                    @if (f['nom'].errors['required']) {
+                      <span>Le nom est requis</span>
+                    }
+                  </p>
+                </div>
+              }
             </div>
 
             <!-- Prénom -->
@@ -71,12 +77,16 @@
                   'border-gray-300': !(submitted && f['prenom'].errors)
                 }"
                 placeholder="Votre prénom">
-              <div *ngIf="submitted && f['prenom'].errors" class="mt-1.5">
-                <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
-                  <i class="bi bi-exclamation-circle"></i>
-                  <span *ngIf="f['prenom'].errors['required']">Le prénom est requis</span>
-                </p>
-              </div>
+              @if (submitted && f['prenom'].errors) {
+                <div class="mt-1.5">
+                  <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
+                    <i class="bi bi-exclamation-circle"></i>
+                    @if (f['prenom'].errors['required']) {
+                      <span>Le prénom est requis</span>
+                    }
+                  </p>
+                </div>
+              }
             </div>
           </div>
 
@@ -96,12 +106,16 @@
                 'border-gray-300': !(submitted && f['pseudo'].errors)
               }"
               placeholder="Choisissez un pseudo unique">
-            <div *ngIf="submitted && f['pseudo'].errors" class="mt-1.5">
-              <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
-                <i class="bi bi-exclamation-circle"></i>
-                <span *ngIf="f['pseudo'].errors['required']">Le pseudo est requis</span>
-              </p>
-            </div>
+            @if (submitted && f['pseudo'].errors) {
+              <div class="mt-1.5">
+                <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
+                  <i class="bi bi-exclamation-circle"></i>
+                  @if (f['pseudo'].errors['required']) {
+                    <span>Le pseudo est requis</span>
+                  }
+                </p>
+              </div>
+            }
           </div>
 
           <!-- Email et Date de naissance -->
@@ -122,13 +136,19 @@
                   'border-gray-300': !(submitted && f['email'].errors)
                 }"
                 placeholder="votre@email.com">
-              <div *ngIf="submitted && f['email'].errors" class="mt-1.5">
-                <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
-                  <i class="bi bi-exclamation-circle"></i>
-                  <span *ngIf="f['email'].errors['required']">L'email est requis</span>
-                  <span *ngIf="f['email'].errors['email']">Email invalide</span>
-                </p>
-              </div>
+              @if (submitted && f['email'].errors) {
+                <div class="mt-1.5">
+                  <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
+                    <i class="bi bi-exclamation-circle"></i>
+                    @if (f['email'].errors['required']) {
+                      <span>L'email est requis</span>
+                    }
+                    @if (f['email'].errors['email']) {
+                      <span>Email invalide</span>
+                    }
+                  </p>
+                </div>
+              }
             </div>
 
             <!-- Date de naissance -->
@@ -146,12 +166,16 @@
                   'border-red-300 focus:ring-red-500': submitted && f['dateNaissance'].errors,
                   'border-gray-300': !(submitted && f['dateNaissance'].errors)
                 }">
-              <div *ngIf="submitted && f['dateNaissance'].errors" class="mt-1.5">
-                <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
-                  <i class="bi bi-exclamation-circle"></i>
-                  <span *ngIf="f['dateNaissance'].errors['required']">La date de naissance est requise</span>
-                </p>
-              </div>
+              @if (submitted && f['dateNaissance'].errors) {
+                <div class="mt-1.5">
+                  <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
+                    <i class="bi bi-exclamation-circle"></i>
+                    @if (f['dateNaissance'].errors['required']) {
+                      <span>La date de naissance est requise</span>
+                    }
+                  </p>
+                </div>
+              }
             </div>
           </div>
 
@@ -173,13 +197,19 @@
                   'border-gray-300': !(submitted && f['motDePasse'].errors)
                 }"
                 placeholder="Min. 6 caractères">
-              <div *ngIf="submitted && f['motDePasse'].errors" class="mt-1.5">
-                <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
-                  <i class="bi bi-exclamation-circle"></i>
-                  <span *ngIf="f['motDePasse'].errors['required']">Le mot de passe est requis</span>
-                  <span *ngIf="f['motDePasse'].errors['minlength']">Min. 6 caractères</span>
-                </p>
-              </div>
+              @if (submitted && f['motDePasse'].errors) {
+                <div class="mt-1.5">
+                  <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
+                    <i class="bi bi-exclamation-circle"></i>
+                    @if (f['motDePasse'].errors['required']) {
+                      <span>Le mot de passe est requis</span>
+                    }
+                    @if (f['motDePasse'].errors['minlength']) {
+                      <span>Min. 6 caractères</span>
+                    }
+                  </p>
+                </div>
+              }
             </div>
 
             <!-- Confirmation mot de passe -->
@@ -198,13 +228,19 @@
                   'border-gray-300': !(submitted && f['confirmMotDePasse'].errors)
                 }"
                 placeholder="Confirmer le mot de passe">
-              <div *ngIf="submitted && f['confirmMotDePasse'].errors" class="mt-1.5">
-                <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
-                  <i class="bi bi-exclamation-circle"></i>
-                  <span *ngIf="f['confirmMotDePasse'].errors['required']">Confirmation requise</span>
-                  <span *ngIf="f['confirmMotDePasse'].errors['mustMatch']">Mots de passe différents</span>
-                </p>
-              </div>
+              @if (submitted && f['confirmMotDePasse'].errors) {
+                <div class="mt-1.5">
+                  <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
+                    <i class="bi bi-exclamation-circle"></i>
+                    @if (f['confirmMotDePasse'].errors['required']) {
+                      <span>Confirmation requise</span>
+                    }
+                    @if (f['confirmMotDePasse'].errors['mustMatch']) {
+                      <span>Mots de passe différents</span>
+                    }
+                  </p>
+                </div>
+              }
             </div>
           </div>
 
@@ -223,12 +259,14 @@
                 <a href="#" class="text-blue-700 font-semibold hover:text-blue-800 underline">politique de confidentialité</a>
               </span>
             </label>
-            <div *ngIf="submitted && f['acceptTerms'].errors" class="mt-2">
-              <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
-                <i class="bi bi-exclamation-circle"></i>
-                <span>Vous devez accepter les conditions</span>
-              </p>
-            </div>
+            @if (submitted && f['acceptTerms'].errors) {
+              <div class="mt-2">
+                <p class="text-xs sm:text-sm text-red-600 flex items-center gap-1">
+                  <i class="bi bi-exclamation-circle"></i>
+                  <span>Vous devez accepter les conditions</span>
+                </p>
+              </div>
+            }
           </div>
           
           <!-- Bouton d'inscription -->
@@ -236,14 +274,18 @@
             type="submit" 
             class="w-full py-3 sm:py-3.5 px-4 bg-gradient-to-br from-blue-600 to-blue-800 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl text-sm sm:text-base"
             [disabled]="loading">
-            <span *ngIf="!loading" class="flex items-center gap-2">
-              <i class="bi bi-person-plus text-base sm:text-lg"></i>
-              <span>Créer mon compte</span>
-            </span>
-            <span *ngIf="loading" class="flex items-center gap-2">
-              <span class="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>Inscription...</span>
-            </span>
+            @if (!loading) {
+              <span class="flex items-center gap-2">
+                <i class="bi bi-person-plus text-base sm:text-lg"></i>
+                <span>S'inscrire</span>
+              </span>
+            }
+            @if (loading) {
+              <span class="flex items-center gap-2">
+                <span class="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span>Inscription...</span>
+              </span>
+            }
           </button>
 
           <!-- Divider -->

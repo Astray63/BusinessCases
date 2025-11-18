@@ -37,14 +37,20 @@
             maxlength="6"
             (input)="onCodeInput($event)"
           />
-          <div class="mt-2 text-sm text-red-600" *ngIf="verificationForm.get('code')?.invalid && verificationForm.get('code')?.touched">
-            <p *ngIf="verificationForm.get('code')?.errors?.['required']">
-              Le code de vérification est requis
-            </p>
-            <p *ngIf="verificationForm.get('code')?.errors?.['pattern']">
-              Le code doit contenir 6 chiffres
-            </p>
-          </div>
+          @if (verificationForm.get('code')?.invalid && verificationForm.get('code')?.touched) {
+            <div class="mt-2 text-sm text-red-600">
+              @if (verificationForm.get('code')?.errors?.['required']) {
+                <p>
+                  Le code de vérification est requis
+                </p>
+              }
+              @if (verificationForm.get('code')?.errors?.['pattern']) {
+                <p>
+                  Le code doit contenir 6 chiffres
+                </p>
+              }
+            </div>
+          }
         </div>
 
         <button
@@ -52,11 +58,15 @@
           class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
           [disabled]="verificationForm.invalid || isLoading"
         >
-          <span *ngIf="!isLoading">Vérifier</span>
-          <span *ngIf="isLoading" class="inline-flex items-center gap-2">
-            <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            Vérification...
-          </span>
+          @if (!isLoading) {
+            <span>Vérifier</span>
+          }
+          @if (isLoading) {
+            <span class="inline-flex items-center gap-2">
+              <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              Vérification...
+            </span>
+          }
         </button>
       </form>
 
@@ -69,8 +79,12 @@
             (click)="resendCode()"
             [disabled]="isResending"
           >
-            <span *ngIf="!isResending">Renvoyer le code</span>
-            <span *ngIf="isResending">Envoi en cours...</span>
+            @if (!isResending) {
+              <span>Renvoyer le code</span>
+            }
+            @if (isResending) {
+              <span>Envoi en cours...</span>
+            }
           </button>
 
           <button
