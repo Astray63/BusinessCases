@@ -47,7 +47,6 @@ export class ProfileComponent implements OnInit {
             }
           },
           error: (error) => {
-            console.error('Erreur lors du chargement des données utilisateur:', error);
             this.showError('Impossible de charger vos informations');
           }
         });
@@ -127,7 +126,6 @@ export class ProfileComponent implements OnInit {
           },
           error: (error) => {
             this.loading = false;
-            console.error('Erreur lors de la mise à jour du profil:', error);
             this.showError(error.error?.message || 'Erreur lors de la mise à jour du profil');
           }
         });
@@ -155,7 +153,6 @@ export class ProfileComponent implements OnInit {
         },
         error: (error) => {
           this.loading = false;
-          console.error('Erreur lors du changement de mot de passe:', error);
           this.showError(error.error?.message || 'Erreur lors du changement de mot de passe');
         }
       });

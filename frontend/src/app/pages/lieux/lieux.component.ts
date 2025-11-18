@@ -57,7 +57,6 @@ export class LieuxComponent implements OnInit {
       },
       error: (error) => {
         this.errorMessage = 'Erreur lors du chargement des lieux';
-        console.error(error);
         this.loading = false;
       }
     });
@@ -94,7 +93,6 @@ export class LieuxComponent implements OnInit {
         },
         error: (error) => {
           this.errorMessage = 'Erreur lors de la mise à jour du lieu';
-          console.error(error);
           this.loading = false;
         }
       });
@@ -108,7 +106,6 @@ export class LieuxComponent implements OnInit {
         },
         error: (error) => {
           this.errorMessage = 'Erreur lors de la création du lieu';
-          console.error(error);
           this.loading = false;
         }
       });
@@ -139,7 +136,6 @@ export class LieuxComponent implements OnInit {
       },
       error: (error) => {
         this.errorMessage = 'Erreur lors de la suppression du lieu';
-        console.error(error);
         this.loading = false;
       }
     });

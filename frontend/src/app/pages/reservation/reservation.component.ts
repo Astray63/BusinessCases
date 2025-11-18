@@ -213,11 +213,6 @@ export class ReservationComponent implements OnInit {
       const cvv = formValues.cvv;
       
       // Simulation : le paiement est toujours accepté si le format est bon
-      console.log('💳 Simulation de paiement');
-      console.log('Numéro de carte:', numeroCarteBancaire);
-      console.log('CVV:', cvv);
-      console.log('Montant:', montantTotal, '€');
-      console.log('✅ Paiement effectué avec succès !');
       
       // Afficher un message de confirmation de paiement
       this.toastService.showSuccess(`Paiement de ${montantTotal.toFixed(2)}€ effectué avec succès !`);

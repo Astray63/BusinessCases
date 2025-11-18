@@ -61,7 +61,6 @@ export class LieuFormComponent implements OnInit {
       },
       error: (error: any) => {
         this.toastService.showError('Erreur lors du chargement du lieu');
-        console.error(error);
         this.loading = false;
         this.router.navigate(['/lieux']);
       }
@@ -96,7 +95,6 @@ export class LieuFormComponent implements OnInit {
         },
         error: (error: any) => {
           this.toastService.showError('Erreur lors de la mise à jour du lieu');
-          console.error(error);
           this.loading = false;
         }
       });
@@ -110,7 +108,6 @@ export class LieuFormComponent implements OnInit {
         },
         error: (error: any) => {
           this.toastService.showError('Erreur lors de la création du lieu');
-          console.error(error);
           this.loading = false;
         }
       });
@@ -149,7 +146,6 @@ export class LieuFormComponent implements OnInit {
         }
       })
       .catch(error => {
-        console.error('Erreur de géocodage:', error);
         this.toastService.showError('Erreur lors du géocodage');
       });
   }

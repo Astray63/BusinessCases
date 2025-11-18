@@ -40,7 +40,6 @@ export class AuthInterceptor implements HttpInterceptor {
     
     // Si le token est invalide, le nettoyer
     if (token && token.split('.').length !== 3) {
-      console.warn('Token JWT invalide détecté, nettoyage du localStorage');
       localStorage.removeItem('token');
       localStorage.removeItem('tokenExpiration');
       localStorage.removeItem('currentUser');

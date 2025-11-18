@@ -35,7 +35,6 @@ export class AuthService {
   private cleanupInvalidTokens(): void {
     const token = localStorage.getItem('token');
     if (token && token.split('.').length !== 3) {
-      console.warn('Token JWT invalide détecté au démarrage, nettoyage...');
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('tokenExpiration');
@@ -48,14 +47,12 @@ export class AuthService {
       .pipe(
         map(response => {
           if (response.result === 'SUCCESS' && response.data && response.data.accessToken) {
-            // Vérifier que le token a le bon format JWT
             if (response.data.accessToken.split('.').length !== 3) {
-              console.error('Token JWT invalide reçu du backend:', response.data.accessToken);
-              throw new Error('Token JWT invalide reçu du serveur');
+              throw new Error('Invalid JWT token received from server');
             }
             
             const expirationDate = new Date();
-            expirationDate.setDate(expirationDate.getDate() + 7); // 7 jours
+            expirationDate.setDate(expirationDate.getDate() + 7);
             
             localStorage.setItem('token', response.data.accessToken);
             localStorage.setItem('refreshToken', response.data.refreshToken);
@@ -132,14 +129,11 @@ export class AuthService {
       return false;
     }
     
-    // Vérifier que le token a le bon format JWT (header.payload.signature)
     if (token.split('.').length !== 3) {
-      console.warn('Token JWT invalide détecté dans isLoggedIn()');
       this.logout();
       return false;
     }
     
-    // Vérifier si le token n'est pas expiré
     if (expiration) {
       const expirationDate = parseInt(expiration, 10);
       if (Date.now() > expirationDate) {

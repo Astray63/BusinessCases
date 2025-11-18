@@ -106,7 +106,6 @@ export class DashboardComponent implements OnInit {
       },
       error: (error) => {
         this.loading = false;
-        console.error('Erreur lors du chargement des statistiques:', error);
       }
     });
   }
@@ -124,7 +123,6 @@ export class DashboardComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des bornes:', error);
       }
     });
   }
@@ -183,7 +181,6 @@ export class DashboardComponent implements OnInit {
   
   loadOwnerRequests(): void {
     if (!this.currentUser || !this.currentUser.idUtilisateur) {
-      console.warn('User or user ID not available for loading owner requests');
       return;
     }
     
@@ -208,7 +205,6 @@ export class DashboardComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des demandes:', error);
       }
     });
   }
@@ -279,7 +275,6 @@ export class DashboardComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erreur lors du filtrage:', error);
         this.loading = false;
       }
     });
@@ -297,7 +292,6 @@ export class DashboardComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Erreur lors de l\'acceptation:', error);
         this.loading = false;
       }
     });
@@ -318,7 +312,6 @@ export class DashboardComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Erreur lors du refus:', error);
         this.loading = false;
       }
     });
@@ -364,7 +357,6 @@ export class DashboardComponent implements OnInit {
         window.URL.revokeObjectURL(url);
       },
       error: (error) => {
-        console.error('Erreur lors du téléchargement du reçu:', error);
       }
     });
   }
@@ -417,7 +409,6 @@ export class DashboardComponent implements OnInit {
     // Télécharger le fichier
     XLSX.writeFile(wb, fileName);
     
-    console.log(`Export Excel réussi: ${this.allPastReservations.length} réservations exportées`);
   }
 
   // Méthodes pour gérer les bornes
@@ -454,7 +445,6 @@ export class DashboardComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erreur lors de la suppression de la borne:', error);
         alert('Erreur lors de la suppression de la borne');
         this.loading = false;
       }

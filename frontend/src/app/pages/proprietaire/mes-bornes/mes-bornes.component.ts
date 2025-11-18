@@ -81,7 +81,6 @@ export class MesBornesComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error: any) => {
-        console.error('Erreur lors du chargement des bornes:', error);
         this.isLoading = false;
       }
     });
@@ -95,7 +94,9 @@ export class MesBornesComponent implements OnInit {
           this.mesLieux = response;
         }
       },
-      error: (error: any) => console.error('Erreur lors du chargement des lieux:', error)
+      error: (error: any) => {
+        // Silent fail
+      }
     });
   }
 
@@ -226,14 +227,8 @@ export class MesBornesComponent implements OnInit {
     // Convertir l'ID du lieu en nombre
     const lieuId = typeof formData.lieu === 'string' ? parseInt(formData.lieu, 10) : formData.lieu;
     
-    console.log('Form data lieu:', formData.lieu, 'Type:', typeof formData.lieu);
-    console.log('Lieu ID converti:', lieuId);
-    console.log('Mes lieux disponibles:', this.mesLieux.map(l => ({ id: l.idLieu, nom: l.nom })));
-    
     // Récupérer le lieu sélectionné
     const lieuSelectionne = this.mesLieux.find(l => l.idLieu === lieuId);
-    
-    console.log('Lieu sélectionné:', lieuSelectionne);
     
     if (!lieuSelectionne) {
       this.toastService.showError('Veuillez sélectionner un lieu valide');
@@ -279,7 +274,6 @@ export class MesBornesComponent implements OnInit {
                 await this.uploadPhotosToServer(this.selectedBorne!.idBorne!);
                 this.toastService.showSuccess('Borne et photos modifiées avec succès !');
               } catch (error) {
-                console.error('Erreur lors de l\'upload des photos:', error);
                 this.toastService.showWarning('Borne modifiée, mais erreur lors de l\'upload des photos');
               }
             } else {
@@ -290,7 +284,6 @@ export class MesBornesComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Erreur lors de la modification:', error);
           this.toastService.showError('Erreur lors de la modification de la borne');
           this.isLoading = false;
         }
@@ -308,7 +301,6 @@ export class MesBornesComponent implements OnInit {
                 await this.uploadPhotosToServer(borneId);
                 this.toastService.showSuccess('Borne et photos ajoutées avec succès !');
               } catch (error) {
-                console.error('Erreur lors de l\'upload des photos:', error);
                 this.toastService.showWarning('Borne créée, mais erreur lors de l\'upload des photos');
               }
             } else {
@@ -319,7 +311,6 @@ export class MesBornesComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Erreur lors de l\'ajout:', error);
           this.toastService.showError('Erreur lors de l\'ajout de la borne');
           this.isLoading = false;
         }
@@ -341,7 +332,6 @@ export class MesBornesComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Erreur lors de la suppression:', error);
         this.toastService.showError('Erreur lors de la suppression de la borne');
         this.isLoading = false;
       }
@@ -363,7 +353,6 @@ export class MesBornesComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Erreur lors du changement d\'état:', error);
         this.toastService.showError('Erreur lors du changement d\'état');
         this.isLoading = false;
       }
@@ -445,14 +434,12 @@ export class MesBornesComponent implements OnInit {
       this.borneService.uploadPhotos(borneId, this.selectedFiles).subscribe({
         next: (response) => {
           if (response.result === 'SUCCESS') {
-            console.log('Photos uploadées avec succès:', response.data);
             resolve();
           } else {
             reject(new Error('Erreur lors de l\'upload des photos'));
           }
         },
         error: (error) => {
-          console.error('Erreur lors de l\'upload:', error);
           reject(error);
         }
       });

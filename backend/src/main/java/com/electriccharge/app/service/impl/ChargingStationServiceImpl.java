@@ -208,26 +208,13 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     public List<ChargingStationDto> searchAdvanced(Double latitude, Double longitude, Double distance,
                                                      java.math.BigDecimal prixMin, java.math.BigDecimal prixMax,
                                                      Integer puissanceMin, String etat, Boolean disponible) {
-        System.out.println("=== SEARCH ADVANCED ===");
-        System.out.println("Latitude: " + latitude);
-        System.out.println("Longitude: " + longitude);
-        System.out.println("Distance: " + distance + " km");
-        System.out.println("Prix min: " + prixMin);
-        System.out.println("Prix max: " + prixMax);
-        System.out.println("Puissance min: " + puissanceMin);
-        System.out.println("État: " + etat);
-        System.out.println("Disponible seulement: " + disponible);
         
         // D'abord filtrer par distance si coordonnées fournies
         List<ChargingStation> stations;
         if (latitude != null && longitude != null && distance != null) {
-            System.out.println("Recherche par distance...");
             stations = chargingStationRepository.findByDistance(latitude, longitude, distance);
-            System.out.println("Trouvé " + stations.size() + " bornes dans le rayon");
         } else {
-            System.out.println("Recherche globale...");
             stations = chargingStationRepository.findAll();
-            System.out.println("Total bornes: " + stations.size());
         }
         
         // Appliquer les filtres supplémentaires
@@ -235,7 +222,6 @@ public class ChargingStationServiceImpl implements ChargingStationService {
                 .filter(s -> {
                     if (prixMin != null && s.getHourlyRate() != null) {
                         boolean matches = s.getHourlyRate().compareTo(prixMin) >= 0;
-                        if (!matches) System.out.println("  Borne " + s.getIdBorne() + " exclue (prix " + s.getHourlyRate() + " < min " + prixMin + ")");
                         return matches;
                     }
                     return true;
@@ -243,7 +229,6 @@ public class ChargingStationServiceImpl implements ChargingStationService {
                 .filter(s -> {
                     if (prixMax != null && s.getHourlyRate() != null) {
                         boolean matches = s.getHourlyRate().compareTo(prixMax) <= 0;
-                        if (!matches) System.out.println("  Borne " + s.getIdBorne() + " exclue (prix " + s.getHourlyRate() + " > max " + prixMax + ")");
                         return matches;
                     }
                     return true;
@@ -251,7 +236,6 @@ public class ChargingStationServiceImpl implements ChargingStationService {
                 .filter(s -> {
                     if (puissanceMin != null && s.getPuissance() != null) {
                         boolean matches = s.getPuissance() >= puissanceMin;
-                        if (!matches) System.out.println("  Borne " + s.getIdBorne() + " exclue (puissance " + s.getPuissance() + " < min " + puissanceMin + ")");
                         return matches;
                     }
                     return true;
@@ -259,7 +243,6 @@ public class ChargingStationServiceImpl implements ChargingStationService {
                 .filter(s -> {
                     if (etat != null && s.getEtat() != null) {
                         boolean matches = s.getEtat().name().equalsIgnoreCase(etat);
-                        if (!matches) System.out.println("  Borne " + s.getIdBorne() + " exclue (état " + s.getEtat() + " != " + etat + ")");
                         return matches;
                     }
                     return true;
@@ -268,7 +251,6 @@ public class ChargingStationServiceImpl implements ChargingStationService {
                     if (disponible != null && disponible) {
                         // Si "disponible seulement" est coché, ne garder que les bornes non occupées
                         boolean matches = !Boolean.TRUE.equals(s.getOccupee());
-                        if (!matches) System.out.println("  Borne " + s.getIdBorne() + " exclue (occupée)");
                         return matches;
                     }
                     return true;
@@ -276,7 +258,6 @@ public class ChargingStationServiceImpl implements ChargingStationService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
         
-        System.out.println("Résultats après filtres: " + results.size() + " bornes");
         return results;
     }
 
@@ -349,9 +330,6 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional
     public List<String> uploadPhotos(Long borneId, MultipartFile[] photos) throws Exception {
-        System.out.println("Service: Début upload photos pour borne " + borneId);
-        System.out.println("Upload directory: " + uploadDir);
-        System.out.println("Upload base URL: " + uploadBaseUrl);
         
         ChargingStation station = chargingStationRepository.findById(borneId)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + borneId));
@@ -360,17 +338,14 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         
         // Créer le répertoire d'upload s'il n'existe pas
         Path uploadPath = Paths.get(uploadDir);
-        System.out.println("Path absolu: " + uploadPath.toAbsolutePath());
         
         if (!Files.exists(uploadPath)) {
-            System.out.println("Création du répertoire d'upload...");
             Files.createDirectories(uploadPath);
         }
         
         // Créer un sous-dossier pour cette borne
         Path borneUploadPath = uploadPath.resolve("borne-" + borneId);
         if (!Files.exists(borneUploadPath)) {
-            System.out.println("Création du répertoire pour la borne " + borneId);
             Files.createDirectories(borneUploadPath);
         }
         
@@ -379,7 +354,6 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         int maxPhotos = 5;
         int remainingSlots = maxPhotos - currentPhotoCount;
         
-        System.out.println("Photos actuelles: " + currentPhotoCount + ", slots restants: " + remainingSlots);
         
         if (remainingSlots <= 0) {
             throw new Exception("Limite de " + maxPhotos + " photos atteinte");
@@ -390,7 +364,6 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         for (int i = 0; i < photosToUpload; i++) {
             MultipartFile photo = photos[i];
             
-            System.out.println("Traitement photo " + (i+1) + ": " + photo.getOriginalFilename());
             
             // Valider le type de fichier
             String contentType = photo.getContentType();

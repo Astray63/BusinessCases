@@ -1,6 +1,8 @@
 package com.eb.electricitybusiness.config;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -10,13 +12,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DotenvConfig implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+    
+    private static final Logger logger = LoggerFactory.getLogger(DotenvConfig.class);
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
         
         try {
-            // Charger le fichier .env depuis la racine du projet (parent du backend)
             Dotenv dotenv = Dotenv.configure()
                     .directory("../")
                     .ignoreIfMissing()
@@ -25,15 +28,14 @@ public class DotenvConfig implements ApplicationContextInitializer<ConfigurableA
             Map<String, Object> dotenvMap = new HashMap<>();
             dotenv.entries().forEach(entry -> {
                 dotenvMap.put(entry.getKey(), entry.getValue());
-                System.out.println("✅ Loaded .env variable: " + entry.getKey() + " = " + entry.getValue());
+                logger.debug("Loaded .env variable: {}", entry.getKey());
             });
             
             environment.getPropertySources().addFirst(new MapPropertySource("dotenvProperties", dotenvMap));
             
-            System.out.println("✅ .env file loaded successfully with " + dotenvMap.size() + " variables");
+            logger.info(".env file loaded successfully with {} variables", dotenvMap.size());
         } catch (Exception e) {
-            System.out.println("⚠️ Could not load .env file: " + e.getMessage());
-            e.printStackTrace();
+            logger.warn("Could not load .env file: {}", e.getMessage());
         }
     }
 }

@@ -59,7 +59,6 @@ export class ValidateComponent implements OnInit {
           }
         },
         error: (error: any) => {
-          console.error('Validation error:', error);
           this.errorMessage = error.error?.message || 'Une erreur est survenue lors de la validation.';
           this.loading = false;
         }
@@ -84,7 +83,6 @@ export class ValidateComponent implements OnInit {
           this.loading = false;
         },
         error: (error: any) => {
-          console.error('Resend code error:', error);
           this.toastService.showError('Erreur lors de l\'envoi du code.');
           this.loading = false;
         }

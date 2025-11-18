@@ -208,7 +208,7 @@
           *ngFor="let borne of filteredBornes"
           [borne]="borne"
           [userLocation]="userLocation"
-          (reserve)="reserverBorne(borne.idBorne)"
+          (reserve)="reserverBorne(borne.idBorne!)"
           (viewOnMap)="onBorneSelect(borne)">
         </app-borne-card>
       </div>

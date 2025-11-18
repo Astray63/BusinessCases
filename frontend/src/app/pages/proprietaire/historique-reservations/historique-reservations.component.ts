@@ -61,7 +61,6 @@ export class HistoriqueReservationsComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Erreur lors du chargement:', error);
         this.isLoading = false;
       }
     });

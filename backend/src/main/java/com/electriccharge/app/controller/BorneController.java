@@ -263,10 +263,7 @@ public class BorneController {
             @PathVariable Long id,
             @RequestParam("photos") MultipartFile[] photos) {
         try {
-            System.out.println("Upload photos pour borne ID: " + id);
-            System.out.println("Nombre de photos reçues: " + photos.length);
             List<String> photoUrls = chargingStationService.uploadPhotos(id, photos);
-            System.out.println("Photos uploadées avec succès: " + photoUrls);
             return new ResponseEntity<>(ApiResponse.success("Photos uploadées avec succès", photoUrls),
                     HttpStatus.OK);
         } catch (EntityNotFoundException e) {

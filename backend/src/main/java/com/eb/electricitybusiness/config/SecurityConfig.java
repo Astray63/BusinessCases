@@ -42,8 +42,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        System.out.println("=== CUSTOM SECURITY CONFIG LOADED ===");
-        System.out.println("Disabling default security configuration");
         
         return http
             .csrf(AbstractHttpConfigurer::disable)
@@ -54,7 +52,6 @@ public class SecurityConfig {
             .httpBasic(AbstractHttpConfigurer::disable)
             .logout(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authz -> {
-                System.out.println("Configuring authorization rules...");
                 authz
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/bornes/public/**").permitAll()
@@ -67,7 +64,6 @@ public class SecurityConfig {
             })
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((request, response, authException) -> {
-                    System.out.println("Custom auth entry point triggered: " + authException.getMessage());
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json");
                     response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"" + authException.getMessage() + "\"}");
@@ -82,7 +78,6 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        System.out.println("=== CUSTOM CORS CONFIG LOADED ===");
         
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of("*"));
@@ -95,7 +90,6 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         
-        System.out.println("CORS configured for all origins with credentials");
         return source;
     }
 
