@@ -34,6 +34,7 @@ export class ReservationComponent implements OnInit {
   activeTab: 'nouvelle' | 'en-cours' | 'passees' | 'proprietaire' = 'nouvelle';
   isProprietaire = false;
   selectedBorne: Borne | null = null;
+  currentPhotoIndex = 0;
   
   // Filtre
   filtreActif = false;
@@ -81,6 +82,7 @@ export class ReservationComponent implements OnInit {
     // Attendre que les bornes soient chargées
     setTimeout(() => {
       this.selectedBorne = this.bornesDisponibles.find(b => b.idBorne === borneId) || null;
+      this.currentPhotoIndex = 0; // Réinitialiser l'index photo
     }, 500);
   }
 
@@ -442,6 +444,7 @@ export class ReservationComponent implements OnInit {
   selectionnerBorne(event: any): void {
     const borneId = parseInt(event.target.value);
     this.selectedBorne = this.bornesDisponibles.find(b => b.idBorne === borneId) || null;
+    this.currentPhotoIndex = 0; // Réinitialiser l'index photo
   }
 
   // Utilitaires
@@ -483,5 +486,20 @@ export class ReservationComponent implements OnInit {
 
   getCurrentDate(): string {
     return new Date().toISOString().split('T')[0];
+  }
+
+  // Navigation dans la galerie de photos
+  nextPhoto(): void {
+    if (this.selectedBorne && this.selectedBorne.medias) {
+      this.currentPhotoIndex = (this.currentPhotoIndex + 1) % this.selectedBorne.medias.length;
+    }
+  }
+
+  previousPhoto(): void {
+    if (this.selectedBorne && this.selectedBorne.medias) {
+      this.currentPhotoIndex = this.currentPhotoIndex === 0 
+        ? this.selectedBorne.medias.length - 1 
+        : this.currentPhotoIndex - 1;
+    }
   }
 }

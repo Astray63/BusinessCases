@@ -80,18 +80,62 @@
           <div *ngIf="selectedBorne" class="bg-blue-50 border border-blue-200 rounded-lg p-5">
             <h4 class="text-lg font-bold text-gray-900 mb-4">Détails de la borne</h4>
             
-            <!-- Photo de la borne -->
+            <!-- Galerie de photos de la borne -->
             <div *ngIf="selectedBorne.medias && selectedBorne.medias.length > 0" class="mb-4">
-              <img 
-                [src]="selectedBorne.medias[0]" 
-                alt="Photo de la borne" 
-                class="w-full h-48 object-cover rounded-lg border border-blue-300">
-              <p *ngIf="selectedBorne.medias.length > 1" class="text-xs text-gray-600 mt-1 flex items-center gap-1">
+              <!-- Photo principale -->
+              <div class="relative rounded-lg overflow-hidden border border-blue-300 mb-2">
+                <img 
+                  [src]="selectedBorne.medias[currentPhotoIndex]" 
+                  alt="Photo de la borne" 
+                  class="w-full h-64 object-cover">
+                
+                <!-- Boutons de navigation si plusieurs photos -->
+                <div *ngIf="selectedBorne.medias.length > 1" class="absolute inset-0 flex items-center justify-between p-2">
+                  <button 
+                    type="button"
+                    class="w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors duration-200"
+                    (click)="previousPhoto()">
+                    <i class="bi bi-chevron-left text-xl"></i>
+                  </button>
+                  <button 
+                    type="button"
+                    class="w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors duration-200"
+                    (click)="nextPhoto()">
+                    <i class="bi bi-chevron-right text-xl"></i>
+                  </button>
+                </div>
+                
+                <!-- Indicateur de position -->
+                <div *ngIf="selectedBorne.medias.length > 1" class="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full">
+                  <span class="text-white text-xs font-medium">
+                    {{ currentPhotoIndex + 1 }} / {{ selectedBorne.medias.length }}
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Miniatures -->
+              <div *ngIf="selectedBorne.medias.length > 1" class="flex gap-2 overflow-x-auto pb-2">
+                <button
+                  type="button"
+                  *ngFor="let media of selectedBorne.medias; let i = index"
+                  class="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200"
+                  [class.border-blue-500]="i === currentPhotoIndex"
+                  [class.border-transparent]="i !== currentPhotoIndex"
+                  [class.opacity-50]="i !== currentPhotoIndex"
+                  (click)="currentPhotoIndex = i">
+                  <img 
+                    [src]="media" 
+                    alt="Photo {{ i + 1 }}" 
+                    class="w-full h-full object-cover">
+                </button>
+              </div>
+              
+              <p class="text-xs text-gray-600 mt-2 flex items-center gap-1">
                 <i class="bi bi-camera"></i>
                 {{ selectedBorne.medias.length }} photo(s) disponible(s)
               </p>
             </div>
-            <div *ngIf="!selectedBorne.medias || selectedBorne.medias.length === 0" class="mb-4 h-48 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center border border-blue-300">
+            <div *ngIf="!selectedBorne.medias || selectedBorne.medias.length === 0" class="mb-4 h-64 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center border border-blue-300">
               <i class="bi bi-lightning-charge-fill text-6xl text-blue-600 opacity-50"></i>
             </div>
             
