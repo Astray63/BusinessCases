@@ -9,6 +9,7 @@ import { Utilisateur } from '../../models/utilisateur.model';
 import { DashboardStats } from '../../models/dashboard-stats.model';
 import { Reservation } from '../../models/reservation.model';
 import { Borne } from '../../models/borne.model';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-dashboard',
@@ -372,8 +373,51 @@ export class DashboardComponent implements OnInit {
   exporterReservations(): void {
     if (!this.currentUser) return;
     
-    alert('La fonctionnalité d\'export Excel sera bientôt disponible');
-    // TODO: Implémenter l'export vers Excel avec une librairie comme xlsx
+    // Vérifier s'il y a des réservations à exporter
+    if (!this.allPastReservations || this.allPastReservations.length === 0) {
+      alert('Aucune réservation à exporter');
+      return;
+    }
+    
+    // Préparer les données pour l'export
+    const exportData = this.allPastReservations.map(r => ({
+      'ID': r.idReservation,
+      'Borne': r.borne ? r.borne.localisation || r.borne.nom : 'N/A',
+      'Client': r.utilisateur ? `${r.utilisateur.prenom} ${r.utilisateur.nom}` : 'N/A',
+      'Email': r.utilisateur ? r.utilisateur.email : 'N/A',
+      'Date début': new Date(r.dateDebut).toLocaleString('fr-FR'),
+      'Date fin': new Date(r.dateFin).toLocaleString('fr-FR'),
+      'Statut': this.getStatutLabel(r.statut),
+      'Montant Total': r.montantTotal ? `${r.montantTotal.toFixed(2)} €` : 'N/A'
+    }));
+
+    // Créer la feuille Excel
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    
+    // Ajuster la largeur des colonnes
+    const colWidths = [
+      { wch: 8 },  // ID
+      { wch: 35 }, // Borne
+      { wch: 25 }, // Client
+      { wch: 30 }, // Email
+      { wch: 20 }, // Date début
+      { wch: 20 }, // Date fin
+      { wch: 15 }, // Statut
+      { wch: 15 }  // Montant Total
+    ];
+    ws['!cols'] = colWidths;
+    
+    // Créer le classeur
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Réservations');
+    
+    // Générer le nom du fichier avec la date du jour
+    const fileName = `reservations_${new Date().toISOString().split('T')[0]}.xlsx`;
+    
+    // Télécharger le fichier
+    XLSX.writeFile(wb, fileName);
+    
+    console.log(`Export Excel réussi: ${this.allPastReservations.length} réservations exportées`);
   }
 
   // Méthodes pour gérer les bornes

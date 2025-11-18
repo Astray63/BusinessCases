@@ -144,24 +144,102 @@ export class BornesComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log('✅ Position GPS reçue:', position.coords.latitude, position.coords.longitude);
-          console.log('   Précision:', position.coords.accuracy, 'mètres');
+      // Stratégie 1 : Haute précision (GPS) sans cache pour forcer une nouvelle lecture
+      console.log('🎯 Tentative 1/3 : Haute précision GPS (nouvelle acquisition)...');
+      this.tryGeolocation({
+        enableHighAccuracy: true,
+        timeout: 10000, // Augmenté à 10s pour laisser le temps au GPS
+        maximumAge: 0 // AUCUN cache - force le GPS à acquérir une nouvelle position
+      })
+        .then(position => {
+          // Vérifier la précision de la position
+          const accuracy = position.coords.accuracy;
+          console.log('📍 Position reçue - Précision:', accuracy, 'mètres');
+          console.log('   Coordonnées:', position.coords.latitude, position.coords.longitude);
+          
+          // Rejeter si la précision est mauvaise (> 1000m = 1km)
+          if (accuracy > 1000) {
+            console.warn('⚠️ Précision insuffisante (' + accuracy + 'm), tentative suivante...');
+            throw new Error('ACCURACY_TOO_LOW');
+          }
+          
+          console.log('✅ Position haute précision acceptée (précision: ' + accuracy + 'm)');
           resolve({
             lat: position.coords.latitude,
             lng: position.coords.longitude
           });
-        },
-        (error) => {
-          console.error('❌ Erreur géolocalisation - Code:', error.code, 'Message:', error.message);
-          reject(error);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
+        })
+        .catch(error1 => {
+          console.warn('⚠️ Tentative 1 échouée:', error1.message || error1.code);
+          
+          // Stratégie 2 : Précision standard (WiFi/réseau) avec timeout plus long
+          console.log('🎯 Tentative 2/3 : Précision standard (WiFi/réseau)...');
+          this.tryGeolocation({
+            enableHighAccuracy: false,
+            timeout: 15000,
+            maximumAge: 30000 // Accepter une position de moins de 30s
+          })
+            .then(position => {
+              const accuracy = position.coords.accuracy;
+              console.log('📍 Position reçue - Précision:', accuracy, 'mètres');
+              console.log('   Coordonnées:', position.coords.latitude, position.coords.longitude);
+              
+              // Rejeter si la précision est toujours trop mauvaise (> 5000m = 5km)
+              if (accuracy > 5000) {
+                console.warn('⚠️ Précision toujours insuffisante (' + accuracy + 'm), tentative suivante...');
+                throw new Error('ACCURACY_TOO_LOW');
+              }
+              
+              console.log('✅ Position précision standard acceptée (précision: ' + accuracy + 'm)');
+              resolve({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              });
+            })
+            .catch(error2 => {
+              console.warn('⚠️ Tentative 2 échouée:', error2.message || error2.code);
+              
+              // Stratégie 3 : Dernière tentative avec paramètres plus tolérants
+              console.log('🎯 Tentative 3/3 : Dernière tentative avec WiFi forcé...');
+              this.tryGeolocation({
+                enableHighAccuracy: false,
+                timeout: 20000,
+                maximumAge: 0 // Forcer une nouvelle position, pas de cache
+              })
+                .then(position => {
+                  const accuracy = position.coords.accuracy;
+                  console.log('📍 Position reçue - Précision:', accuracy, 'mètres');
+                  console.log('   Coordonnées:', position.coords.latitude, position.coords.longitude);
+                  
+                  // En dernière tentative, avertir mais accepter même si imprécise
+                  if (accuracy > 5000) {
+                    console.warn('⚠️ Position avec précision limitée (' + accuracy + 'm) mais acceptée en dernier recours');
+                  } else {
+                    console.log('✅ Position obtenue (précision: ' + accuracy + 'm)');
+                  }
+                  
+                  resolve({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                  });
+                })
+                .catch(error3 => {
+                  console.error('❌ Toutes les tentatives ont échoué');
+                  console.error('   Erreur finale:', error3);
+                  // Rejeter avec la dernière erreur
+                  reject(error3);
+                });
+            });
+        });
+    });
+  }
+
+  private tryGeolocation(options: PositionOptions): Promise<GeolocationPosition> {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        position => resolve(position),
+        error => reject(error),
+        options
       );
     });
   }
