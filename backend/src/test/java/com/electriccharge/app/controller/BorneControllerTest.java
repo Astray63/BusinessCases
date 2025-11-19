@@ -49,7 +49,7 @@ public class BorneControllerTest {
         inputDto.setEtat("DISPONIBLE");
         inputDto.setOccupee(false);
         inputDto.setPrixALaMinute(new BigDecimal("2.50"));
-        inputDto.setConnectorType("Type 2");  // Added required field
+        inputDto.setConnectorType("2S");  // Toujours Type 2S
         inputDto.setAddress("123 Test Street");  // Added required field
         inputDto.setHourlyRate(new BigDecimal("15.00"));  // Added required field
         inputDto.setOwnerId(1L);
@@ -121,7 +121,7 @@ public class BorneControllerTest {
         inputDto.setPuissance(22);
         inputDto.setEtat("DISPONIBLE");
         inputDto.setPrixALaMinute(new BigDecimal("2.50"));
-        inputDto.setConnectorType("Type 2");
+        inputDto.setConnectorType("2S");
         inputDto.setAddress("123 Test Street");
         inputDto.setHourlyRate(new BigDecimal("15.00"));
         inputDto.setOwnerId(1L);
@@ -134,7 +134,7 @@ public class BorneControllerTest {
         inputDto.setPuissance(22);
         inputDto.setEtat("DISPONIBLE");
         inputDto.setPrixALaMinute(new BigDecimal("2.50"));
-        inputDto.setConnectorType("Type 2");
+        inputDto.setConnectorType("2S");
         inputDto.setAddress("123 Test Street");
         inputDto.setHourlyRate(new BigDecimal("15.00"));
         inputDto.setOwnerId(1L);

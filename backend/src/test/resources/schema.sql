@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS charging_stations (
     etat VARCHAR(20),
     occupee BOOLEAN,
     prix_a_la_minute DECIMAL(10,2),
-    connector_type VARCHAR(50),
+    connector_type VARCHAR(50) DEFAULT '2S',
     description TEXT,
     address VARCHAR(255),
     hourly_rate DECIMAL(10,2),

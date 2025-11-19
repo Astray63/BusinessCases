@@ -222,11 +222,19 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
           });
 
           marker.on('popupopen', () => {
-             const btn = document.getElementById(`btn-details-${borne.idBorne}`);
-             if (btn) {
-                 btn.addEventListener('click', (e) => {
+             const btnDetails = document.getElementById(`btn-details-${borne.idBorne}`);
+             if (btnDetails) {
+                 btnDetails.addEventListener('click', (e) => {
                     e.stopPropagation();
                     this.ngZone.run(() => this.openBorneDetails(borne));
+                 });
+             }
+             
+             const btnReserver = document.getElementById(`btn-reserver-${borne.idBorne}`);
+             if (btnReserver) {
+                 btnReserver.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.ngZone.run(() => this.reserverBorne(borne.idBorne!));
                  });
              }
           });
@@ -274,6 +282,7 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
     const etatClass = this.getEtatBadgeClass(borne.etat);
     const prix = borne.prix ? `${borne.prix}€/h` : 'N/A';
     const distance = this.userLocation ? this.calculateDistance(borne.latitude!, borne.longitude!) : 0;
+    const isDisponible = borne.etat === 'DISPONIBLE';
     
     return `
       <div class="popup-content">
@@ -283,9 +292,21 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
         <p class="mb-1"><strong>Puissance:</strong> ${borne.puissance} kW</p>
         <p class="mb-1"><strong>Prix:</strong> ${prix}</p>
         <p class="mb-2"><strong>Distance:</strong> ${distance.toFixed(1)} km</p>
-        <button id="btn-details-${borne.idBorne}" class="btn btn-sm btn-primary w-100 mt-2" style="width: 100%; padding: 5px; background-color: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;">
-          Voir détails & Actions
-        </button>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button 
+            id="btn-reserver-${borne.idBorne}" 
+            class="btn btn-sm w-100" 
+            style="flex: 1; padding: 8px; background-color: ${isDisponible ? '#28a745' : '#6c757d'}; color: white; border: none; border-radius: 4px; cursor: ${isDisponible ? 'pointer' : 'not-allowed'}; font-weight: 500;"
+            ${!isDisponible ? 'disabled' : ''}>
+            <i class="bi bi-calendar-check"></i> Réserver
+          </button>
+          <button 
+            id="btn-details-${borne.idBorne}" 
+            class="btn btn-sm" 
+            style="padding: 8px 12px; background-color: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            <i class="bi bi-info-circle"></i>
+          </button>
+        </div>
       </div>
     `;
   }

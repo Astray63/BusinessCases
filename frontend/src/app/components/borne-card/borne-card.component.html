@@ -35,15 +35,21 @@
 
     <div class="flex gap-2.5">
       <button 
-        class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors duration-200 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        (click)="onReserve()"
+        class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg transition-colors duration-200 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        (click)="onReserve($event)"
         [disabled]="borne.etat !== 'DISPONIBLE'">
         <i class="bi bi-calendar-check"></i>
         <span>Réserver</span>
       </button>
       <button 
+        class="px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200"
+        (click)="onViewDetails($event)"
+        title="Voir les détails">
+        <i class="bi bi-info-circle text-lg"></i>
+      </button>
+      <button 
         class="px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200"
-        (click)="onViewOnMap()"
+        (click)="onViewOnMap($event)"
         title="Voir sur la carte">
         <i class="bi bi-geo-alt text-lg"></i>
       </button>

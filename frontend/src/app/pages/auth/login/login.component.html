@@ -36,7 +36,7 @@
                   'border-red-300 focus:ring-red-500': loginForm.get('pseudo')?.invalid && loginForm.get('pseudo')?.touched,
                   'border-gray-300': !(loginForm.get('pseudo')?.invalid && loginForm.get('pseudo')?.touched)
                 }"
-                placeholder="Entrez votre pseudo"
+                placeholder=" Entrez votre pseudo"
                 autocomplete="username">
               <i class="bi bi-person-fill absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm sm:text-base"></i>
             </div>
@@ -68,7 +68,7 @@
                   'border-red-300 focus:ring-red-500': loginForm.get('password')?.invalid && loginForm.get('password')?.touched,
                   'border-gray-300': !(loginForm.get('password')?.invalid && loginForm.get('password')?.touched)
                 }"
-                placeholder="Entrez votre mot de passe"
+                placeholder=" Entrez votre mot de passe"
                 autocomplete="current-password">
               <i class="bi bi-lock-fill absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm sm:text-base"></i>
             </div>
@@ -82,13 +82,6 @@
                 </p>
               </div>
             }
-          </div>
-
-          <!-- Mot de passe oublié -->
-          <div class="flex items-center justify-end">
-            <a href="#" class="text-xs sm:text-sm text-blue-700 hover:text-blue-800 font-medium transition-colors">
-              Mot de passe oublié ?
-            </a>
           </div>
           
           <!-- Bouton de connexion -->

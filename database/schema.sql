@@ -112,7 +112,7 @@ CREATE TABLE charging_stations (
     occupee BOOLEAN DEFAULT FALSE,
     prix_a_la_minute DECIMAL(10,4) NOT NULL,
     hourly_rate DECIMAL(10,2),
-    connector_type VARCHAR(50) NOT NULL,
+    connector_type VARCHAR(50) NOT NULL DEFAULT '2S',
     description TEXT,
     power_output DOUBLE PRECISION,
     owner_id BIGINT NOT NULL,

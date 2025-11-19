@@ -81,7 +81,7 @@ class ReservationControllerIntegrationTest {
         testStation.setLongitude(5.72);
         testStation.setPuissance(22);
         testStation.setPrixALaMinute(new BigDecimal("0.45"));
-        testStation.setConnectorType("Type 2");
+        testStation.setConnectorType("2S");
         testStation.setEtat(ChargingStation.Etat.DISPONIBLE);
         testStation.setOwner(testUser);
         testStation.setAddress("1 Rue Test");

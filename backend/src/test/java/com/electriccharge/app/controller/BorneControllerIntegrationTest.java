@@ -73,7 +73,7 @@ class BorneControllerIntegrationTest {
         testBorne.setEtat(ChargingStation.Etat.DISPONIBLE);
         testBorne.setOccupee(false);
         testBorne.setPrixALaMinute(new BigDecimal("2.50"));
-        testBorne.setConnectorType("Type 2");
+        testBorne.setConnectorType("2S");
         testBorne.setDescription("Test charging station");
         testBorne.setOwner(testAdmin);
         testBorne.setAddress("123 Test Street");
@@ -96,7 +96,7 @@ class BorneControllerIntegrationTest {
         dto.setEtat("DISPONIBLE");
         dto.setOccupee(false);
         dto.setPrixALaMinute(new BigDecimal("3.50"));
-        dto.setConnectorType("Type 2");
+        dto.setConnectorType("2S");
         dto.setDescription("New test charging station");
         dto.setAddress("456 New Test Street");
         dto.setHourlyRate(new BigDecimal("20.00"));  // Adding hourly rate
@@ -161,7 +161,7 @@ class BorneControllerIntegrationTest {
         testStation.setLatitude(45.0);
         testStation.setLongitude(5.0);
         testStation.setPuissance(50);
-        testStation.setConnectorType("Type 2");
+        testStation.setConnectorType("2S");
         testStation.setEtat(ChargingStation.Etat.DISPONIBLE);
         testStation.setOccupee(false);
         testStation.setPrixALaMinute(new BigDecimal("2.50"));

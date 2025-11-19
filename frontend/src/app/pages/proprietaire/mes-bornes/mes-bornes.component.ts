@@ -40,7 +40,7 @@ export class MesBornesComponent implements OnInit {
     this.borneForm = this.fb.group({
       nom: ['', Validators.required],
       localisation: ['', Validators.required],
-      type: ['Type 2', Validators.required],
+      // type supprimé - toujours "2S"
       puissance: ['', [Validators.required, Validators.min(1)]],
       prix: ['', [Validators.required, Validators.min(0)]],
       etat: ['DISPONIBLE', Validators.required],
@@ -104,8 +104,8 @@ export class MesBornesComponent implements OnInit {
     this.isEditMode = false;
     this.selectedBorne = null;
     this.borneForm.reset({
-      type: 'Type 2',
       etat: 'DISPONIBLE'
+      // type supprimé - toujours "2S"
     });
     this.selectedFiles = [];
     this.previewUrls = [];
@@ -118,7 +118,7 @@ export class MesBornesComponent implements OnInit {
     this.selectedBorne = borne;
     this.borneForm.patchValue({
       localisation: borne.localisation,
-      type: borne.type,
+      // type supprimé - toujours "2S"
       puissance: borne.puissance,
       prix: borne.prix,
       etat: borne.etat,
@@ -242,13 +242,13 @@ export class MesBornesComponent implements OnInit {
     
     const borneData: any = {
       numero: `BORNE-${Date.now()}`, // Générer un numéro unique
-      nom: formData.nom || `${lieuSelectionne.nom} - ${formData.type}`,
+      nom: formData.nom || `${lieuSelectionne.nom} - Type 2S`,
       localisation: formData.localisation,
       address: `${formData.ville}`, // Utiliser la ville du formulaire
       latitude: parseFloat(formData.latitude) || 0,
       longitude: parseFloat(formData.longitude) || 0,
-      type: formData.type,
-      connectorType: formData.type,
+      type: 'NORMALE', // Type calculé basé sur la puissance (gardé pour compatibilité)
+      connectorType: '2S', // Toujours Type 2S
       puissance: parseFloat(formData.puissance),
       prix: prixHoraire,
       hourlyRate: prixHoraire,

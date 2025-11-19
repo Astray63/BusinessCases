@@ -71,7 +71,7 @@ public class ChargingStation {
     private BigDecimal hourlyRate;
     
     @Column(name = "connector_type", nullable = false, length = 50)
-    private String connectorType;
+    private String connectorType = "2S";
     
     @Column(name = "description")
     private String description;
@@ -115,6 +115,15 @@ public class ChargingStation {
     
     @Column(name = "address", nullable = false)
     private String address;
+    
+    /**
+     * Force le type de connecteur à "2S" avant toute persistance ou mise à jour
+     */
+    @PrePersist
+    @PreUpdate
+    private void enforceConnectorType() {
+        this.connectorType = "2S";
+    }
     
     public enum Etat {
         DISPONIBLE,

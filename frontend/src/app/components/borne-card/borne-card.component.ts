@@ -12,6 +12,7 @@ export class BorneCardComponent {
   
   @Output() reserve = new EventEmitter<Borne>();
   @Output() viewOnMap = new EventEmitter<Borne>();
+  @Output() viewDetails = new EventEmitter<Borne>();
 
   onReserve(event?: Event): void {
     if (event) event.stopPropagation();
@@ -21,6 +22,11 @@ export class BorneCardComponent {
   onViewOnMap(event?: Event): void {
     if (event) event.stopPropagation();
     this.viewOnMap.emit(this.borne);
+  }
+
+  onViewDetails(event?: Event): void {
+    if (event) event.stopPropagation();
+    this.viewDetails.emit(this.borne);
   }
 
   calculateDistance(): number {

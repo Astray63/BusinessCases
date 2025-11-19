@@ -269,24 +269,16 @@
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-            <!-- Type de prise -->
+            <!-- Type de prise - FIXE à 2S -->
             <div>
-              <label for="type" class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <label class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                 <i class="bi bi-plug text-orange-600"></i>
-                Type de prise *
+                Type de connecteur
               </label>
-              <select 
-                id="type" 
-                formControlName="type" 
-                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm">
-                <option value="Type 2">Type 2 (Europe)</option>
-                <option value="CCS">CCS (Combo)</option>
-                <option value="CHAdeMO">CHAdeMO</option>
-                <option value="Type 1">Type 1 (SAE J1772)</option>
-                <option value="Tesla">Tesla Supercharger</option>
-                <option value="Prise domestique">Prise domestique</option>
-              </select>
-              <p class="mt-1.5 text-xs text-gray-500">Type de connecteur</p>
+              <div class="w-full px-3 py-2.5 border border-gray-200 bg-gray-50 rounded-lg text-sm text-gray-700 font-medium">
+                Type 2S (Standard)
+              </div>
+              <p class="mt-1.5 text-xs text-gray-500">Toutes les bornes utilisent exclusivement le connecteur Type 2S</p>
             </div>
 
             <!-- Puissance -->
@@ -428,13 +420,13 @@
                 <i class="bi bi-toggle-on text-orange-600"></i>
                 État de la borne *
               </label>
-              <select 
-                id="etat" 
-                formControlName="etat" 
+              <select
+                id="etat"
+                formControlName="etat"
                 class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all text-sm">
-                <option value="DISPONIBLE">✅ Disponible</option>
-                <option value="MAINTENANCE">🔧 En maintenance</option>
-                <option value="HORS_SERVICE">❌ Hors service</option>
+                <option value="DISPONIBLE">Disponible</option>
+                <option value="MAINTENANCE">En maintenance</option>
+                <option value="HORS_SERVICE">Hors service</option>
               </select>
               <p class="mt-1.5 text-xs text-gray-500">Statut actuel</p>
             </div>
@@ -445,7 +437,7 @@
             <div class="flex items-start gap-3">
               <i class="bi bi-cash-coin text-green-600 text-xl flex-shrink-0"></i>
               <div class="flex-1">
-                <p class="text-xs sm:text-sm font-semibold text-green-900 mb-1">💰 Revenus potentiels</p>
+                <p class="text-xs sm:text-sm font-semibold text-green-900 mb-1">Revenus potentiels</p>
                 <div class="space-y-1 text-xs text-green-800">
                   <div class="flex justify-between">
                     <span>1 heure de charge :</span>
