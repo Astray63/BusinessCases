@@ -14,20 +14,20 @@
     
     <div class="space-y-2.5 mb-5">
       <div class="flex items-center gap-2.5 text-gray-600 text-sm">
-        <span class="text-lg">⚡</span>
+        <i class="bi bi-lightning-charge text-lg"></i>
         <span class="font-medium">{{ borne.type }}</span>
       </div>
       <div class="flex items-center gap-2.5 text-gray-600 text-sm">
-        <span class="text-lg">🔌</span>
+        <i class="bi bi-plug text-lg"></i>
         <span class="font-medium">{{ borne.puissance }} kW</span>
       </div>
       <div class="flex items-center gap-2.5 text-gray-600 text-sm">
-        <span class="text-lg">💰</span>
+        <i class="bi bi-currency-euro text-lg"></i>
         <span class="font-medium">{{ borne.prix }}€/heure</span>
       </div>
       @if (showDistance && borne.latitude && borne.longitude && userLocation) {
         <div class="flex items-center gap-2.5 text-gray-600 text-sm">
-          <span class="text-lg">📍</span>
+          <i class="bi bi-geo-alt text-lg"></i>
           <span class="font-medium">{{ calculateDistance() | number:'1.1-1' }} km</span>
         </div>
       }

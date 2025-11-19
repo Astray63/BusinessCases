@@ -230,7 +230,8 @@
               [borne]="borne"
               [userLocation]="userLocation"
               (reserve)="reserverBorne(borne.idBorne!)"
-              (viewOnMap)="onBorneSelect(borne)">
+              (viewOnMap)="onBorneSelect(borne)"
+              (click)="openBorneDetails(borne)">
             </app-borne-card>
           }
         </div>
@@ -238,3 +239,10 @@
     }
   </div>
 </div>
+
+<!-- Modal de détails de borne -->
+<app-borne-details-modal
+  [borne]="selectedBorne"
+  [isOpen]="isModalOpen"
+  (closeModal)="closeBorneDetails()">
+</app-borne-details-modal>

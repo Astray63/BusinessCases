@@ -1,0 +1,164 @@
+@if (isOpen && borne) {
+  <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Background overlay -->
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="close()"></div>
+
+      <!-- Modal panel -->
+      <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-2xl font-bold text-white" id="modal-title">
+              {{ borne.nom }}
+            </h3>
+            <button
+              type="button"
+              (click)="close()"
+              class="text-white hover:text-gray-200 transition-colors">
+              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <p class="mt-1 text-sm text-blue-100">{{ borne.address }}</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="border-b border-gray-200">
+          <nav class="flex -mb-px">
+            <button
+              (click)="setActiveTab('details')"
+              [class.border-blue-500]="activeTab === 'details'"
+              [class.text-blue-600]="activeTab === 'details'"
+              [class.border-transparent]="activeTab !== 'details'"
+              [class.text-gray-500]="activeTab !== 'details'"
+              class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm hover:text-blue-600 hover:border-blue-300 transition-colors">
+              <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Détails
+            </button>
+            <button
+              (click)="setActiveTab('avis')"
+              [class.border-blue-500]="activeTab === 'avis'"
+              [class.text-blue-600]="activeTab === 'avis'"
+              [class.border-transparent]="activeTab !== 'avis'"
+              [class.text-gray-500]="activeTab !== 'avis'"
+              class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm hover:text-blue-600 hover:border-blue-300 transition-colors">
+              <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+              </svg>
+              Avis
+            </button>
+            <button
+              (click)="setActiveTab('signalements')"
+              [class.border-blue-500]="activeTab === 'signalements'"
+              [class.text-blue-600]="activeTab === 'signalements'"
+              [class.border-transparent]="activeTab !== 'signalements'"
+              [class.text-gray-500]="activeTab !== 'signalements'"
+              class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm hover:text-blue-600 hover:border-blue-300 transition-colors">
+              <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              Signalements
+            </button>
+          </nav>
+        </div>
+
+        <!-- Content -->
+        <div class="px-6 py-4 max-h-[calc(100vh-300px)] overflow-y-auto">
+          <!-- Details Tab -->
+          @if (activeTab === 'details') {
+            <div class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <h4 class="text-sm font-medium text-gray-500 mb-2">Statut</h4>
+                  <span [class]="'px-3 py-1 rounded-full text-sm font-medium ' + getEtatColor(borne.etat)">
+                    {{ borne.etat }}
+                  </span>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <h4 class="text-sm font-medium text-gray-500 mb-2">Puissance</h4>
+                  <p class="text-lg font-semibold text-gray-900">{{ borne.puissance }} kW</p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <h4 class="text-sm font-medium text-gray-500 mb-2">Type de connecteur</h4>
+                  <p class="text-lg font-semibold text-gray-900">{{ borne.connectorType }}</p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <h4 class="text-sm font-medium text-gray-500 mb-2">Tarif</h4>
+                  <p class="text-lg font-semibold text-gray-900">
+                    {{ borne.prixALaMinute | number:'1.3-3' }} €/min
+                    <span class="text-sm text-gray-500">({{ borne.hourlyRate | number:'1.2-2' }} €/h)</span>
+                  </p>
+                </div>
+              </div>
+
+              @if (borne.description) {
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 class="text-sm font-medium text-blue-900 mb-2">Description</h4>
+                  <p class="text-gray-700">{{ borne.description }}</p>
+                </div>
+              }
+
+              @if (borne.instructionSurPied) {
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <h4 class="text-sm font-medium text-yellow-900 mb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Instructions d'utilisation
+                  </h4>
+                  <p class="text-gray-700">{{ borne.instructionSurPied }}</p>
+                </div>
+              }
+
+              @if (borne.medias && borne.medias.length > 0) {
+                <div class="mt-4">
+                  <h4 class="text-sm font-medium text-gray-700 mb-3">Photos</h4>
+                  <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    @for (media of borne.medias; track media) {
+                      <div class="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                        <img [src]="media" [alt]="borne.nom" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300">
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Avis Tab -->
+          @if (activeTab === 'avis' && borne.idBorne && borne.nom) {
+            <app-avis-list
+              [chargingStationId]="borne.idBorne"
+              [chargingStationNom]="borne.nom">
+            </app-avis-list>
+          }
+
+          <!-- Signalements Tab -->
+          @if (activeTab === 'signalements' && borne.idBorne && borne.nom) {
+            <app-signalement-form
+              [chargingStationId]="borne.idBorne"
+              [chargingStationNom]="borne.nom">
+            </app-signalement-form>
+          }
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+          <button
+            type="button"
+            (click)="close()"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

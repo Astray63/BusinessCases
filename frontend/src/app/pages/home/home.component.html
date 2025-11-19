@@ -1,306 +1,269 @@
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-white font-sans text-gray-900 w-full">
 
-  <!-- Section Hero -->
-  <section class="relative min-h-[90vh] flex items-center overflow-hidden">
-    <!-- Image de fond Unsplash -->
-    <div class="absolute inset-0 z-0">
-      <img 
-        src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80" 
-        alt="Voiture électrique en charge"
-        class="w-full h-full object-cover"
-      />
-      <!-- Overlay gradient pour améliorer la lisibilité -->
-      <div class="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-blue-800/80 to-transparent"></div>
-    </div>
+  <!-- Hero Section -->
+  <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden w-full">
+    <div class="w-full px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+        <!-- Text Content -->
+        <div class="w-full mx-auto lg:mx-0">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-sm font-medium mb-6">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+            </span>
+            L'avenir de la mobilité
+          </div>
+          
+          <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 mb-6 leading-[1.1]">
+            Rechargez votre <br>
+            <span class="text-blue-600">véhicule électrique</span> <br>
+            simplement.
+          </h1>
+          
+          <p class="text-lg text-gray-600 mb-8 leading-relaxed max-w-2xl">
+            Accédez à des milliers de bornes de recharge partout en France. Une expérience fluide, de la réservation à la charge.
+          </p>
+          
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a routerLink="/client/recherche" class="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white transition-all duration-200 bg-blue-600 border border-transparent rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/40 hover:-translate-y-1">
+              Trouver une borne
+            </a>
+            <a routerLink="/auth/register" class="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-gray-900 transition-all duration-200 bg-white border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 hover:-translate-y-1">
+              Créer un compte
+            </a>
+          </div>
 
-    <!-- Contenu Hero -->
-    <div class="w-full p-0 py-24 lg:py-32 relative z-10">
-      <div class="max-w-3xl">
-        <!-- Badge -->
-        <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-6">
-          <i class="bi bi-lightning-charge-fill text-yellow-400"></i>
-          <span class="text-sm font-medium text-white">L'avenir de la mobilité électrique</span>
-        </div>
-
-        <!-- Titre principal -->
-        <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
-          Rechargez votre véhicule 
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400">
-            en toute simplicité
-          </span>
-        </h1>
-
-        <!-- Sous-titre -->
-        <p class="text-xl md:text-2xl text-blue-100 leading-relaxed mb-10 max-w-2xl">
-          Trouvez, réservez et utilisez des milliers de bornes de recharge partout en France. Une recharge rapide, facile et accessible.
-        </p>
-
-        <!-- Boutons d'action -->
-        <div class="flex flex-col sm:flex-row gap-4">
-          <a routerLink="/client/recherche" class="group inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105">
-            <i class="bi bi-search text-xl group-hover:scale-110 transition-transform"></i>
-            <span>Trouver une borne</span>
-            <i class="bi bi-arrow-right text-xl group-hover:translate-x-1 transition-transform"></i>
-          </a>
-          <a routerLink="/auth/register" class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/30 hover:bg-white/20 text-white font-semibold rounded-xl transition-all duration-300">
-            <i class="bi bi-person-plus text-xl"></i>
-            <span>Créer un compte</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section Comment ça marche -->
-  <section class="py-16 bg-white">
-    <div class="w-full p-0">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-          Comment ça marche
-        </h2>
-        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-          Trois étapes simples pour recharger votre véhicule électrique
-        </p>
-      </div>
-      
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <div class="flex items-center gap-4 mb-4">
-            <div class="w-12 h-12 bg-blue-600 text-white rounded-lg flex items-center justify-center text-xl font-bold flex-shrink-0">
-              1
+          <div class="mt-10 flex items-center gap-4 text-sm text-gray-500">
+            <div class="flex -space-x-2">
+              <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=64&h=64" alt=""/>
+              <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=64&h=64" alt=""/>
+              <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=64&h=64" alt=""/>
             </div>
-            <h3 class="text-xl font-bold text-gray-900">Trouvez une borne</h3>
-          </div>
-          <div class="pl-16">
-            <p class="text-gray-600 leading-relaxed">
-              Localisez facilement les bornes de recharge disponibles près de chez vous ou sur votre itinéraire.
-            </p>
+            <p>Rejoint par +10k utilisateurs</p>
           </div>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <div class="flex items-center gap-4 mb-4">
-            <div class="w-12 h-12 bg-green-600 text-white rounded-lg flex items-center justify-center text-xl font-bold flex-shrink-0">
-              2
-            </div>
-            <h3 class="text-xl font-bold text-gray-900">Réservez</h3>
+        <!-- Hero Image -->
+        <div class="relative lg:ml-auto w-full max-w-2xl mx-auto lg:max-w-none">
+          <div class="relative rounded-3xl overflow-hidden shadow-2xl shadow-blue-900/20 aspect-[4/3] group">
+            <div class="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+            <img 
+              src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1600&q=80" 
+              alt="Charging EV" 
+              class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+            />
           </div>
-          <div class="pl-16">
-            <p class="text-gray-600 leading-relaxed">
-              Sélectionnez l'heure qui vous convient et réservez votre session de recharge en quelques clics.
-            </p>
-          </div>
-        </div>
-
-        <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <div class="flex items-center gap-4 mb-4">
-            <div class="w-12 h-12 bg-yellow-500 text-white rounded-lg flex items-center justify-center text-xl font-bold flex-shrink-0">
-              3
-            </div>
-            <h3 class="text-xl font-bold text-gray-900">Rechargez</h3>
-          </div>
-          <div class="pl-16">
-            <p class="text-gray-600 leading-relaxed">
-              Présentez-vous à la borne, connectez votre véhicule et rechargez en toute simplicité.
-            </p>
-          </div>
+          <!-- Decorative elements -->
+          <div class="absolute -bottom-6 -left-6 w-24 h-24 bg-yellow-400 rounded-full blur-2xl opacity-20"></div>
+          <div class="absolute -top-6 -right-6 w-32 h-32 bg-blue-600 rounded-full blur-3xl opacity-20"></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Section Carte publique des bornes -->
-  <section class="py-16 bg-gray-50">
-    <div class="w-full p-0">
-      <div class="text-center mb-10">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-          Bornes disponibles autour de vous
-        </h2>
-        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-          Découvrez les bornes de recharge disponibles sans avoir besoin de créer un compte
-        </p>
+  <!-- Stats / Trust Section -->
+  <section class="py-10 border-y border-gray-100 bg-gray-50/50 w-full">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div>
+          <p class="text-3xl font-bold text-blue-600">5000+</p>
+          <p class="text-sm text-gray-500 mt-1">Bornes disponibles</p>
+        </div>
+        <div>
+          <p class="text-3xl font-bold text-blue-600">98%</p>
+          <p class="text-sm text-gray-500 mt-1">Satisfaction client</p>
+        </div>
+        <div>
+          <p class="text-3xl font-bold text-blue-600">24/7</p>
+          <p class="text-sm text-gray-500 mt-1">Support disponible</p>
+        </div>
+        <div>
+          <p class="text-3xl font-bold text-blue-600">100%</p>
+          <p class="text-sm text-gray-500 mt-1">Énergie verte</p>
+        </div>
       </div>
-      
-      <!-- Carte interactive Leaflet -->
-      <div class="relative rounded-lg overflow-hidden shadow-lg mb-10 bg-white">
-        <div id="public-map" class="w-full h-[500px]"></div>
-        
-        @if (isLoading) {
-          <div class="absolute inset-0 bg-white/95 flex flex-col items-center justify-center z-50">
-            <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-3"></div>
-            <p class="text-base font-medium text-gray-700">Chargement des bornes...</p>
-          </div>
-        }
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="py-24 bg-white w-full">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Simple comme bonjour</h2>
+        <p class="text-lg text-gray-600">Recharger votre véhicule ne devrait pas être une corvée. Nous avons simplifié le processus au maximum.</p>
       </div>
 
-      <!-- Liste des bornes sous la carte -->
-      @if (!isLoading && bornesPubliques.length > 0) {
-        <div class="space-y-6">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xl font-bold text-gray-900">
-            {{ bornesPubliques.length }} borne(s) disponible(s)
-          </h3>
+      <div class="grid md:grid-cols-3 gap-8 lg:gap-12 w-full">
+        <!-- Step 1 -->
+        <div class="relative group">
+          <div class="absolute -inset-4 bg-gradient-to-r from-blue-100 to-blue-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div class="relative p-6">
+            <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-lg shadow-blue-600/20">
+              <i class="bi bi-geo-alt"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">1. Localisez</h3>
+            <p class="text-gray-600 leading-relaxed">
+              Trouvez instantanément les bornes disponibles autour de vous grâce à notre carte interactive en temps réel.
+            </p>
+          </div>
         </div>
-        
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-          @for (borne of bornesPubliques; track borne.idBorne) {
-            <app-borne-card 
-              [borne]="borne"
-              [userLocation]="userLocation"
-              (reserve)="navigateToReservation(borne)"
-              (viewOnMap)="centerMapOnBorne(borne)">
-            </app-borne-card>
+
+        <!-- Step 2 -->
+        <div class="relative group">
+          <div class="absolute -inset-4 bg-gradient-to-r from-blue-100 to-blue-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div class="relative p-6">
+            <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-lg shadow-blue-600/20">
+              <i class="bi bi-calendar-check"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">2. Réservez</h3>
+            <p class="text-gray-600 leading-relaxed">
+              Bloquez votre créneau à l'avance pour être sûr d'avoir une place. Fini le stress de la borne occupée.
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative group">
+          <div class="absolute -inset-4 bg-gradient-to-r from-blue-100 to-blue-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div class="relative p-6">
+            <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-lg shadow-blue-600/20">
+              <i class="bi bi-lightning-charge"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">3. Rechargez</h3>
+            <p class="text-gray-600 leading-relaxed">
+              Branchez-vous et suivez votre consommation en direct. Paiement automatique et sécurisé.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Map Section -->
+  <section class="py-24 bg-gray-50 w-full">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
+        <div class="w-full md:w-2/3">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Explorez le réseau</h2>
+          <p class="text-lg text-gray-600">
+            Visualisez les bornes disponibles en temps réel autour de vous.
+          </p>
+        </div>
+        <a routerLink="/client/recherche" class="inline-flex items-center gap-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors">
+          Voir la carte complète <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="bg-white p-2 rounded-3xl shadow-xl shadow-gray-200/50">
+        <div class="relative rounded-2xl overflow-hidden h-[500px] z-0">
+          <div id="public-map" class="w-full h-full"></div>
+          
+          @if (isLoading) {
+            <div class="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
+              <div class="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-3"></div>
+              <p class="text-sm font-medium text-gray-600">Chargement du réseau...</p>
+            </div>
           }
         </div>
       </div>
-      }
 
-      @if (!isLoading && bornesPubliques.length === 0) {
-        <div class="text-center py-16 bg-white rounded-lg border border-gray-200">
-          <i class="bi bi-lightning-charge text-5xl text-gray-300 mb-3 block"></i>
-          <p class="text-lg text-gray-500">Aucune borne disponible pour le moment</p>
+      <!-- Quick List -->
+      @if (!isLoading && bornesPubliques.length > 0) {
+        <div class="mt-10">
+          <h3 class="text-lg font-semibold text-gray-900 mb-6">À proximité de vous</h3>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @for (borne of bornesPubliques.slice(0, 3); track borne.idBorne) {
+              <app-borne-card 
+                [borne]="borne"
+                [userLocation]="userLocation"
+                (reserve)="navigateToReservation(borne)"
+                (viewOnMap)="centerMapOnBorne(borne)">
+              </app-borne-card>
+            }
+          </div>
         </div>
       }
     </div>
   </section>
 
-  <!-- Section Fonctionnalités -->
-  <section class="py-16 bg-white">
-    <div class="w-full p-0">
-      <h2 class="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
-        Nos services
-      </h2>
+  <!-- Testimonials -->
+  <section class="py-24 bg-white overflow-hidden w-full">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
+      <h2 class="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-16">Ils nous font confiance</h2>
       
-      <div class="grid md:grid-cols-2 gap-6">
-        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
-          <div class="h-48 overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1582550740000-5e4f83e06359?ixlib=rb-4.0.1&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" 
-                 alt="Carte de bornes de recharge" 
-                 class="w-full h-full object-cover" />
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Testimonial 1 -->
+        <div class="bg-gray-50 rounded-3xl p-8 hover:bg-blue-50 transition-colors duration-300">
+          <div class="flex gap-1 text-yellow-400 mb-4 text-sm">
+            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
           </div>
-          <div class="p-6">
-            <h3 class="text-xl font-bold text-gray-900 mb-3">Trouvez des bornes</h3>
-            <p class="text-gray-600 mb-5 leading-relaxed">
-              Localisez facilement les bornes de recharge près de chez vous
-            </p>
-            <a routerLink="/client/recherche" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200">
-              Voir les bornes
-              <i class="bi bi-arrow-right"></i>
+          <p class="text-gray-700 mb-6 leading-relaxed">
+            "L'application est d'une simplicité déconcertante. Je trouve toujours une borne quand j'en ai besoin, c'est devenu indispensable pour mes trajets."
+          </p>
+          <div class="flex items-center gap-4">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&h=100" alt="User" class="w-10 h-10 rounded-full object-cover">
+            <div>
+              <p class="font-bold text-gray-900 text-sm">Sarah L.</p>
+              <p class="text-xs text-gray-500">Utilisatrice depuis 2 ans</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="bg-gray-50 rounded-3xl p-8 hover:bg-blue-50 transition-colors duration-300">
+          <div class="flex gap-1 text-yellow-400 mb-4 text-sm">
+            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+          </div>
+          <p class="text-gray-700 mb-6 leading-relaxed">
+            "Le système de réservation est génial. Plus besoin de tourner en rond pour trouver une place libre. Un vrai gain de temps au quotidien."
+          </p>
+          <div class="flex items-center gap-4">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&h=100" alt="User" class="w-10 h-10 rounded-full object-cover">
+            <div>
+              <p class="font-bold text-gray-900 text-sm">Marc D.</p>
+              <p class="text-xs text-gray-500">Chauffeur VTC</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="bg-gray-50 rounded-3xl p-8 hover:bg-blue-50 transition-colors duration-300">
+          <div class="flex gap-1 text-yellow-400 mb-4 text-sm">
+            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+          </div>
+          <p class="text-gray-700 mb-6 leading-relaxed">
+            "Interface propre, rapide et efficace. Le support est aussi très réactif quand on a une question. Je recommande vivement."
+          </p>
+          <div class="flex items-center gap-4">
+            <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=100&h=100" alt="User" class="w-10 h-10 rounded-full object-cover">
+            <div>
+              <p class="font-bold text-gray-900 text-sm">Thomas B.</p>
+              <p class="text-xs text-gray-500">Nouveau converti à l'électrique</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 w-full">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
+      <div class="bg-blue-600 rounded-3xl p-8 md:p-16 text-center relative overflow-hidden">
+        <!-- Decorative circles -->
+        <div class="absolute top-0 left-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="absolute bottom-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full translate-x-1/2 translate-y-1/2"></div>
+        
+        <div class="relative z-10 max-w-2xl mx-auto">
+          <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">Prêt à passer à la vitesse supérieure ?</h2>
+          <p class="text-blue-100 text-lg mb-10">
+            Rejoignez notre communauté et profitez d'une expérience de recharge sans friction dès aujourd'hui.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a routerLink="/auth/register" class="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-blue-600 transition-all duration-200 bg-white rounded-full hover:bg-blue-50 hover:scale-105 shadow-lg">
+              Commencer maintenant
             </a>
           </div>
-        </div>
-        
-        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
-          <div class="h-48 overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1633114128174-2f8aa49759b0?ixlib=rb-4.0.1&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" 
-                 alt="Réservation de borne" 
-                 class="w-full h-full object-cover" />
-          </div>
-          <div class="p-6">
-            <h3 class="text-xl font-bold text-gray-900 mb-3">Réservez une borne</h3>
-            <p class="text-gray-600 mb-5 leading-relaxed">
-              Planifiez vos recharges à l'avance
-            </p>
-            <a routerLink="/client/mes-reservations" class="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200">
-              Réserver
-              <i class="bi bi-arrow-right"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section Témoignages -->
-  <section class="py-16 bg-gray-50">
-    <div class="w-full p-0">
-      <div class="text-center mb-12">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-          Ce que disent nos utilisateurs
-        </h2>
-        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-          Des milliers d'utilisateurs nous font confiance chaque jour
-        </p>
-      </div>
-      
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-          <div class="flex items-start gap-2 mb-4">
-            <i class="bi bi-quote text-3xl text-blue-600"></i>
-          </div>
-          <p class="text-gray-700 mb-5 leading-relaxed italic text-sm">
-            "E-Charge a complètement transformé ma façon de gérer mes déplacements en voiture électrique. Je n'ai plus d'anxiété liée à l'autonomie!"
-          </p>
-          <div class="flex items-center gap-3">
-            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.1&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" 
-                 alt="Jean Dupont" 
-                 class="w-12 h-12 rounded-full object-cover" />
-            <div>
-              <h4 class="font-bold text-gray-900 text-sm">Jean Dupont</h4>
-              <p class="text-xs text-gray-600">Propriétaire de Tesla Model 3</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-          <div class="flex items-start gap-2 mb-4">
-            <i class="bi bi-quote text-3xl text-green-600"></i>
-          </div>
-          <p class="text-gray-700 mb-5 leading-relaxed italic text-sm">
-            "L'application est très intuitive et la possibilité de réserver à l'avance est vraiment pratique. Je recommande!"
-          </p>
-          <div class="flex items-center gap-3">
-            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.1&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" 
-                 alt="Marie Leroy" 
-                 class="w-12 h-12 rounded-full object-cover" />
-            <div>
-              <h4 class="font-bold text-gray-900 text-sm">Marie Leroy</h4>
-              <p class="text-xs text-gray-600">Propriétaire de Renault Zoe</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-          <div class="flex items-start gap-2 mb-4">
-            <i class="bi bi-quote text-3xl text-yellow-600"></i>
-          </div>
-          <p class="text-gray-700 mb-5 leading-relaxed italic text-sm">
-            "Grâce à E-Charge, je peux planifier mes trajets longue distance en toute sérénité. Le service client est également très réactif."
-          </p>
-          <div class="flex items-center gap-3">
-            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.1&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" 
-                 alt="Pierre Martin" 
-                 class="w-12 h-12 rounded-full object-cover" />
-            <div>
-              <h4 class="font-bold text-gray-900 text-sm">Pierre Martin</h4>
-              <p class="text-xs text-gray-600">Propriétaire de Peugeot e-208</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section CTA -->
-  <section class="relative py-20 overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800">
-    <div class="absolute inset-0 bg-black/20"></div>
-    <div class="w-full p-0 relative z-10 text-center">
-      <div class="max-w-3xl mx-auto space-y-6">
-        <h2 class="text-3xl md:text-4xl font-bold text-white">
-          Prêt à rejoindre la révolution électrique?
-        </h2>
-        <p class="text-lg md:text-xl text-blue-100">
-          Créez votre compte gratuitement et commencez à utiliser nos services dès aujourd'hui.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-          <a routerLink="/auth/register" class="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-blue-700 font-semibold rounded-lg hover:bg-blue-50 transition-colors duration-200 shadow-lg">
-            <i class="bi bi-person-plus text-lg"></i>
-            S'inscrire maintenant
-          </a>
-          <a routerLink="/client/recherche" class="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-transparent border-2 border-white text-white font-semibold rounded-lg hover:bg-white/10 transition-colors duration-200">
-            <i class="bi bi-search text-lg"></i>
-            Explorer les bornes
-          </a>
         </div>
       </div>
     </div>

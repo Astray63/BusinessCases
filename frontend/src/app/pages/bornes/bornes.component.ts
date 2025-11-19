@@ -20,6 +20,10 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
   locating = false;
   showMap = true;
   
+  // Modal
+  selectedBorne: Borne | null = null;
+  isModalOpen = false;
+  
   // Filters
   searchQuery = '';
   distance = 50;
@@ -392,5 +396,15 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
       'MAINTENANCE': 'badge-secondary'
     };
     return classes[etat] || 'badge-secondary';
+  }
+
+  openBorneDetails(borne: Borne): void {
+    this.selectedBorne = borne;
+    this.isModalOpen = true;
+  }
+
+  closeBorneDetails(): void {
+    this.isModalOpen = false;
+    this.selectedBorne = null;
   }
 }
