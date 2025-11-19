@@ -55,6 +55,7 @@ public class SecurityConfig {
                 authz
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/bornes/public/**").permitAll()
+                    .requestMatchers("/bornes/proches").permitAll()
                     .requestMatchers(HttpMethod.GET, "/utilisateurs/pseudo/{pseudo}").permitAll()
                     .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                     .requestMatchers("/actuator/**").permitAll()

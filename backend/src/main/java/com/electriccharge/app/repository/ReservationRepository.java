@@ -8,8 +8,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
 @Repository
-public interface ReservationRepository extends JpaRepository<Reservation, Long> {
+public interface ReservationRepository extends JpaRepository<Reservation, Long>, JpaSpecificationExecutor<Reservation> {
     
     @Query("SELECT r FROM Reservation r JOIN FETCH r.utilisateur JOIN FETCH r.chargingStation cs LEFT JOIN FETCH cs.owner LEFT JOIN FETCH cs.medias WHERE r.utilisateur.idUtilisateur = :idUtilisateur")
     List<Reservation> findByUtilisateur_IdUtilisateur(Long idUtilisateur);

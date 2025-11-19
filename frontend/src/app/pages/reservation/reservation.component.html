@@ -399,7 +399,7 @@
 
                   <div class="space-y-3 mb-5">
                     <div class="flex items-start gap-3">
-                      <span class="text-xl">📍</span>
+                      <i class="bi bi-geo-alt text-xl text-red-500"></i>
                       <div class="flex-1">
                         <p class="font-bold text-gray-900 text-sm">{{ reservation.borne.localisation || 'N/A' }}</p>
                         <p class="text-xs text-gray-600">{{ reservation.borne.type || 'N/A' }} - {{ reservation.borne.puissance || 0 }} kW</p>
@@ -407,7 +407,7 @@
                     </div>
 
                     <div class="flex items-start gap-3">
-                      <span class="text-xl">📅</span>
+                      <i class="bi bi-calendar-event text-xl text-blue-500"></i>
                       <div class="flex-1">
                         <p class="font-bold text-gray-900 text-sm">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</p>
                         <p class="text-xs text-gray-600">{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</p>
@@ -415,7 +415,7 @@
                     </div>
 
                     <div class="flex items-start gap-3">
-                      <span class="text-xl">⏱️</span>
+                      <i class="bi bi-clock text-xl text-gray-500"></i>
                       <div class="flex-1">
                         <p class="font-bold text-gray-900 text-sm">Durée</p>
                         <p class="text-xs text-gray-600">{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</p>
@@ -424,7 +424,7 @@
 
                     @if (reservation.montantTotal) {
                       <div class="flex items-start gap-3">
-                        <span class="text-xl">💰</span>
+                        <i class="bi bi-cash-coin text-xl text-green-600"></i>
                         <div class="flex-1">
                           <p class="font-bold text-gray-900 text-sm">Montant</p>
                           <p class="text-xs text-gray-600">{{ reservation.montantTotal }} €</p>
@@ -528,6 +528,95 @@
                 </button>
               }
             </div>
+          </div>
+
+          @if (reservationsPassees.length === 0) {
+            <div class="bg-white rounded-lg border border-gray-200 p-12 text-center">
+              <i class="bi bi-calendar-x text-5xl text-gray-300 mb-3 block"></i>
+              <p class="text-gray-500">Aucune réservation passée</p>
+            </div>
+          }
+
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            @for (reservation of reservationsPassees; track reservation.idReservation) {
+              <div 
+                class="bg-white border rounded-lg shadow-sm overflow-hidden"
+                [class.border-gray-200]="reservation.statut === 'TERMINEE'"
+                [class.border-red-300]="reservation.statut === 'ANNULEE' || reservation.statut === 'REFUSEE'">
+                
+                <!-- Photo de la borne -->
+                @if (reservation.borne.medias?.length) {
+                  <div class="h-40 overflow-hidden bg-gray-100">
+                    <img 
+                      [src]="reservation.borne.medias![0]" 
+                      alt="Photo de la borne" 
+                      class="w-full h-full object-cover">
+                  </div>
+                } @else {
+                  <div class="h-40 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                    <i class="bi bi-lightning-charge-fill text-5xl text-gray-400 opacity-50"></i>
+                  </div>
+                }
+                
+                <div class="p-5">
+                  <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-semibold text-gray-500">#{{ reservation.idReservation }}</span>
+                    <span class="px-2.5 py-1 rounded-full text-xs font-semibold"
+                          [class.bg-gray-100]="reservation.statut === 'TERMINEE'"
+                          [class.text-gray-800]="reservation.statut === 'TERMINEE'"
+                          [class.bg-red-100]="reservation.statut === 'ANNULEE' || reservation.statut === 'REFUSEE'"
+                          [class.text-red-800]="reservation.statut === 'ANNULEE' || reservation.statut === 'REFUSEE'">
+                      {{ getStatutLabel(reservation.statut) }}
+                    </span>
+                  </div>
+
+                  <div class="space-y-3 mb-5">
+                    <div class="flex items-start gap-3">
+                      <i class="bi bi-geo-alt text-xl text-red-500"></i>
+                      <div class="flex-1">
+                        <p class="font-bold text-gray-900 text-sm">{{ reservation.borne.localisation || 'N/A' }}</p>
+                        <p class="text-xs text-gray-600">{{ reservation.borne.type || 'N/A' }} - {{ reservation.borne.puissance || 0 }} kW</p>
+                      </div>
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                      <i class="bi bi-calendar-event text-xl text-blue-500"></i>
+                      <div class="flex-1">
+                        <p class="font-bold text-gray-900 text-sm">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</p>
+                        <p class="text-xs text-gray-600">{{ reservation.dateDebut | date:'HH:mm' }} - {{ reservation.dateFin | date:'HH:mm' }}</p>
+                      </div>
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                      <i class="bi bi-clock text-xl text-gray-500"></i>
+                      <div class="flex-1">
+                        <p class="font-bold text-gray-900 text-sm">Durée</p>
+                        <p class="text-xs text-gray-600">{{ calculerDuree(reservation.dateDebut, reservation.dateFin) }}</p>
+                      </div>
+                    </div>
+
+                    @if (reservation.montantTotal) {
+                      <div class="flex items-start gap-3">
+                        <i class="bi bi-cash-coin text-xl text-green-600"></i>
+                        <div class="flex-1">
+                          <p class="font-bold text-gray-900 text-sm">Montant</p>
+                          <p class="text-xs text-gray-600">{{ reservation.montantTotal }} €</p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  @if (hasReceipt(reservation) && reservation.statut === 'TERMINEE') {
+                    <button 
+                      class="w-full px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50"
+                      (click)="telechargerRecu(reservation.idReservation)"
+                      [disabled]="isLoading">
+                      <i class="bi bi-file-pdf mr-2"></i>Télécharger le reçu
+                    </button>
+                  }
+                </div>
+              </div>
+            }
           </div>
         </div>
       }

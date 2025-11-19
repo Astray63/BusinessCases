@@ -54,6 +54,14 @@ public class SignalementService {
     public List<SignalementDto> getSignalementsByUser(Long userId) {
         log.info("Récupération des signalements de l'utilisateur {}", userId);
         
+        if (userId == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String pseudo = authentication.getName();
+            Utilisateur utilisateur = utilisateurRepository.findByPseudo(pseudo)
+                    .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+            userId = utilisateur.getIdUtilisateur();
+        }
+        
         List<Signalement> signalements = signalementRepository
                 .findByUserIdUtilisateurOrderByDateSignalementDesc(userId);
         
@@ -83,9 +91,9 @@ public class SignalementService {
     @Transactional
     public SignalementDto createSignalement(CreateSignalementDto createSignalementDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        String pseudo = authentication.getName();
         
-        Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
+        Utilisateur utilisateur = utilisateurRepository.findByPseudo(pseudo)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         
         ChargingStation chargingStation = chargingStationRepository
@@ -140,9 +148,9 @@ public class SignalementService {
     @Transactional
     public void deleteSignalement(Long signalementId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        String pseudo = authentication.getName();
         
-        Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
+        Utilisateur utilisateur = utilisateurRepository.findByPseudo(pseudo)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         
         Signalement signalement = signalementRepository.findById(signalementId)

@@ -21,15 +21,15 @@ public class ApiResponse<T> {
         return new ApiResponse<>("SUCCESS", "Opération réussie", data);
     }
     
-    public static ApiResponse<?> success(String message) {
+    public static <T> ApiResponse<T> success(String message) {
         return new ApiResponse<>("SUCCESS", message, null);
     }
     
-    public static ApiResponse<?> error(String message) {
+    public static <T> ApiResponse<T> error(String message) {
         return new ApiResponse<>("ERROR", message, null);
     }
     
-    public static ApiResponse<?> error(HttpStatus status, String message) {
+    public static <T> ApiResponse<T> error(HttpStatus status, String message) {
         return new ApiResponse<>("ERROR", message, null);
     }
 } 

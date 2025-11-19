@@ -13,11 +13,13 @@ export class BorneCardComponent {
   @Output() reserve = new EventEmitter<Borne>();
   @Output() viewOnMap = new EventEmitter<Borne>();
 
-  onReserve(): void {
+  onReserve(event?: Event): void {
+    if (event) event.stopPropagation();
     this.reserve.emit(this.borne);
   }
 
-  onViewOnMap(): void {
+  onViewOnMap(event?: Event): void {
+    if (event) event.stopPropagation();
     this.viewOnMap.emit(this.borne);
   }
 

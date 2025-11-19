@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { BorneService } from '../../services/borne.service';
 import { AuthService } from '../../services/auth.service';
@@ -10,7 +10,7 @@ import * as L from 'leaflet';
   templateUrl: './bornes.component.html'
 })
 export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
-  private map!: L.Map;
+  private map: L.Map | undefined;
   private markers: L.Marker[] = [];
   private userMarker?: L.Marker;
 
@@ -44,7 +44,8 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private borneService: BorneService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -60,6 +61,7 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     if (this.map) {
       this.map.remove();
+      this.map = undefined;
     }
   }
 
@@ -144,8 +146,20 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
         return;
       }
 
+      // Defensive check: clean up any existing map instance
       if (this.map) {
         this.map.remove();
+        this.map = undefined;
+      }
+
+      // Clean up container if it still has Leaflet class (defensive)
+      if (mapElement.classList.contains('leaflet-container')) {
+        // Force cleanup of internal Leaflet ID if present, though this is internal API
+        // This helps when Angular reuses DOM elements or if remove() didn't clean up properly
+        const el = mapElement as any;
+        if (el._leaflet_id) {
+          el._leaflet_id = null;
+        }
       }
 
       this.map = L.map('map').setView(
@@ -172,7 +186,15 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
       this.mapInitialized = true;
       this.updateMapMarkers();
     } catch (error) {
-      // Silent fail
+      console.error('Error initializing map:', error);
+      // If map initialization failed, reset state so we can try again
+      this.mapInitialized = false;
+      if (this.map) {
+          try {
+            this.map.remove();
+          } catch (e) {}
+          this.map = undefined;
+      }
     }
   }
 
@@ -192,11 +214,21 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
           const icon = this.getBorneIcon(borne.etat);
           
           const marker = L.marker([borne.latitude, borne.longitude], { icon })
-            .addTo(this.map)
+            .addTo(this.map!)
             .bindPopup(this.createPopupContent(borne));
           
           marker.on('click', () => {
             this.onBorneSelect(borne);
+          });
+
+          marker.on('popupopen', () => {
+             const btn = document.getElementById(`btn-details-${borne.idBorne}`);
+             if (btn) {
+                 btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.ngZone.run(() => this.openBorneDetails(borne));
+                 });
+             }
           });
           
           this.markers.push(marker);
@@ -251,17 +283,49 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
         <p class="mb-1"><strong>Puissance:</strong> ${borne.puissance} kW</p>
         <p class="mb-1"><strong>Prix:</strong> ${prix}</p>
         <p class="mb-2"><strong>Distance:</strong> ${distance.toFixed(1)} km</p>
+        <button id="btn-details-${borne.idBorne}" class="btn btn-sm btn-primary w-100 mt-2" style="width: 100%; padding: 5px; background-color: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          Voir détails & Actions
+        </button>
       </div>
     `;
   }
 
-  searchBornes(): void {
+  async searchBornes(): Promise<void> {
+    this.loading = true;
+    this.errorMessage = '';
+
+    // If search query is present, try to geocode it first
+    if (this.searchQuery && this.searchQuery.trim().length > 2) {
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(this.searchQuery)}`);
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+          const newLat = parseFloat(data[0].lat);
+          const newLng = parseFloat(data[0].lon);
+          
+          this.userLocation = {
+            lat: newLat,
+            lng: newLng
+          };
+          
+          if (this.map) {
+            this.map.setView([newLat, newLng], 12);
+          }
+          
+          if (this.userMarker) {
+            this.userMarker.setLatLng([newLat, newLng]);
+            this.userMarker.bindPopup(`<strong>Position recherchée: ${this.searchQuery}</strong>`);
+          }
+        }
+      } catch (e) {
+        console.error('Erreur de géocodage', e);
+      }
+    }
+
     if (!this.userLocation) {
       return;
     }
-
-    this.loading = true;
-    this.errorMessage = '';
 
     this.borneService.getBornesProches(
       this.userLocation.lat,
@@ -297,13 +361,24 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
         return false;
       }
 
+      // Distance
+      if (this.userLocation && borne.latitude && borne.longitude) {
+        const dist = this.calculateDistance(borne.latitude, borne.longitude);
+        if (dist > this.distance) {
+          return false;
+        }
+      }
+
       // Price range
-      if (borne.prix && (borne.prix < this.prixMin || borne.prix > this.prixMax)) {
+      const pMin = Number(this.prixMin);
+      const pMax = Number(this.prixMax);
+      if (borne.prix !== undefined && (borne.prix < pMin || borne.prix > pMax)) {
         return false;
       }
 
       // Power
-      if (borne.puissance && borne.puissance < this.puissanceMin) {
+      const powMin = Number(this.puissanceMin);
+      if (borne.puissance !== undefined && borne.puissance < powMin) {
         return false;
       }
 
@@ -328,21 +403,37 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
   toggleView(): void {
     this.showMap = !this.showMap;
     
-    if (this.showMap && !this.mapInitialized && this.userLocation) {
-      setTimeout(() => this.initMap(), 100);
+    if (this.showMap) {
+      setTimeout(() => {
+        if (!this.mapInitialized) {
+          this.initMap();
+        } else if (this.map) {
+          this.map.invalidateSize();
+        }
+      }, 100);
     }
   }
 
   onBorneSelect(borne: Borne): void {
-    if (this.showMap && borne.latitude && borne.longitude && this.map) {
-      this.map.setView([borne.latitude, borne.longitude], 15);
-    } else {
+    if (!borne.latitude || !borne.longitude) return;
+
+    if (!this.showMap) {
       this.showMap = true;
       setTimeout(() => {
-        if (this.map && borne.latitude && borne.longitude) {
-          this.map.setView([borne.latitude, borne.longitude], 15);
+        if (!this.mapInitialized) {
+          this.initMap();
+        } else if (this.map) {
+          this.map.invalidateSize();
+        }
+        
+        if (this.map) {
+          this.map.setView([borne.latitude!, borne.longitude!], 15);
         }
       }, 200);
+    } else {
+      if (this.map) {
+        this.map.setView([borne.latitude, borne.longitude], 15);
+      }
     }
   }
 

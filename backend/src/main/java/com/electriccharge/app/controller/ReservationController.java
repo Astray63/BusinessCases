@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/reservations")
 public class ReservationController {
@@ -35,6 +38,17 @@ public class ReservationController {
         this.reservationService = reservationService;
         this.pdfReceiptService = pdfReceiptService;
         this.authenticationFacade = authenticationFacade;
+    }
+
+    @GetMapping("/filtrer")
+    public ResponseEntity<ApiResponse<?>> filtrer(
+            @RequestParam(required = false) String statut,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateDebut,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateFin,
+            @RequestParam(required = false) Long borneId,
+            @RequestParam(required = false) Long utilisateurId) {
+        List<ReservationDto> list = reservationService.filtrer(statut, dateDebut, dateFin, borneId, utilisateurId);
+        return ResponseEntity.ok(ApiResponse.success(list));
     }
 
     @PostMapping

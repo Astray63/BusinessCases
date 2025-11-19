@@ -70,6 +70,12 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<?>> handleAccessDeniedException(org.springframework.security.access.AccessDeniedException ex, WebRequest request) {
+        logger.warn("Access denied: {} - Request: {}", ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(ApiResponse.error("Accès refusé : Vous n'avez pas les permissions nécessaires"), HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(SecurityException.class)
     public ResponseEntity<ApiResponse<?>> handleSecurityException(SecurityException ex, WebRequest request) {
         logger.warn("Security exception: {} - Request: {}", ex.getMessage(), request.getDescription(false));

@@ -14,11 +14,11 @@ export class BorneService {
   constructor(private http: HttpClient) {}
 
   // Méthodes publiques
-  getBornesProches(latitude: number, longitude: number, rayon: number): Observable<ApiResponse<Borne[]>> {
+  getBornesProches(latitude: number, longitude: number, distance: number): Observable<ApiResponse<Borne[]>> {
     const params = new HttpParams()
       .set('latitude', latitude.toString())
       .set('longitude', longitude.toString())
-      .set('rayon', rayon.toString());
+      .set('distance', distance.toString());
     
     return this.http.get<ApiResponse<Borne[]>>(`${this.apiUrl}/proches`, { params });
   }

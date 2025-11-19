@@ -33,6 +33,21 @@ public class BorneController {
         }
     }
 
+    @GetMapping("/proches")
+    public ResponseEntity<ApiResponse<?>> getBornesProches(
+            @RequestParam Double latitude,
+            @RequestParam Double longitude,
+            @RequestParam Double distance) {
+        try {
+            List<ChargingStationDto> bornes = chargingStationService.getProches(latitude, longitude, distance);
+            return new ResponseEntity<>(ApiResponse.success(bornes),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> getBorneById(@PathVariable Long id) {
         try {
@@ -154,21 +169,6 @@ public class BorneController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/public/proches")
-    public ResponseEntity<ApiResponse<?>> getBornesProches(
-            @RequestParam Double latitude,
-            @RequestParam Double longitude,
-            @RequestParam Double distance) {
-        try {
-            List<ChargingStationDto> bornes = chargingStationService.getProches(latitude, longitude, distance);
-            return new ResponseEntity<>(ApiResponse.success(bornes),
-                    HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);

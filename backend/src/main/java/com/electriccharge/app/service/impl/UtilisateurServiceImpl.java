@@ -105,6 +105,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UtilisateurDto getUtilisateurById(Long id) {
         Utilisateur utilisateur = utilisateurRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "id", id));
@@ -112,6 +113,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UtilisateurDto> getAllUtilisateurs() {
         return utilisateurRepository.findAll().stream()
                 .map(this::mapToDto)
@@ -158,6 +160,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UtilisateurDto getUtilisateurByEmail(String email) {
         Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "email", email));
@@ -169,14 +172,11 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
     public UtilisateurDto getUtilisateurByPseudo(String pseudo) {
         Utilisateur utilisateur = utilisateurRepository.findByPseudo(pseudo)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "pseudo", pseudo));
-        // Force initialization of lazy-loaded collections
-        if (utilisateur.getMedias() != null) {
-            utilisateur.getMedias().size();
-        }
         return mapToDto(utilisateur);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UtilisateurDto> getUtilisateursWithVehicules() {
         return utilisateurRepository.findAll().stream()
                 .map(this::mapToDto)

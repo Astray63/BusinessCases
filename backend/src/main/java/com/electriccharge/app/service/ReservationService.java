@@ -23,5 +23,7 @@ public interface ReservationService {
     
     List<ReservationDto> getByOwner(Long ownerId);
 
+    List<ReservationDto> filtrer(String statut, java.time.LocalDateTime dateDebut, java.time.LocalDateTime dateFin, Long borneId, Long utilisateurId);
+
     List<ReservationDto> getAll();
 } 

@@ -1,7 +1,7 @@
 -- ========================================
 -- Insert sample lieux (addresses)
 -- ========================================
--- IMPORTANT: Assurez-vous d'être connecté à la base de données 'electricity_business' avant d'exécuter ce script
+-- IMPORTANT: Assurez-vous d'être connecté à la base de données 'electricity' avant d'exécuter ce script
 -- ========================================
 INSERT INTO lieu (adresse, nom, numero, rue, code_postal, ville, pays, region, latitude, longitude)
 VALUES
@@ -38,7 +38,16 @@ VALUES
 -- ========================================
 INSERT INTO utilisateur_lieu (utilisateur_id, lieu_id, type_adresse)
 VALUES
-((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), 1, 'principale');
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), 1, 'principale'),
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), 2, 'secondaire'),
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), 3, 'secondaire'),
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), 4, 'secondaire'),
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), 5, 'secondaire'),
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), 6, 'secondaire'),
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), 7, 'secondaire'),
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), 8, 'secondaire'),
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), 9, 'secondaire'),
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), 10, 'secondaire');
 
 -- ========================================
 -- Insert sample bornes (charging stations)

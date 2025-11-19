@@ -21,6 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.JoinType;
+import java.util.ArrayList;
+
 @Service
 @Transactional
 public class ReservationServiceImpl implements ReservationService {
@@ -221,6 +226,51 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional(readOnly = true)
     public List<ReservationDto> getByOwner(Long ownerId) {
         return mapper.toDtoList(reservationRepository.findByChargingStation_Owner_IdUtilisateur(ownerId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservationDto> filtrer(String statut, java.time.LocalDateTime dateDebut, java.time.LocalDateTime dateFin, Long borneId, Long utilisateurId) {
+        Specification<Reservation> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Fetch relations to avoid N+1
+            if (query.getResultType() != Long.class) {
+                root.fetch("utilisateur", JoinType.INNER);
+                var stationFetch = root.fetch("chargingStation", JoinType.INNER);
+                stationFetch.fetch("owner", JoinType.LEFT);
+                stationFetch.fetch("medias", JoinType.LEFT);
+            }
+
+            if (statut != null && !statut.isEmpty()) {
+                try {
+                    Reservation.EtatReservation etat = Reservation.EtatReservation.valueOf(statut);
+                    predicates.add(cb.equal(root.get("etat"), etat));
+                } catch (IllegalArgumentException e) {
+                    // Ignore
+                }
+            }
+
+            if (dateDebut != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("dateDebut"), dateDebut));
+            }
+
+            if (dateFin != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("dateFin"), dateFin));
+            }
+
+            if (borneId != null) {
+                predicates.add(cb.equal(root.get("chargingStation").get("idBorne"), borneId));
+            }
+
+            if (utilisateurId != null) {
+                predicates.add(cb.equal(root.get("utilisateur").get("idUtilisateur"), utilisateurId));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return mapper.toDtoList(reservationRepository.findAll(spec));
     }
 
     @Override

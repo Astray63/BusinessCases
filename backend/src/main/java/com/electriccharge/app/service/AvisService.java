@@ -48,6 +48,14 @@ public class AvisService {
     public List<AvisDto> getAvisByUser(Long userId) {
         log.info("Récupération des avis de l'utilisateur {}", userId);
         
+        if (userId == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String pseudo = authentication.getName();
+            Utilisateur utilisateur = utilisateurRepository.findByPseudo(pseudo)
+                    .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+            userId = utilisateur.getIdUtilisateur();
+        }
+        
         List<Avis> avisList = avisRepository.findByUtilisateurIdUtilisateurOrderByCreatedAtDesc(userId);
         
         return avisList.stream()
@@ -70,9 +78,9 @@ public class AvisService {
     @Transactional
     public AvisDto createAvis(CreateAvisDto createAvisDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        String pseudo = authentication.getName();
         
-        Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
+        Utilisateur utilisateur = utilisateurRepository.findByPseudo(pseudo)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         
         // Vérifier si l'utilisateur a déjà laissé un avis sur cette borne
@@ -103,9 +111,9 @@ public class AvisService {
     @Transactional
     public void deleteAvis(Long avisId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        String pseudo = authentication.getName();
         
-        Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
+        Utilisateur utilisateur = utilisateurRepository.findByPseudo(pseudo)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         
         Avis avis = avisRepository.findById(avisId)
