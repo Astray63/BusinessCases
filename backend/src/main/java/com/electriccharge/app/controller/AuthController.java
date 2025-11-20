@@ -43,15 +43,18 @@ public class AuthController {
     }
 
 
+// Endpoint /register désormais géré par RegisterServlet (Java SE pur)
+// Voir: com.electriccharge.app.servlet.RegisterServlet
+/*
 @PostMapping("/register")
 public ResponseEntity<ApiResponse<?>> register(@Valid @RequestBody RegisterRequestDto request) {
     try {
         UtilisateurDto nouveauUtilisateur = utilisateurService.creerUtilisateur(
-            request.getUtilisateur(), 
+            request.getUtilisateur(),
             request.getMotDePasse()
         );
         return new ResponseEntity<>(ApiResponse.success(
-            "Inscription réussie. Un code de vérification a été envoyé à votre adresse email.", 
+            "Inscription réussie. Un code de vérification a été envoyé à votre adresse email.",
             nouveauUtilisateur),
             HttpStatus.CREATED);
     } catch (Exception e) {
@@ -59,6 +62,7 @@ public ResponseEntity<ApiResponse<?>> register(@Valid @RequestBody RegisterReque
                 HttpStatus.BAD_REQUEST);
     }
 }
+*/
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<?>> login(@Valid @RequestBody AuthRequestDto authRequest) {

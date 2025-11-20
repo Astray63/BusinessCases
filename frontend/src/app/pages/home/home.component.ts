@@ -135,7 +135,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isLoggedIn) {
       this.router.navigate(['/dashboard']);
     } else {
-      this.router.navigate(['/auth/register']);
+      window.location.href = '/assets/auth/register.html';
     }
   }
 
