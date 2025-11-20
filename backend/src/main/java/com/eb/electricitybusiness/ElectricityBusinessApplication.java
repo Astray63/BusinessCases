@@ -9,9 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@ComponentScan(basePackages = {"com.eb.electricitybusiness", "com.electriccharge.app"})
-@EntityScan(basePackages = {"com.eb.electricitybusiness", "com.electriccharge.app"})
-@EnableJpaRepositories(basePackages = {"com.eb.electricitybusiness", "com.electriccharge.app"})
 public class ElectricityBusinessApplication {
 
     public static void main(String[] args) {

@@ -54,11 +54,11 @@ logging.level.org.hibernate=INFO
 logging.level.org.hibernate.SQL=DEBUG
 logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
 logging.level.com.eb.electricitybusiness=DEBUG
-logging.level.com.electriccharge.app=DEBUG
+logging.level.com.eb.electricitybusiness=DEBUG
 # Ajout pour debug Spring Security
 logging.level.org.springframework.security=DEBUG
 # Ajout pour debug EmailService
-logging.level.com.electriccharge.app.service.impl.EmailServiceImpl=DEBUG
+logging.level.com.eb.electricitybusiness.service.impl.EmailServiceImpl=DEBUG
 
 # Max file size for uploads
 spring.servlet.multipart.max-file-size=10MB

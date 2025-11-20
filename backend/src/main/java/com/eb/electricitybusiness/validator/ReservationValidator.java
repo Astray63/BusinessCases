@@ -1,0 +1,199 @@
+package com.eb.electricitybusiness.validator;
+
+import com.eb.electricitybusiness.dto.ReservationDto;
+import com.eb.electricitybusiness.model.ChargingStation;
+import com.eb.electricitybusiness.model.Reservation;
+import com.eb.electricitybusiness.repository.ReservationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+public class ReservationValidator {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReservationValidator.class);
+    private final ReservationRepository reservationRepository;
+
+    public ReservationValidator(ReservationRepository reservationRepository) {
+        this.reservationRepository = reservationRepository;
+    }
+
+    /**
+     * Validates dates in a reservation DTO
+     */
+    public ValidationResult validateDates(ReservationDto dto) {
+        List<String> errors = new ArrayList<>();
+
+        if (dto.getDateDebut() == null) {
+            errors.add("La date de début est obligatoire");
+        }
+
+        if (dto.getDateFin() == null) {
+            errors.add("La date de fin est obligatoire");
+        }
+
+        if (dto.getDateDebut() != null && dto.getDateFin() != null) {
+            if (!dto.getDateDebut().isBefore(dto.getDateFin())) {
+                errors.add("La date de début doit être antérieure à la date de fin");
+            }
+
+            if (dto.getDateDebut().isBefore(LocalDateTime.now())) {
+                errors.add("La date de début ne peut pas être dans le passé");
+            }
+        }
+
+        return errors.isEmpty() ? ValidationResult.success() : ValidationResult.failure(errors);
+    }
+
+    /**
+     * Validates that there are no conflicting reservations for the given station and time range
+     */
+    public ValidationResult validateNoConflicts(Long stationId, LocalDateTime dateDebut, LocalDateTime dateFin) {
+        return validateNoConflicts(stationId, dateDebut, dateFin, null);
+    }
+
+    /**
+     * Validates that there are no conflicting reservations for the given station and time range,
+     * excluding a specific reservation (useful for updates)
+     */
+    public ValidationResult validateNoConflicts(Long stationId, LocalDateTime dateDebut, LocalDateTime dateFin, Long excludeReservationId) {
+        var conflicts = reservationRepository.findConflictingReservations(stationId, dateDebut, dateFin);
+        
+        // Filter out the reservation being updated if applicable
+        if (excludeReservationId != null) {
+            conflicts = conflicts.stream()
+                    .filter(r -> !r.getNumeroReservation().equals(excludeReservationId))
+                    .toList();
+        }
+
+        if (!conflicts.isEmpty()) {
+            logger.debug("Found {} conflicting reservations for station {} between {} and {}", 
+                    conflicts.size(), stationId, dateDebut, dateFin);
+            return ValidationResult.failure("Conflit de réservation : la plage horaire est déjà réservée");
+        }
+
+        return ValidationResult.success();
+    }
+
+    /**
+     * Validates that a charging station is available for reservation
+     */
+    public ValidationResult validateStationAvailability(ChargingStation station) {
+        List<String> errors = new ArrayList<>();
+
+        if (station == null) {
+            errors.add("La borne de recharge n'existe pas");
+            return ValidationResult.failure(errors);
+        }
+
+        if (station.getEtat() == ChargingStation.Etat.EN_PANNE) {
+            errors.add("La borne est hors service");
+        }
+
+        if (station.getEtat() == ChargingStation.Etat.EN_MAINTENANCE) {
+            errors.add("La borne est en maintenance");
+        }
+
+        return errors.isEmpty() ? ValidationResult.success() : ValidationResult.failure(errors);
+    }
+
+    /**
+     * Validates that a user is authorized to perform an action on a reservation
+     */
+    public ValidationResult validateUserAuthorization(Reservation reservation, Long userId, String action) {
+        if (reservation.getUtilisateur() == null) {
+            return ValidationResult.failure("La réservation n'a pas d'utilisateur associé");
+        }
+
+        if (!reservation.getUtilisateur().getIdUtilisateur().equals(userId)) {
+            return ValidationResult.failure("Vous n'êtes pas autorisé à " + action + " cette réservation");
+        }
+
+        return ValidationResult.success();
+    }
+
+    /**
+     * Validates that an owner is authorized to perform an action on a reservation
+     */
+    public ValidationResult validateOwnerAuthorization(Reservation reservation, Long ownerId, String action) {
+        if (reservation.getChargingStation() == null || reservation.getChargingStation().getOwner() == null) {
+            return ValidationResult.failure("La réservation n'a pas de propriétaire de borne associé");
+        }
+
+        if (!reservation.getChargingStation().getOwner().getIdUtilisateur().equals(ownerId)) {
+            return ValidationResult.failure("Vous n'êtes pas autorisé à " + action + " cette réservation");
+        }
+
+        return ValidationResult.success();
+    }
+
+    /**
+     * Validates that a reservation can be accepted
+     */
+    public ValidationResult validateCanBeAccepted(Reservation reservation) {
+        if (reservation.getEtat() != Reservation.EtatReservation.EN_ATTENTE) {
+            return ValidationResult.failure("Seules les réservations en attente peuvent être acceptées");
+        }
+        return ValidationResult.success();
+    }
+
+    /**
+     * Validates that a reservation can be refused
+     */
+    public ValidationResult validateCanBeRefused(Reservation reservation) {
+        if (reservation.getEtat() != Reservation.EtatReservation.EN_ATTENTE) {
+            return ValidationResult.failure("Seules les réservations en attente peuvent être refusées");
+        }
+        return ValidationResult.success();
+    }
+
+    /**
+     * Validates that a reservation can be cancelled
+     */
+    public ValidationResult validateCanBeCancelled(Reservation reservation) {
+        if (reservation.getEtat() == Reservation.EtatReservation.TERMINEE) {
+            return ValidationResult.failure("Une réservation terminée ne peut pas être annulée");
+        }
+        if (reservation.getEtat() == Reservation.EtatReservation.ANNULEE) {
+            return ValidationResult.failure("Cette réservation est déjà annulée");
+        }
+        return ValidationResult.success();
+    }
+
+    /**
+     * Validates a complete reservation creation request
+     */
+    public ValidationResult validateReservationCreation(ReservationDto dto, ChargingStation station) {
+        List<String> allErrors = new ArrayList<>();
+
+        // Validate dates
+        ValidationResult dateValidation = validateDates(dto);
+        if (!dateValidation.isValid()) {
+            allErrors.addAll(dateValidation.getErrors());
+        }
+
+        // Validate station availability
+        ValidationResult stationValidation = validateStationAvailability(station);
+        if (!stationValidation.isValid()) {
+            allErrors.addAll(stationValidation.getErrors());
+        }
+
+        // Validate no conflicts (only if dates are valid)
+        if (dateValidation.isValid() && dto.getChargingStationId() != null) {
+            ValidationResult conflictValidation = validateNoConflicts(
+                    dto.getChargingStationId(), 
+                    dto.getDateDebut(), 
+                    dto.getDateFin()
+            );
+            if (!conflictValidation.isValid()) {
+                allErrors.addAll(conflictValidation.getErrors());
+            }
+        }
+
+        return allErrors.isEmpty() ? ValidationResult.success() : ValidationResult.failure(allErrors);
+    }
+}
