@@ -6,13 +6,6 @@
       <div class="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
         <!-- Text Content -->
         <div class="w-full mx-auto lg:mx-0">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-sm font-medium mb-6">
-            <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-            </span>
-            L'avenir de la mobilité
-          </div>
           
           <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 mb-6 leading-[1.1]">
             Rechargez votre <br>
@@ -31,15 +24,6 @@
             <a href="/assets/auth/register.html" class="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-gray-900 transition-all duration-200 bg-white border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 hover:-translate-y-1">
               Créer un compte
             </a>
-          </div>
-
-          <div class="mt-10 flex items-center gap-4 text-sm text-gray-500">
-            <div class="flex -space-x-2">
-              <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=64&h=64" alt=""/>
-              <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=64&h=64" alt=""/>
-              <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=64&h=64" alt=""/>
-            </div>
-            <p>Rejoint par +10k utilisateurs</p>
           </div>
         </div>
 
@@ -177,12 +161,19 @@
                 [borne]="borne"
                 [userLocation]="userLocation"
                 (reserve)="navigateToReservation(borne)"
-                (viewOnMap)="centerMapOnBorne(borne)">
+                (viewOnMap)="centerMapOnBorne(borne)"
+                (viewDetails)="openBorneDetails(borne)">
               </app-borne-card>
             }
           </div>
         </div>
       }
+      
+      <app-borne-details-modal
+        [borne]="selectedBorne"
+        [isOpen]="isModalOpen"
+        (closeModal)="closeBorneDetails()">
+      </app-borne-details-modal>
     </div>
   </section>
 

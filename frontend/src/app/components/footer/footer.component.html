@@ -1,40 +1,43 @@
-<footer class="bg-gray-800 text-gray-100 pt-12 pb-4">
-  <div class="w-full px-6 lg:px-12 xl:px-20">
-    <div class="flex flex-wrap justify-between mb-8">
-      <div class="flex-1 px-4 mb-8 min-w-[300px]">
-        <h2 class="text-2xl mb-4 text-blue-400 font-bold">Electricity Business</h2>
-        <p class="mb-4 leading-relaxed">
-          Plateforme de mise en relation entre propriétaires de bornes de recharge 
-          et conducteurs de véhicules électriques.
+<footer class="bg-slate-900 text-slate-300 py-12 border-t border-slate-800">
+  <div class="container mx-auto px-6">
+    <div class="flex flex-col md:flex-row justify-between gap-12 mb-12">
+      <!-- Brand -->
+      <div class="max-w-sm">
+        <div class="flex items-center gap-3 mb-6">
+          <img src="assets/logo.png" alt="Electricity Business Logo" class="h-12 w-auto rounded-xl shadow-lg shadow-blue-900/20">
+          <span class="text-2xl font-bold text-white tracking-tight">Electricity Business</span>
+        </div>
+        <p class="text-slate-400 text-sm leading-relaxed mb-6">
+          La solution intelligente pour la recharge de véhicules électriques. 
+          Connectez-vous à un réseau grandissant de bornes partagées.
         </p>
-        <div class="flex flex-col">
-          <span class="mb-2"><i class="fa fa-phone"></i> &nbsp; +33 123 456 789</span>
-          <span class="mb-2"><i class="fa fa-envelope"></i> &nbsp; contact&#64;electricity-business.com</span>
+      </div>
+
+      <!-- Links -->
+      <div class="flex flex-wrap gap-12 md:gap-24">
+        <div>
+          <h3 class="text-white font-semibold mb-6">Navigation</h3>
+          <ul class="space-y-4">
+            <li><a routerLink="/" class="text-slate-400 hover:text-blue-400 transition-colors text-sm">Accueil</a></li>
+            <li><a routerLink="/client/recherche" class="text-slate-400 hover:text-blue-400 transition-colors text-sm">Trouver une borne</a></li>
+            <li><a routerLink="/dashboard" class="text-slate-400 hover:text-blue-400 transition-colors text-sm">Tableau de bord</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-white font-semibold mb-6">Espace Membre</h3>
+          <ul class="space-y-4">
+            <li><a routerLink="/auth/login" class="text-slate-400 hover:text-blue-400 transition-colors text-sm">Connexion</a></li>
+            <li><a routerLink="/auth/register" class="text-slate-400 hover:text-blue-400 transition-colors text-sm">Inscription</a></li>
+          </ul>
         </div>
       </div>
-      
-      <div class="flex-1 px-4 mb-8 min-w-[300px]">
-        <h2 class="mb-6 text-xl text-blue-400">Liens Rapides</h2>
-        <ul class="list-none p-0">
-          <li class="mb-3"><a routerLink="/" class="text-gray-100 no-underline transition-colors duration-300 hover:text-blue-400">Accueil</a></li>
-          <li class="mb-3"><a routerLink="/client/recherche" class="text-gray-100 no-underline transition-colors duration-300 hover:text-blue-400">Trouver une borne</a></li>
-          <li class="mb-3"><a routerLink="/auth/login" class="text-gray-100 no-underline transition-colors duration-300 hover:text-blue-400">Connexion</a></li>
-          <li class="mb-3"><a href="/assets/auth/register.html" class="text-gray-100 no-underline transition-colors duration-300 hover:text-blue-400">Inscription</a></li>
-        </ul>
-      </div>
-      
-      <div class="flex-1 px-4 mb-8 min-w-[300px]">
-        <h2 class="mb-6 text-xl text-blue-400">Contactez-nous</h2>
-        <form>
-          <input type="email" name="email" class="w-full p-3 mb-4 border-none rounded bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400" placeholder="Votre email">
-          <textarea name="message" class="w-full p-3 mb-4 border-none rounded bg-gray-700 text-gray-100 min-h-[100px] resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-400" placeholder="Votre message..."></textarea>
-          <button type="submit" class="bg-blue-500 text-white border-none rounded px-6 py-3 cursor-pointer transition-colors duration-300 hover:bg-blue-600">Envoyer</button>
-        </form>
-      </div>
     </div>
-    
-    <div class="text-center pt-4 border-t border-gray-700">
-      <p class="text-sm">&copy; {{ currentYear }} Electricity Business. Tous droits réservés.</p>
+
+    <!-- Bottom -->
+    <div class="pt-8 border-t border-slate-800 flex justify-center items-center">
+      <p class="text-slate-500 text-sm">
+        &copy; {{ currentYear }} Electricity Business. Tous droits réservés.
+      </p>
     </div>
   </div>
 </footer> 

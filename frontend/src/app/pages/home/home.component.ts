@@ -18,6 +18,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   bornesPubliques: Borne[] = [];
   isLoading = false;
   userLocation: GeolocationPosition | null = null;
+  selectedBorne: Borne | null = null;
+  isModalOpen = false;
 
   constructor(
     private authService: AuthService,
@@ -154,4 +156,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
   }
-} 
+
+  openBorneDetails(borne: Borne): void {
+    this.selectedBorne = borne;
+    this.isModalOpen = true;
+  }
+
+  closeBorneDetails(): void {
+    this.isModalOpen = false;
+    this.selectedBorne = null;
+  }
+}
