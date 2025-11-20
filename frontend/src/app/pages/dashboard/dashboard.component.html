@@ -327,9 +327,13 @@
       @for (borne of recentBornes; track borne.idBorne) {
       <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
         <div class="flex items-start gap-4">
-          <div class="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
-            <i class="bi bi-lightning-charge-fill text-2xl text-white"></i>
-          </div>
+          @if (borne.medias && borne.medias.length > 0) {
+            <img [src]="borne.medias[0]" alt="{{ borne.nom }}" class="w-14 h-14 rounded-lg object-cover shadow-md flex-shrink-0">
+          } @else {
+            <div class="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
+              <i class="bi bi-lightning-charge-fill text-2xl text-white"></i>
+            </div>
+          }
           <div class="flex-1">
             <h3 class="text-xl font-bold text-gray-900 mb-3">{{ borne.nom }}</h3>
             <div class="space-y-2 mb-4">
@@ -357,11 +361,6 @@
                       class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
                 <i class="bi bi-pencil-fill"></i>
                 Modifier
-              </button>
-              <button (click)="parametresBorne(borne)" 
-                      class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
-                <i class="bi bi-gear-fill"></i>
-                Paramètres
               </button>
               <button (click)="supprimerBorne(borne)" 
                       class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">

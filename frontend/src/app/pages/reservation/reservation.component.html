@@ -37,17 +37,7 @@
         (click)="changerTab('passees')">
         <i class="bi bi-archive mr-2"></i>Passées <span class="ml-1">({{ reservationsPassees.length }})</span>
       </button>
-      @if (isProprietaire) {
-        <button 
-          class="px-4 py-2.5 rounded-md text-sm font-medium transition-colors duration-200"
-          [class.bg-blue-600]="activeTab === 'proprietaire'"
-          [class.text-white]="activeTab === 'proprietaire'"
-          [class.text-gray-700]="activeTab !== 'proprietaire'"
-          [class.hover:bg-gray-100]="activeTab !== 'proprietaire'"
-          (click)="changerTab('proprietaire')">
-          <i class="bi bi-building mr-2"></i>Mes bornes <span class="ml-1">({{ reservationsProprietaire.length }})</span>
-        </button>
-      }
+
     </div>
 
     <!-- Contenu des onglets -->
@@ -620,6 +610,8 @@
           </div>
         </div>
       }
+
+
     </div>
   </div>
 </div>

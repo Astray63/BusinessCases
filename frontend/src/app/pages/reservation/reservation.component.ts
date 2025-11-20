@@ -27,12 +27,11 @@ export class ReservationComponent implements OnInit {
   reservations: Reservation[] = [];
   reservationsEnCours: Reservation[] = [];
   reservationsPassees: Reservation[] = [];
-  reservationsProprietaire: Reservation[] = [];
   
   // UI State
   isLoading = false;
-  activeTab: 'nouvelle' | 'en-cours' | 'passees' | 'proprietaire' = 'nouvelle';
-  isProprietaire = false;
+  activeTab: 'nouvelle' | 'en-cours' | 'passees' = 'nouvelle';
+
   selectedBorne: Borne | null = null;
   currentPhotoIndex = 0;
   
@@ -68,7 +67,7 @@ export class ReservationComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.checkIfProprietaire();
+
     this.loadBornes();
     this.loadReservations();
     
@@ -132,29 +131,10 @@ export class ReservationComponent implements OnInit {
       }
     });
 
-    // Si propriétaire, charger aussi les réservations de ses bornes
-    if (this.isProprietaire) {
-      this.reservationService.getReservationsProprietaire(currentUser.idUtilisateur).subscribe({
-        next: (response: ApiResponse<Reservation[]>) => {
-          this.reservationsProprietaire = response.data || [];
-        },
-        error: (err: any) => this.toastService.showError('Erreur lors du chargement des réservations propriétaire')
-      });
-    }
+
   }
 
-  checkIfProprietaire(): void {
-    const currentUser = this.authService.getCurrentUser();
-    if (!currentUser) return;
 
-    // Vérifier si l'utilisateur possède des bornes
-    this.borneService.getBornesByUtilisateur(currentUser.idUtilisateur).subscribe({
-      next: (response: ApiResponse<Borne[]>) => {
-        this.isProprietaire = (response.data && response.data.length > 0) || false;
-      },
-      error: () => this.isProprietaire = false
-    });
-  }
 
   categoriserReservations(): void {
     const maintenant = new Date();
@@ -264,41 +244,7 @@ export class ReservationComponent implements OnInit {
     });
   }
 
-  // Accepter une réservation (propriétaire)
-  accepterReservation(reservationId: number): void {
-    const currentUser = this.authService.getCurrentUser();
-    if (!currentUser) return;
 
-    this.reservationService.accepterReservation(reservationId, currentUser.idUtilisateur).subscribe({
-      next: (response: ApiResponse<Reservation>) => {
-        this.toastService.showSuccess('Réservation acceptée avec succès');
-        this.loadReservations();
-      },
-      error: (err: any) => {
-        const errorMsg = err.error?.message || 'Erreur lors de l\'acceptation';
-        this.toastService.showError(errorMsg);
-      }
-    });
-  }
-
-  // Refuser une réservation (propriétaire)
-  refuserReservation(reservationId: number): void {
-    const motif = prompt('Motif du refus (optionnel) :');
-    
-    const currentUser = this.authService.getCurrentUser();
-    if (!currentUser) return;
-
-    this.reservationService.refuserReservation(reservationId, currentUser.idUtilisateur, motif || undefined).subscribe({
-      next: (response: ApiResponse<Reservation>) => {
-        this.toastService.showSuccess('Réservation refusée');
-        this.loadReservations();
-      },
-      error: (err: any) => {
-        const errorMsg = err.error?.message || 'Erreur lors du refus';
-        this.toastService.showError(errorMsg);
-      }
-    });
-  }
 
   // Télécharger le reçu PDF
   telechargerRecu(reservationId: number): void {
@@ -458,7 +404,7 @@ export class ReservationComponent implements OnInit {
   }
 
   // Changer d'onglet
-  changerTab(tab: 'nouvelle' | 'en-cours' | 'passees' | 'proprietaire'): void {
+  changerTab(tab: 'nouvelle' | 'en-cours' | 'passees'): void {
     this.activeTab = tab;
   }
 

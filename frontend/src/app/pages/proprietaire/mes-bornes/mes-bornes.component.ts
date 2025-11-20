@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { BorneService } from '../../../services/borne.service';
 import { LieuService } from '../../../services/lieu.service';
@@ -34,6 +34,7 @@ export class MesBornesComponent implements OnInit {
     private borneService: BorneService,
     private lieuService: LieuService,
     private router: Router,
+    private route: ActivatedRoute,
     private fb: FormBuilder,
     private toastService: ToastService
   ) {
@@ -77,6 +78,18 @@ export class MesBornesComponent implements OnInit {
       next: (response: any) => {
         if (response.result === 'SUCCESS' && response.data) {
           this.mesBornes = response.data;
+          
+          // Vérifier s'il y a une demande d'édition via les query params
+          this.route.queryParams.subscribe(params => {
+            if (params['edit']) {
+              const borneId = parseInt(params['edit'], 10);
+              const borneToEdit = this.mesBornes.find(b => b.idBorne === borneId);
+              if (borneToEdit) {
+                // Petit délai pour s'assurer que tout est chargé
+                setTimeout(() => this.ouvrirModalModification(borneToEdit), 100);
+              }
+            }
+          });
         }
         this.isLoading = false;
       },
@@ -220,18 +233,35 @@ export class MesBornesComponent implements OnInit {
 
   async soumettreBorne(): Promise<void> {
     if (this.borneForm.invalid || !this.currentUser) return;
-    
+
     this.isLoading = true;
     const formData = this.borneForm.value;
-    
+
     // Convertir l'ID du lieu en nombre
     const lieuId = typeof formData.lieu === 'string' ? parseInt(formData.lieu, 10) : formData.lieu;
-    
+
     // Récupérer le lieu sélectionné
     const lieuSelectionne = this.mesLieux.find(l => l.idLieu === lieuId);
-    
+
     if (!lieuSelectionne) {
       this.toastService.showError('Veuillez sélectionner un lieu valide');
+      this.isLoading = false;
+      return;
+    }
+
+    // Valider les coordonnées GPS (ne pas accepter 0,0)
+    const latitude = parseFloat(formData.latitude);
+    const longitude = parseFloat(formData.longitude);
+
+    if (!latitude || !longitude || (latitude === 0 && longitude === 0)) {
+      this.toastService.showError('Veuillez renseigner les coordonnées GPS valides de la borne');
+      this.isLoading = false;
+      return;
+    }
+
+    // Vérifier que les coordonnées sont dans une plage raisonnable
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      this.toastService.showError('Les coordonnées GPS sont invalides');
       this.isLoading = false;
       return;
     }
@@ -245,8 +275,8 @@ export class MesBornesComponent implements OnInit {
       nom: formData.nom || `${lieuSelectionne.nom} - Type 2S`,
       localisation: formData.localisation,
       address: `${formData.ville}`, // Utiliser la ville du formulaire
-      latitude: parseFloat(formData.latitude) || 0,
-      longitude: parseFloat(formData.longitude) || 0,
+      latitude: latitude,
+      longitude: longitude,
       type: 'NORMALE', // Type calculé basé sur la puissance (gardé pour compatibilité)
       connectorType: '2S', // Toujours Type 2S
       puissance: parseFloat(formData.puissance),

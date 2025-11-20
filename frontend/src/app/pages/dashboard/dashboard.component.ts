@@ -421,13 +421,7 @@ export class DashboardComponent implements OnInit {
 
   modifierBorne(borne: Borne): void {
     if (borne.idBorne) {
-      this.router.navigate(['/proprietaire/mes-bornes', borne.idBorne, 'edit']);
-    }
-  }
-
-  parametresBorne(borne: Borne): void {
-    if (borne.idBorne) {
-      this.router.navigate(['/proprietaire/mes-bornes', borne.idBorne, 'parametres']);
+      this.router.navigate(['/proprietaire/mes-bornes'], { queryParams: { edit: borne.idBorne } });
     }
   }
 
