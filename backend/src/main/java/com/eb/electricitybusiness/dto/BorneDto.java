@@ -35,7 +35,7 @@ public class BorneDto {
 
     private List<String> medias;
     private String instructionSurPied;
-    private String connectorType = "2S"; // Valeur fixe, non modifiable
+    // private String connectorType = "2S"; // Valeur fixe, non modifiable
     private String description;
 
     @NotBlank(message = "L'état est obligatoire")
@@ -132,7 +132,7 @@ public class BorneDto {
 
     public void setConnectorType(String connectorType) {
         // Ignorer toute valeur passée, toujours forcer à "2S"
-        this.connectorType = "2S";
+        // this.connectorType = "2S";
     }
 
     public String getDescription() {

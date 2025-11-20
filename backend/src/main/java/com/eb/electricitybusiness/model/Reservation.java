@@ -3,7 +3,9 @@ package com.eb.electricitybusiness.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -53,13 +55,19 @@ public class Reservation {
     // Relations
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_utilisateur", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Utilisateur utilisateur;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "charging_station_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private ChargingStation chargingStation;
     
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Signalement> signalements;
     
     public enum EtatReservation {

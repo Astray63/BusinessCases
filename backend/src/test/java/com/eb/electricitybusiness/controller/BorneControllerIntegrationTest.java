@@ -178,12 +178,65 @@ class BorneControllerIntegrationTest {
 
     @Test
     void whenGetBornesProches_thenReturnNearbyStations() throws Exception {
-        mockMvc.perform(get("/bornes/public/proches")
+        mockMvc.perform(get("/bornes/proches")
                 .param("latitude", "45.0")
                 .param("longitude", "5.0")
                 .param("distance", "10.0"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value("SUCCESS"))
                 .andExpect(jsonPath("$.data").isArray());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void whenUpdateBorne_thenReturnUpdatedBorne() throws Exception {
+        // Arrange
+        ChargingStationDto dto = new ChargingStationDto();
+        dto.setNom("Updated Borne Name");
+        dto.setNumero("B001-UPDATED");
+        dto.setLocalisation("Updated Location");
+        dto.setLatitude(45.1);
+        dto.setLongitude(5.1);
+        dto.setPuissance(22);
+        dto.setEtat("DISPONIBLE");
+        dto.setOccupee(false);
+        dto.setPrixALaMinute(new BigDecimal("3.00"));
+        dto.setConnectorType("2S");
+        dto.setDescription("Updated description");
+        dto.setAddress("Updated Address");
+        dto.setHourlyRate(new BigDecimal("18.00"));
+        dto.setOwnerId(testAdmin.getIdUtilisateur());
+
+        // Act & Assert
+        mockMvc.perform(put("/bornes/" + testBorne.getIdBorne())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result").value("SUCCESS"))
+                .andExpect(jsonPath("$.data.nom").value("Updated Borne Name"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void whenDeleteBorne_thenReturnSuccess() throws Exception {
+        mockMvc.perform(delete("/bornes/" + testBorne.getIdBorne()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result").value("SUCCESS"));
+        
+        // Verify it's gone
+        assertFalse(chargingStationRepository.existsById(testBorne.getIdBorne()));
+    }
+
+    @Test
+    @WithMockUser
+    void whenSearchBornes_thenReturnFilteredResults() throws Exception {
+        mockMvc.perform(get("/bornes/search")
+                .param("prixMax", "20.00")
+                .param("puissanceMin", "20")
+                .param("etat", "DISPONIBLE"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result").value("SUCCESS"))
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data[0].id").value(testBorne.getIdBorne()));
     }
 }

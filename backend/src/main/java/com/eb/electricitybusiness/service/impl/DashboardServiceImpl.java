@@ -10,7 +10,6 @@ import com.eb.electricitybusiness.model.ChargingStation;
 import com.eb.electricitybusiness.model.Reservation;
 import com.eb.electricitybusiness.repository.ChargingStationRepository;
 import com.eb.electricitybusiness.repository.ReservationRepository;
-import com.eb.electricitybusiness.repository.UtilisateurRepository;
 import com.eb.electricitybusiness.service.ChargingStationService;
 import com.eb.electricitybusiness.service.DashboardService;
 import com.eb.electricitybusiness.service.ReservationService;
@@ -33,19 +32,19 @@ public class DashboardServiceImpl implements DashboardService {
 
     private final ReservationRepository reservationRepository;
     private final ChargingStationRepository chargingStationRepository;
-    private final UtilisateurRepository utilisateurRepository;
+    // private final UtilisateurRepository utilisateurRepository;
     private final ReservationService reservationService;
     private final ChargingStationService chargingStationService;
 
     public DashboardServiceImpl(
             ReservationRepository reservationRepository,
             ChargingStationRepository chargingStationRepository,
-            UtilisateurRepository utilisateurRepository,
+            // UtilisateurRepository utilisateurRepository,
             ReservationService reservationService,
             ChargingStationService chargingStationService) {
         this.reservationRepository = reservationRepository;
         this.chargingStationRepository = chargingStationRepository;
-        this.utilisateurRepository = utilisateurRepository;
+        // this.utilisateurRepository = utilisateurRepository;
         this.reservationService = reservationService;
         this.chargingStationService = chargingStationService;
     }

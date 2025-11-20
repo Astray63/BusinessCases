@@ -2,7 +2,6 @@ package com.eb.electricitybusiness.controller;
 
 import com.eb.electricitybusiness.dto.ApiResponse;
 import com.eb.electricitybusiness.dto.AuthRequestDto;
-import com.eb.electricitybusiness.dto.RegisterRequestDto;
 import com.eb.electricitybusiness.dto.UtilisateurDto;
 import com.eb.electricitybusiness.dto.VerifyEmailRequestDto;
 import com.eb.electricitybusiness.dto.ResendVerificationRequestDto;

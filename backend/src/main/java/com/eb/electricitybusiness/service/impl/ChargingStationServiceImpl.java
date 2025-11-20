@@ -47,6 +47,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     public ChargingStationDto create(ChargingStationDto dto) {
         ChargingStation station = new ChargingStation();
         updateStationFromDto(station, dto);
+        @SuppressWarnings("null")
         ChargingStation savedStation = chargingStationRepository.save(station);
         return convertToDto(savedStation);
     }
@@ -54,9 +55,11 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional
     public ChargingStationDto update(Long id, ChargingStationDto dto) {
+        @SuppressWarnings("null")
         ChargingStation station = chargingStationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
         updateStationFromDto(station, dto);
+        @SuppressWarnings("null")
         ChargingStation updatedStation = chargingStationRepository.save(station);
         return convertToDto(updatedStation);
     }
@@ -78,6 +81,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         station.setAddress(dto.getAddress());
         station.setHourlyRate(dto.getHourlyRate());
         
+        @SuppressWarnings("null")
         Utilisateur owner = utilisateurRepository.findById(dto.getOwnerId())
                 .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé avec l'id " + dto.getOwnerId()));
         station.setOwner(owner);
@@ -95,6 +99,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional(readOnly = true)
     public ChargingStationDto getById(Long id) {
+        @SuppressWarnings("null")
         ChargingStation station = chargingStationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
         return convertToDto(station);
@@ -157,7 +162,8 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Transactional
     public void delete(Long id) {
         // Vérifier si la borne existe
-        chargingStationRepository.findById(id)
+        @SuppressWarnings("null")
+        ChargingStation station = chargingStationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
         
         // Vérifier s'il y a des réservations actives
@@ -165,7 +171,9 @@ public class ChargingStationServiceImpl implements ChargingStationService {
             throw new IllegalStateException("Impossible de supprimer la borne : des réservations actives existent pour cette borne");
         }
         
-        chargingStationRepository.deleteById(id);
+        @SuppressWarnings("null")
+        Long idToDelete = id;
+        chargingStationRepository.deleteById(idToDelete);
     }
 
     @Override
@@ -180,6 +188,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional
     public ChargingStationDto toggleOccupation(Long id, Boolean occupee) {
+        @SuppressWarnings("null")
         ChargingStation station = chargingStationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
         station.setOccupee(occupee);
@@ -191,6 +200,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional
     public ChargingStationDto changerEtat(Long id, String nouvelEtat) {
+        @SuppressWarnings("null")
         ChargingStation station = chargingStationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
         station.setEtat(parseEtat(nouvelEtat));
@@ -331,6 +341,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Transactional
     public List<String> uploadPhotos(Long borneId, MultipartFile[] photos) throws Exception {
         
+        @SuppressWarnings("null")
         ChargingStation station = chargingStationRepository.findById(borneId)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + borneId));
         
@@ -407,6 +418,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional
     public void deletePhoto(Long borneId, String photoUrl) throws Exception {
+        @SuppressWarnings("null")
         ChargingStation station = chargingStationRepository.findById(borneId)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + borneId));
         

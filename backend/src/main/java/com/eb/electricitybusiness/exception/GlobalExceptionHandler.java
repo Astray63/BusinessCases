@@ -23,7 +23,9 @@ public class GlobalExceptionHandler {
 
     public static ResponseEntity<ApiResponse<?>> errorResponseEntity(String message, HttpStatus status) {
         ApiResponse<?> response = new ApiResponse<>("ERROR", message, null);
-        return new ResponseEntity<>(response, status);
+        @SuppressWarnings("null")
+        ResponseEntity<ApiResponse<?>> entity = new ResponseEntity<>(response, status);
+        return entity;
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)

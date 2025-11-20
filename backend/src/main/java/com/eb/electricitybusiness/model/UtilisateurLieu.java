@@ -3,7 +3,9 @@ package com.eb.electricitybusiness.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 
@@ -18,11 +20,15 @@ public class UtilisateurLieu {
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Utilisateur utilisateur;
     
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lieu_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Lieu lieu;
     
     @Id

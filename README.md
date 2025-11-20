@@ -126,10 +126,6 @@ The frontend application will be available at `http://localhost:4200`
    psql -U postgres -f database/sample_data.sql
    ```
 
-## API Documentation
-
-The API documentation is available at `http://localhost:8080/api/swagger-ui/` when the backend is running.
-
 ## Development Guidelines
 
 ### Backend Development

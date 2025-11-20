@@ -84,11 +84,14 @@ public class AvisService {
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         
         // Vérifier si l'utilisateur a déjà laissé un avis sur cette borne
-        if (avisRepository.existsByUtilisateurIdUtilisateurAndChargingStationIdBorne(
-                utilisateur.getIdUtilisateur(), createAvisDto.getChargingStationId())) {
+        @SuppressWarnings("null")
+        boolean exists = avisRepository.existsByUtilisateurIdUtilisateurAndChargingStationIdBorne(
+                utilisateur.getIdUtilisateur(), createAvisDto.getChargingStationId());
+        if (exists) {
             throw new RuntimeException("Vous avez déjà laissé un avis sur cette borne");
         }
         
+        @SuppressWarnings("null")
         ChargingStation chargingStation = chargingStationRepository.findById(createAvisDto.getChargingStationId())
                 .orElseThrow(() -> new RuntimeException("Borne non trouvée"));
         
@@ -116,6 +119,7 @@ public class AvisService {
         Utilisateur utilisateur = utilisateurRepository.findByPseudo(pseudo)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         
+        @SuppressWarnings("null")
         Avis avis = avisRepository.findById(avisId)
                 .orElseThrow(() -> new RuntimeException("Avis non trouvé"));
         

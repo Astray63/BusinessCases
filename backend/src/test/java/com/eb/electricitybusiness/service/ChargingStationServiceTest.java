@@ -5,6 +5,7 @@ import com.eb.electricitybusiness.model.ChargingStation;
 import com.eb.electricitybusiness.model.Utilisateur;
 import com.eb.electricitybusiness.repository.ChargingStationRepository;
 import com.eb.electricitybusiness.repository.UtilisateurRepository;
+import com.eb.electricitybusiness.repository.ReservationRepository;
 import com.eb.electricitybusiness.service.impl.ChargingStationServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,9 @@ class ChargingStationServiceTest {
 
     @Mock
     private UtilisateurRepository utilisateurRepository;
+
+    @Mock
+    private ReservationRepository reservationRepository;
 
     @InjectMocks
     private ChargingStationServiceImpl chargingStationService;
@@ -180,5 +184,114 @@ class ChargingStationServiceTest {
         assertNotNull(result);
         assertTrue(result.getOccupee());
         verify(chargingStationRepository, times(1)).save(any(ChargingStation.class));
+    }
+
+    @Test
+    void update_ValidIdAndDto_ReturnsUpdatedStation() {
+        // Arrange
+        Long id = 1L;
+        ChargingStationDto dto = new ChargingStationDto();
+        dto.setNom("Updated Station");
+        dto.setOwnerId(1L);
+
+        ChargingStation existingStation = new ChargingStation();
+        existingStation.setIdBorne(id);
+        existingStation.setNom("Old Station");
+
+        Utilisateur owner = new Utilisateur();
+        owner.setIdUtilisateur(1L);
+
+        when(chargingStationRepository.findById(id)).thenReturn(Optional.of(existingStation));
+        when(utilisateurRepository.findById(1L)).thenReturn(Optional.of(owner));
+        when(chargingStationRepository.save(any(ChargingStation.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        // Act
+        ChargingStationDto result = chargingStationService.update(id, dto);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Updated Station", result.getNom());
+        verify(chargingStationRepository, times(1)).save(any(ChargingStation.class));
+    }
+
+    @Test
+    void delete_ValidId_DeletesStation() {
+        // Arrange
+        Long id = 1L;
+        ChargingStation station = new ChargingStation();
+        station.setIdBorne(id);
+
+        when(chargingStationRepository.findById(id)).thenReturn(Optional.of(station));
+        when(reservationRepository.hasActiveReservations(id)).thenReturn(false);
+
+        // Act
+        chargingStationService.delete(id);
+
+        // Assert
+        verify(chargingStationRepository, times(1)).deleteById(id);
+    }
+
+    @Test
+    void delete_ActiveReservations_ThrowsIllegalStateException() {
+        // Arrange
+        Long id = 1L;
+        ChargingStation station = new ChargingStation();
+        station.setIdBorne(id);
+
+        when(chargingStationRepository.findById(id)).thenReturn(Optional.of(station));
+        when(reservationRepository.hasActiveReservations(id)).thenReturn(true);
+
+        // Act & Assert
+        assertThrows(IllegalStateException.class, () -> chargingStationService.delete(id));
+        verify(chargingStationRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void getByOwner_ValidOwnerId_ReturnsStations() {
+        // Arrange
+        Long ownerId = 1L;
+        ChargingStation station = new ChargingStation();
+        station.setIdBorne(1L);
+        station.setNom("Station 1");
+
+        when(chargingStationRepository.findByOwner_IdUtilisateur(ownerId)).thenReturn(Arrays.asList(station));
+
+        // Act
+        List<ChargingStationDto> result = chargingStationService.getByOwner(ownerId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Station 1", result.get(0).getNom());
+    }
+
+    @Test
+    void searchAdvanced_WithFilters_ReturnsFilteredStations() {
+        // Arrange
+        ChargingStation station1 = new ChargingStation();
+        station1.setIdBorne(1L);
+        station1.setHourlyRate(new BigDecimal("10.00"));
+        station1.setPuissance(50);
+        station1.setEtat(ChargingStation.Etat.DISPONIBLE);
+
+        ChargingStation station2 = new ChargingStation();
+        station2.setIdBorne(2L);
+        station2.setHourlyRate(new BigDecimal("20.00"));
+        station2.setPuissance(22);
+        station2.setEtat(ChargingStation.Etat.OCCUPEE);
+
+        when(chargingStationRepository.findAll()).thenReturn(Arrays.asList(station1, station2));
+
+        // Act
+        List<ChargingStationDto> result = chargingStationService.searchAdvanced(
+                null, null, null,
+                new BigDecimal("5.00"), new BigDecimal("15.00"),
+                40, "DISPONIBLE", true
+        );
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(1L, result.get(0).getId());
     }
 }

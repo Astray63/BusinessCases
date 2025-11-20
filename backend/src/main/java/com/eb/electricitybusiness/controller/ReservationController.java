@@ -76,13 +76,15 @@ public class ReservationController {
             }
             
             // Récupérer le contenu du PDF
+            @SuppressWarnings("null")
             byte[] pdfContent = pdfReceiptService.getReceiptContent(reservation.getReceiptPath());
             
             // Créer la réponse avec le PDF
+            @SuppressWarnings("null")
             ByteArrayResource resource = new ByteArrayResource(pdfContent);
             
             return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_PDF)
+                    .contentType(MediaType.valueOf(MediaType.APPLICATION_PDF_VALUE))
                     .header(HttpHeaders.CONTENT_DISPOSITION, 
                         "attachment; filename=\"recu_reservation_" + id + ".pdf\"")
                     .body(resource);

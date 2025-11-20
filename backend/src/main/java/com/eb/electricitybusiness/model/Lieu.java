@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.locationtech.jts.geom.Point;
@@ -71,8 +73,12 @@ public class Lieu {
     
     // Relations
     @OneToMany(mappedBy = "lieu")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<UtilisateurLieu> utilisateurLieux;
     
     @OneToMany(mappedBy = "lieu")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<ChargingStationLieu> chargingStationLieux;
 }

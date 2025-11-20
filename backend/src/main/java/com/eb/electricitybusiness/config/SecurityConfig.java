@@ -22,6 +22,8 @@ import com.eb.electricitybusiness.security.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -53,14 +55,13 @@ public class SecurityConfig {
             .logout(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authz -> {
                 authz
-                    .requestMatchers("/auth/**").permitAll()
-                    .requestMatchers("/bornes/public/**").permitAll()
-                    .requestMatchers("/bornes/proches").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/utilisateurs/pseudo/{pseudo}").permitAll()
-                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                    .requestMatchers("/actuator/**").permitAll()
-                    .requestMatchers("/error").permitAll()
-                    .requestMatchers("/").permitAll()
+                    .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher("/bornes/public/**")).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher("/bornes/proches")).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher("/utilisateurs/pseudo/{pseudo}", HttpMethod.GET.name())).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher("/error")).permitAll()
+                    .requestMatchers(new AntPathRequestMatcher("/")).permitAll()
                     .anyRequest().permitAll();
             })
             .exceptionHandling(ex -> ex

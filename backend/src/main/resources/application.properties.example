@@ -76,10 +76,3 @@ spring.jackson.deserialization.fail-on-unknown-properties=false
 spring.jackson.default-property-inclusion=non_null
 spring.jackson.date-format=yyyy-MM-dd HH:mm:ss
 spring.jackson.time-zone=Europe/Paris
-
-# Swagger/OpenAPI Configuration
-springdoc.api-docs.path=/v3/api-docs
-springdoc.swagger-ui.path=/swagger-ui.html
-springdoc.swagger-ui.operationsSorter=method
-springdoc.swagger-ui.tagsSorter=alpha
-springdoc.swagger-ui.default-models-expand-depth=1

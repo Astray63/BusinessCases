@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
+import org.springframework.lang.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +17,7 @@ public class DotenvConfig implements ApplicationContextInitializer<ConfigurableA
     private static final Logger logger = LoggerFactory.getLogger(DotenvConfig.class);
 
     @Override
-    public void initialize(ConfigurableApplicationContext applicationContext) {
+    public void initialize(@NonNull ConfigurableApplicationContext applicationContext) {
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
         
         try {
