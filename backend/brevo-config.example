@@ -11,7 +11,7 @@
 
 brevo.api.key=xkeysib-YOUR_API_KEY_HERE
 brevo.sender.email=noreply@votredomaine.com
-brevo.sender.name=Electric Charge Platform
+brevo.sender.name=ELECTRICITY BUSINESS
 
 # ===========================================
 # PARAMETRES DE VERIFICATION EMAIL

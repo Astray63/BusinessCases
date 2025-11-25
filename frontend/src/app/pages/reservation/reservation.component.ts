@@ -27,14 +27,14 @@ export class ReservationComponent implements OnInit {
   reservations: Reservation[] = [];
   reservationsEnCours: Reservation[] = [];
   reservationsPassees: Reservation[] = [];
-  
+
   // UI State
   isLoading = false;
   activeTab: 'nouvelle' | 'en-cours' | 'passees' = 'nouvelle';
 
   selectedBorne: Borne | null = null;
   currentPhotoIndex = 0;
-  
+
   // Filtre
   filtreActif = false;
 
@@ -70,7 +70,7 @@ export class ReservationComponent implements OnInit {
 
     this.loadBornes();
     this.loadReservations();
-    
+
     // Vérifier si une borne est pré-sélectionnée depuis les query params
     this.route.queryParams.subscribe(params => {
       if (params['borneId']) {
@@ -138,13 +138,13 @@ export class ReservationComponent implements OnInit {
 
   categoriserReservations(): void {
     const maintenant = new Date();
-    
-    this.reservationsEnCours = this.reservations.filter(r => 
-      (r.statut === 'EN_ATTENTE' || r.statut === 'CONFIRMEE') && 
+
+    this.reservationsEnCours = this.reservations.filter(r =>
+      (r.statut === 'EN_ATTENTE' || r.statut === 'CONFIRMEE') &&
       new Date(r.dateFin) >= maintenant
     );
-    
-    this.reservationsPassees = this.reservations.filter(r => 
+
+    this.reservationsPassees = this.reservations.filter(r =>
       r.statut === 'TERMINEE' || r.statut === 'ANNULEE' || r.statut === 'REFUSEE' ||
       (r.statut === 'CONFIRMEE' && new Date(r.dateFin) < maintenant)
     );
@@ -160,7 +160,7 @@ export class ReservationComponent implements OnInit {
     this.isLoading = true;
     const formValues = this.reservationForm.value;
     const currentUser = this.authService.getCurrentUser();
-    
+
     if (!currentUser) {
       this.toastService.showError('Utilisateur non authentifié');
       this.isLoading = false;
@@ -185,15 +185,15 @@ export class ReservationComponent implements OnInit {
 
     // Simulation de paiement
     const montantTotal = this.calculerMontant();
-    
+
     // Simuler un délai de traitement du paiement
     setTimeout(() => {
       // Vérifier le format de la carte (validation déjà faite par le formulaire)
       const numeroCarteBancaire = formValues.numeroCarteBancaire;
       const cvv = formValues.cvv;
-      
+
       // Simulation : le paiement est toujours accepté si le format est bon
-      
+
       // Afficher un message de confirmation de paiement
       this.toastService.showSuccess(`Paiement de ${montantTotal.toFixed(2)}€ effectué avec succès !`);
 
@@ -203,7 +203,7 @@ export class ReservationComponent implements OnInit {
         dateDebut: dateDebut.toISOString(),
         dateFin: dateFin.toISOString()
       };
-      
+
       this.reservationService.createReservation(reservationPayload).subscribe({
         next: (response: ApiResponse<Reservation>) => {
           this.toastService.showSuccess(response.message || 'Réservation créée avec succès ! Le propriétaire a été notifié.');
@@ -313,10 +313,10 @@ export class ReservationComponent implements OnInit {
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Réservations');
-    
+
     const fileName = `reservations_${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
-    
+
     this.toastService.showSuccess('Export Excel réussi');
     this.isLoading = false;
   }
@@ -324,7 +324,7 @@ export class ReservationComponent implements OnInit {
   // Générer un reçu PDF
   genererRecuPDF(reservation: Reservation): void {
     this.isLoading = true;
-    
+
     this.reservationService.genererRecuPDF(reservation.idReservation).subscribe({
       next: (blob: Blob) => {
         saveAs(blob, `recu_reservation_${reservation.idReservation}.pdf`);
@@ -342,26 +342,26 @@ export class ReservationComponent implements OnInit {
   // Générer un reçu PDF localement avec jsPDF
   genererRecuPDFLocal(reservation: Reservation): void {
     const doc = new jsPDF();
-    
+
     // En-tête
     doc.setFontSize(20);
     doc.text('REÇU DE RÉSERVATION', 105, 20, { align: 'center' });
-    
+
     // Informations de réservation
     doc.setFontSize(12);
     doc.text(`Numéro de réservation : ${reservation.idReservation}`, 20, 40);
     doc.text(`Date d'émission : ${new Date().toLocaleDateString('fr-FR')}`, 20, 50);
-    
+
     // Séparateur
     doc.line(20, 55, 190, 55);
-    
+
     // Détails client
     doc.setFontSize(14);
     doc.text('Client', 20, 65);
     doc.setFontSize(11);
     doc.text(`${reservation.utilisateur.prenom} ${reservation.utilisateur.nom}`, 20, 73);
     doc.text(`Email : ${reservation.utilisateur.email}`, 20, 80);
-    
+
     // Détails de la borne
     doc.setFontSize(14);
     doc.text('Borne de recharge', 20, 95);
@@ -369,18 +369,18 @@ export class ReservationComponent implements OnInit {
     doc.text(`Localisation : ${reservation.borne.localisation}`, 20, 103);
     doc.text(`Type : ${reservation.borne.type}`, 20, 110);
     doc.text(`Puissance : ${reservation.borne.puissance} kW`, 20, 117);
-    
+
     // Période de réservation
     doc.setFontSize(14);
     doc.text('Période de réservation', 20, 132);
     doc.setFontSize(11);
     doc.text(`Début : ${new Date(reservation.dateDebut).toLocaleString('fr-FR')}`, 20, 140);
     doc.text(`Fin : ${new Date(reservation.dateFin).toLocaleString('fr-FR')}`, 20, 147);
-    
+
     // Calcul de la durée
     const duree = (new Date(reservation.dateFin).getTime() - new Date(reservation.dateDebut).getTime()) / (1000 * 60 * 60);
     doc.text(`Durée : ${duree.toFixed(2)} heures`, 20, 154);
-    
+
     // Montant
     doc.setFontSize(14);
     doc.text('Montant', 20, 169);
@@ -388,16 +388,16 @@ export class ReservationComponent implements OnInit {
     const prixBorne = reservation.borne?.prix || reservation.borne?.prixALaMinute || 0;
     const montant = reservation.montantTotal || (duree * prixBorne);
     doc.text(`Total : ${montant.toFixed(2)} €`, 20, 177);
-    
+
     // Statut
     doc.setFontSize(11);
     doc.text(`Statut : ${this.getStatutLabel(reservation.statut)}`, 20, 190);
-    
+
     // Pied de page
     doc.setFontSize(9);
     doc.text('Merci pour votre réservation !', 105, 270, { align: 'center' });
-    doc.text('Electric Charge - Service de réservation de bornes électriques', 105, 280, { align: 'center' });
-    
+    doc.text('ELECTRICITY BUSINESS - Service de réservation de bornes électriques', 105, 280, { align: 'center' });
+
     // Télécharger le PDF
     doc.save(`recu_reservation_${reservation.idReservation}.pdf`);
     this.toastService.showSuccess('Reçu PDF généré localement');
@@ -458,20 +458,20 @@ export class ReservationComponent implements OnInit {
 
   calculerMontant(): number {
     if (!this.selectedBorne) return 0;
-    
+
     const dateDebut = this.reservationForm.get('dateDebut')?.value;
     const heureDebut = this.reservationForm.get('heureDebut')?.value;
     const dateFin = this.reservationForm.get('dateFin')?.value;
     const heureFin = this.reservationForm.get('heureFin')?.value;
-    
+
     if (!dateDebut || !heureDebut || !dateFin || !heureFin) return 0;
-    
+
     const debut = new Date(`${dateDebut}T${heureDebut}`);
     const fin = new Date(`${dateFin}T${heureFin}`);
-    
+
     const dureeMs = fin.getTime() - debut.getTime();
     const dureeHeures = dureeMs / (1000 * 60 * 60);
-    
+
     return dureeHeures * (this.selectedBorne.prix || 0);
   }
 
@@ -480,12 +480,12 @@ export class ReservationComponent implements OnInit {
     const heureDebut = this.reservationForm.get('heureDebut')?.value;
     const dateFin = this.reservationForm.get('dateFin')?.value;
     const heureFin = this.reservationForm.get('heureFin')?.value;
-    
+
     if (!dateDebut || !heureDebut || !dateFin || !heureFin) return 0;
-    
+
     const debut = new Date(`${dateDebut}T${heureDebut}`);
     const fin = new Date(`${dateFin}T${heureFin}`);
-    
+
     const dureeMs = fin.getTime() - debut.getTime();
     return dureeMs / (1000 * 60 * 60);
   }
@@ -499,8 +499,8 @@ export class ReservationComponent implements OnInit {
 
   previousPhoto(): void {
     if (this.selectedBorne && this.selectedBorne.medias) {
-      this.currentPhotoIndex = this.currentPhotoIndex === 0 
-        ? this.selectedBorne.medias.length - 1 
+      this.currentPhotoIndex = this.currentPhotoIndex === 0
+        ? this.selectedBorne.medias.length - 1
         : this.currentPhotoIndex - 1;
     }
   }

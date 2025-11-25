@@ -7,9 +7,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class PageTitleService {
   private titleSubject = new BehaviorSubject<string>('');
-  private readonly baseTitle = 'E-Charge Admin';
+  private readonly baseTitle = 'ELECTRICITY BUSINESS Admin';
 
-  constructor(private titleService: Title) {}
+  constructor(private titleService: Title) { }
 
   setTitle(title: string): void {
     const fullTitle = title ? `${title} | ${this.baseTitle}` : this.baseTitle;

@@ -103,12 +103,6 @@ VALUES
 ((SELECT id_borne FROM charging_stations WHERE numero = 'B009'), 9),
 ((SELECT id_borne FROM charging_stations WHERE numero = 'B010'), 10);
 
--- ========================================
--- Insert sample vehicules
--- ========================================
-INSERT INTO vehicule (plaque_immatriculation, marque, modele, annee, capacite_batterie, user_id)
-VALUES
-('MN-012-OP', 'Nissan', 'Leaf', 2023, 60, (SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'));
 
 -- ========================================
 -- Insert sample reservations
@@ -160,7 +154,6 @@ WHERE id_borne IN (
 SELECT 'Utilisateurs créés: ' || COUNT(*) FROM utilisateur;
 SELECT 'Lieux créés: ' || COUNT(*) FROM lieu;
 SELECT 'Bornes créées: ' || COUNT(*) FROM charging_stations;
-SELECT 'Véhicules enregistrés: ' || COUNT(*) FROM vehicule;
 SELECT 'Réservations créées: ' || COUNT(*) FROM reservation;
 SELECT 'Avis donnés: ' || COUNT(*) FROM avis;
 SELECT 'Signalements créés: ' || COUNT(*) FROM signalement;

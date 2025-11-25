@@ -60,8 +60,8 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
             return fullPath;
 
         } catch (DocumentException e) {
-            logger.error("Erreur lors de la génération du PDF pour la réservation #{}", 
-                reservation.getNumeroReservation(), e);
+            logger.error("Erreur lors de la génération du PDF pour la réservation #{}",
+                    reservation.getNumeroReservation(), e);
             throw new IOException("Erreur lors de la génération du reçu PDF", e);
         }
     }
@@ -78,7 +78,7 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
     private void addHeader(Document document) throws DocumentException {
         // Logo / Titre de l'entreprise
         Font titleFont = new Font(Font.FontFamily.HELVETICA, 24, Font.BOLD, BaseColor.DARK_GRAY);
-        Paragraph title = new Paragraph("ElectricCharge", titleFont);
+        Paragraph title = new Paragraph("ELECTRICITY BUSINESS", titleFont);
         title.setAlignment(Element.ALIGN_CENTER);
         title.setSpacingAfter(10);
         document.add(title);
@@ -99,7 +99,8 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
         Font normalFont = new Font(Font.FontFamily.HELVETICA, 11, Font.NORMAL, BaseColor.BLACK);
 
         // Numéro de réservation
-        Paragraph reservationNumber = new Paragraph("Réservation n° " + reservation.getNumeroReservation(), sectionFont);
+        Paragraph reservationNumber = new Paragraph("Réservation n° " + reservation.getNumeroReservation(),
+                sectionFont);
         reservationNumber.setSpacingBefore(20);
         reservationNumber.setSpacingAfter(15);
         document.add(reservationNumber);
@@ -118,8 +119,8 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
     }
 
     private void addClientInfo(Document document, Reservation reservation, Font font) throws DocumentException {
-        Paragraph clientTitle = new Paragraph("Informations client", 
-            new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY));
+        Paragraph clientTitle = new Paragraph("Informations client",
+                new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY));
         clientTitle.setSpacingBefore(10);
         clientTitle.setSpacingAfter(8);
         document.add(clientTitle);
@@ -128,8 +129,8 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
         table.setWidthPercentage(100);
         table.setSpacingAfter(15);
 
-        addTableRow(table, "Nom", 
-            reservation.getUtilisateur().getPrenom() + " " + reservation.getUtilisateur().getNom(), font);
+        addTableRow(table, "Nom",
+                reservation.getUtilisateur().getPrenom() + " " + reservation.getUtilisateur().getNom(), font);
         addTableRow(table, "Email", reservation.getUtilisateur().getEmail(), font);
         if (reservation.getUtilisateur().getPseudo() != null) {
             addTableRow(table, "Pseudo", reservation.getUtilisateur().getPseudo(), font);
@@ -139,8 +140,8 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
     }
 
     private void addStationInfo(Document document, Reservation reservation, Font font) throws DocumentException {
-        Paragraph stationTitle = new Paragraph("Borne de recharge", 
-            new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY));
+        Paragraph stationTitle = new Paragraph("Borne de recharge",
+                new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY));
         stationTitle.setSpacingBefore(10);
         stationTitle.setSpacingAfter(8);
         document.add(stationTitle);
@@ -154,16 +155,16 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
         addTableRow(table, "Numéro", reservation.getChargingStation().getNumero(), font);
         addTableRow(table, "Puissance", reservation.getChargingStation().getPuissance() + " kW", font);
         if (reservation.getChargingStation().getConnectorType() != null) {
-            addTableRow(table, "Type de connecteur", 
-                reservation.getChargingStation().getConnectorType(), font);
+            addTableRow(table, "Type de connecteur",
+                    reservation.getChargingStation().getConnectorType(), font);
         }
 
         document.add(table);
     }
 
     private void addReservationInfo(Document document, Reservation reservation, Font font) throws DocumentException {
-        Paragraph reservationTitle = new Paragraph("Détails de la réservation", 
-            new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY));
+        Paragraph reservationTitle = new Paragraph("Détails de la réservation",
+                new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY));
         reservationTitle.setSpacingBefore(10);
         reservationTitle.setSpacingAfter(8);
         document.add(reservationTitle);
@@ -172,14 +173,14 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
         table.setWidthPercentage(100);
         table.setSpacingAfter(15);
 
-        addTableRow(table, "Date de début", 
-            reservation.getDateDebut().format(DATE_FORMATTER), font);
-        addTableRow(table, "Date de fin", 
-            reservation.getDateFin().format(DATE_FORMATTER), font);
-        addTableRow(table, "Prix à la minute", 
-            formatMontant(reservation.getPrixALaMinute()) + " €", font);
-        addTableRow(table, "Statut", 
-            getStatutLabel(reservation.getEtat().name()), font);
+        addTableRow(table, "Date de début",
+                reservation.getDateDebut().format(DATE_FORMATTER), font);
+        addTableRow(table, "Date de fin",
+                reservation.getDateFin().format(DATE_FORMATTER), font);
+        addTableRow(table, "Prix à la minute",
+                formatMontant(reservation.getPrixALaMinute()) + " €", font);
+        addTableRow(table, "Statut",
+                getStatutLabel(reservation.getEtat().name()), font);
 
         document.add(table);
     }
@@ -193,7 +194,7 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
         totalTable.setSpacingAfter(20);
 
         Font totalFont = new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD, BaseColor.BLACK);
-        
+
         PdfPCell labelCell = new PdfPCell(new Phrase("MONTANT TOTAL", totalFont));
         labelCell.setBorder(Rectangle.NO_BORDER);
         labelCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -201,7 +202,7 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
         totalTable.addCell(labelCell);
 
         PdfPCell amountCell = new PdfPCell(new Phrase(
-            formatMontant(reservation.getTotalPrice()) + " €", totalFont));
+                formatMontant(reservation.getTotalPrice()) + " €", totalFont));
         amountCell.setBorder(Rectangle.NO_BORDER);
         amountCell.setHorizontalAlignment(Element.ALIGN_LEFT);
         amountCell.setPaddingLeft(20);
@@ -215,9 +216,9 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
 
         Font footerFont = new Font(Font.FontFamily.HELVETICA, 9, Font.ITALIC, BaseColor.GRAY);
         Paragraph footer = new Paragraph(
-            "Merci d'avoir utilisé nos services ElectricCharge.\n" +
-            "Pour toute question, contactez-nous à support@electriccharge.com", 
-            footerFont);
+                "Merci d'avoir utilisé nos services ELECTRICITY BUSINESS.\n" +
+                        "Pour toute question, contactez-nous à support@electricitybusiness.com",
+                footerFont);
         footer.setAlignment(Element.ALIGN_CENTER);
         footer.setSpacingBefore(30);
         document.add(footer);
@@ -225,7 +226,7 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
 
     private void addTableRow(PdfPTable table, String label, String value, Font font) {
         Font boldFont = new Font(font.getFamily(), font.getSize(), Font.BOLD, font.getColor());
-        
+
         PdfPCell labelCell = new PdfPCell(new Phrase(label + " :", boldFont));
         labelCell.setBorder(Rectangle.NO_BORDER);
         labelCell.setPaddingBottom(8);
@@ -243,17 +244,17 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
         Paragraph separator = new Paragraph();
         separator.setSpacingBefore(10);
         separator.setSpacingAfter(10);
-        
-        com.itextpdf.text.pdf.draw.LineSeparator line = 
-            new com.itextpdf.text.pdf.draw.LineSeparator();
+
+        com.itextpdf.text.pdf.draw.LineSeparator line = new com.itextpdf.text.pdf.draw.LineSeparator();
         line.setLineColor(BaseColor.LIGHT_GRAY);
         separator.add(new Chunk(line));
-        
+
         document.add(separator);
     }
 
     private String formatMontant(BigDecimal montant) {
-        if (montant == null) return "0.00";
+        if (montant == null)
+            return "0.00";
         return String.format("%.2f", montant);
     }
 

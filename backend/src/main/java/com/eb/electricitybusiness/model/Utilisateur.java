@@ -23,7 +23,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = { "chargingStationsProprietaire", "vehicules", "reservations", "avis", "signalements",
+@ToString(exclude = { "chargingStationsProprietaire", "reservations", "avis", "signalements",
         "utilisateurLieux" })
 public class Utilisateur implements UserDetails {
 
@@ -131,9 +131,6 @@ public class Utilisateur implements UserDetails {
     // Relations
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ChargingStation> chargingStationsProprietaire = new HashSet<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Vehicule> vehicules = new HashSet<>();
 
     @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Reservation> reservations = new HashSet<>();

@@ -22,29 +22,36 @@ export class DashboardComponent implements OnInit {
   nombreBornes = 0;
   loading = true;
   dashboardStats: DashboardStats | null = null;
-  
+
   // Données pour le tableau
   activeReservations: any[] = [];
   pastReservations: any[] = [];
   allPastReservations: any[] = [];
-  recentBornes: any[] = [];
+  recentBornes: any[] = []; // Gardé pour compatibilité si nécessaire, mais on utilisera displayedBornes
+  allBornes: any[] = [];
+  displayedBornes: any[] = [];
   pendingRequests: any[] = [];
   processedRequests: any[] = [];
   allProcessedRequests: any[] = [];
-  
+
   // Filtres
   filterDateDebut: string = '';
   filterDateFin: string = '';
-  
+
   // Pagination pour réservations passées
   currentPagePast = 1;
   pageSizePast = 5;
   totalPagesPast = 1;
-  
+
   // Pagination pour demandes traitées
   currentPageProcessed = 1;
   pageSizeProcessed = 5;
   totalPagesProcessed = 1;
+
+  // Pagination pour les bornes
+  currentPageBornes = 1;
+  pageSizeBornes = 4; // 4 bornes par page (2x2 grid)
+  totalPagesBornes = 1;
 
   constructor(
     private authService: AuthService,
@@ -53,7 +60,7 @@ export class DashboardComponent implements OnInit {
     private reservationService: ReservationService,
     private borneService: BorneService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Récupérer l'utilisateur courant
@@ -63,7 +70,7 @@ export class DashboardComponent implements OnInit {
         this.router.navigate(['/auth/login']);
         return;
       }
-      
+
       // Charger les statistiques du dashboard
       this.loadDashboardData();
     });
@@ -80,26 +87,26 @@ export class DashboardComponent implements OnInit {
 
   loadDashboardData(): void {
     if (!this.currentUser) return;
-    
+
     this.loading = true;
-    
+
     this.dashboardService.getDashboardStats(this.currentUser.idUtilisateur).subscribe({
       next: (response) => {
         this.loading = false;
         if (response.result === 'SUCCESS' && response.data) {
           this.dashboardStats = response.data;
-          
+
           // Extraire les données pour les tableaux
           this.processReservations();
-          
+
           // Mettre à jour le contexte si l'utilisateur est propriétaire
           if (this.dashboardStats.ownerStats) {
             this.isProprietaire = true;
             this.nombreBornes = this.dashboardStats.ownerStats.totalBornes;
-            
+
             // Charger les vraies bornes du propriétaire
             this.loadOwnerBornes();
-            
+
             // Charger les demandes de réservation
             this.loadOwnerRequests();
           }
@@ -110,81 +117,86 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
-  
+
   loadOwnerBornes(): void {
     if (!this.currentUser) return;
-    
+
     this.borneService.getBornesByProprietaire(this.currentUser.idUtilisateur).subscribe({
       next: (response) => {
         if (response.result === 'SUCCESS' && response.data) {
-          // Prendre les 2 bornes les plus récentes
-          this.recentBornes = response.data
-            .sort((a, b) => (b.idBorne || 0) - (a.idBorne || 0))
-            .slice(0, 2);
+          // Stocker toutes les bornes
+          this.allBornes = response.data.sort((a, b) => (b.idBorne || 0) - (a.idBorne || 0));
+
+          // Calculer la pagination
+          this.totalPagesBornes = Math.ceil(this.allBornes.length / this.pageSizeBornes);
+          this.updateBornesPage();
+
+          // Pour la compatibilité avec l'affichage "récent" (si utilisé ailleurs)
+          this.recentBornes = this.allBornes.slice(0, 2);
         }
       },
       error: (error) => {
       }
     });
   }
-  
+
   processReservations(): void {
     if (!this.dashboardStats?.recentReservations) return;
-    
+
     const now = new Date();
-    
+
     // Séparer les réservations actives et passées
     this.activeReservations = this.dashboardStats.recentReservations.filter(r => {
       const dateDebut = new Date(r.dateDebut);
       const dateFin = new Date(r.dateFin);
       return r.statut === 'CONFIRMEE' && dateDebut <= now && dateFin >= now;
     }).slice(0, 5);
-    
+
     // Stocker toutes les réservations passées pour la pagination
     this.allPastReservations = this.dashboardStats.recentReservations.filter(r => {
       const dateFin = new Date(r.dateFin);
       return r.statut === 'TERMINEE' || r.statut === 'ANNULEE' || r.statut === 'REFUSEE' || dateFin < now;
     });
-    
+
     // Calculer la pagination
     this.totalPagesPast = Math.ceil(this.allPastReservations.length / this.pageSizePast);
     this.updatePastReservationsPage();
   }
-  
+
   updatePastReservationsPage(): void {
     const start = (this.currentPagePast - 1) * this.pageSizePast;
     const end = start + this.pageSizePast;
     this.pastReservations = this.allPastReservations.slice(start, end);
   }
-  
+
   goToPagePast(page: number): void {
     if (page >= 1 && page <= this.totalPagesPast) {
       this.currentPagePast = page;
       this.updatePastReservationsPage();
     }
   }
-  
+
   nextPagePast(): void {
     this.goToPagePast(this.currentPagePast + 1);
   }
-  
+
   previousPagePast(): void {
     this.goToPagePast(this.currentPagePast - 1);
   }
-  
+
   firstPagePast(): void {
     this.goToPagePast(1);
   }
-  
+
   lastPagePast(): void {
     this.goToPagePast(this.totalPagesPast);
   }
-  
+
   loadOwnerRequests(): void {
     if (!this.currentUser || !this.currentUser.idUtilisateur) {
       return;
     }
-    
+
     // Charger les vraies demandes depuis le backend
     this.reservationService.getReservationsProprietaire(this.currentUser.idUtilisateur).subscribe({
       next: (response) => {
@@ -194,12 +206,12 @@ export class DashboardComponent implements OnInit {
             .filter(r => r.statut === 'EN_ATTENTE')
             .sort((a, b) => new Date(b.dateDebut).getTime() - new Date(a.dateDebut).getTime())
             .slice(0, 5);
-          
+
           // Stocker toutes les demandes traitées pour la pagination
           this.allProcessedRequests = response.data
             .filter(r => ['CONFIRMEE', 'REFUSEE', 'TERMINEE', 'ANNULEE'].includes(r.statut))
             .sort((a, b) => new Date(b.dateDebut).getTime() - new Date(a.dateDebut).getTime());
-          
+
           // Calculer la pagination
           this.totalPagesProcessed = Math.ceil(this.allProcessedRequests.length / this.pageSizeProcessed);
           this.updateProcessedRequestsPage();
@@ -209,56 +221,56 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
-  
+
   updateProcessedRequestsPage(): void {
     const start = (this.currentPageProcessed - 1) * this.pageSizeProcessed;
     const end = start + this.pageSizeProcessed;
     this.processedRequests = this.allProcessedRequests.slice(start, end);
   }
-  
+
   goToPageProcessed(page: number): void {
     if (page >= 1 && page <= this.totalPagesProcessed) {
       this.currentPageProcessed = page;
       this.updateProcessedRequestsPage();
     }
   }
-  
+
   nextPageProcessed(): void {
     this.goToPageProcessed(this.currentPageProcessed + 1);
   }
-  
+
   previousPageProcessed(): void {
     this.goToPageProcessed(this.currentPageProcessed - 1);
   }
-  
+
   firstPageProcessed(): void {
     this.goToPageProcessed(1);
   }
-  
+
   lastPageProcessed(): void {
     this.goToPageProcessed(this.totalPagesProcessed);
   }
-  
+
   applyFilters(): void {
     if (!this.currentUser) return;
-    
+
     this.loading = true;
     this.reservationService.getReservationsByUser(this.currentUser.idUtilisateur).subscribe({
       next: (response: ApiResponse<Reservation[]>) => {
         if (response.result === 'SUCCESS' && response.data) {
           let filtered = response.data;
-          
+
           // Appliquer les filtres de date
           if (this.filterDateDebut) {
             const dateDebut = new Date(this.filterDateDebut);
             filtered = filtered.filter((r: Reservation) => new Date(r.dateDebut) >= dateDebut);
           }
-          
+
           if (this.filterDateFin) {
             const dateFin = new Date(this.filterDateFin);
             filtered = filtered.filter((r: Reservation) => new Date(r.dateFin) <= dateFin);
           }
-          
+
           // Filtrer les réservations passées
           const now = new Date();
           this.allPastReservations = filtered
@@ -267,7 +279,7 @@ export class DashboardComponent implements OnInit {
               return r.statut === 'TERMINEE' || r.statut === 'ANNULEE' || dateFin < now;
             })
             .sort((a: Reservation, b: Reservation) => new Date(b.dateDebut).getTime() - new Date(a.dateDebut).getTime());
-          
+
           // Recalculer la pagination
           this.currentPagePast = 1;
           this.totalPagesPast = Math.ceil(this.allPastReservations.length / this.pageSizePast);
@@ -283,7 +295,7 @@ export class DashboardComponent implements OnInit {
 
   accepterDemande(idReservation: number): void {
     if (!this.currentUser || !confirm('Accepter cette réservation ?')) return;
-    
+
     this.loading = true;
     this.reservationService.accepterReservation(idReservation, this.currentUser.idUtilisateur).subscribe({
       next: (response) => {
@@ -301,9 +313,9 @@ export class DashboardComponent implements OnInit {
   refuserDemande(idReservation: number): void {
     const motif = prompt('Motif du refus (optionnel) :');
     if (motif === null) return; // Annulation
-    
+
     if (!this.currentUser) return;
-    
+
     this.loading = true;
     this.reservationService.refuserReservation(idReservation, this.currentUser.idUtilisateur, motif).subscribe({
       next: (response) => {
@@ -365,13 +377,13 @@ export class DashboardComponent implements OnInit {
   // Méthode pour exporter les réservations vers Excel
   exporterReservations(): void {
     if (!this.currentUser) return;
-    
+
     // Vérifier s'il y a des réservations à exporter
     if (!this.allPastReservations || this.allPastReservations.length === 0) {
       alert('Aucune réservation à exporter');
       return;
     }
-    
+
     // Préparer les données pour l'export
     const exportData = this.allPastReservations.map(r => ({
       'ID': r.idReservation,
@@ -386,7 +398,7 @@ export class DashboardComponent implements OnInit {
 
     // Créer la feuille Excel
     const ws = XLSX.utils.json_to_sheet(exportData);
-    
+
     // Ajuster la largeur des colonnes
     const colWidths = [
       { wch: 8 },  // ID
@@ -399,17 +411,17 @@ export class DashboardComponent implements OnInit {
       { wch: 15 }  // Montant Total
     ];
     ws['!cols'] = colWidths;
-    
+
     // Créer le classeur
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Réservations');
-    
+
     // Générer le nom du fichier avec la date du jour
     const fileName = `reservations_${new Date().toISOString().split('T')[0]}.xlsx`;
-    
+
     // Télécharger le fichier
     XLSX.writeFile(wb, fileName);
-    
+
   }
 
   // Méthodes pour gérer les bornes
@@ -469,5 +481,35 @@ export class DashboardComponent implements OnInit {
 
   devenirProprietaire(): void {
     this.router.navigate(['/proprietaire/mes-bornes']);
+  }
+
+  // Méthodes de pagination pour les bornes
+  updateBornesPage(): void {
+    const start = (this.currentPageBornes - 1) * this.pageSizeBornes;
+    const end = start + this.pageSizeBornes;
+    this.displayedBornes = this.allBornes.slice(start, end);
+  }
+
+  goToPageBornes(page: number): void {
+    if (page >= 1 && page <= this.totalPagesBornes) {
+      this.currentPageBornes = page;
+      this.updateBornesPage();
+    }
+  }
+
+  nextPageBornes(): void {
+    this.goToPageBornes(this.currentPageBornes + 1);
+  }
+
+  previousPageBornes(): void {
+    this.goToPageBornes(this.currentPageBornes - 1);
+  }
+
+  firstPageBornes(): void {
+    this.goToPageBornes(1);
+  }
+
+  lastPageBornes(): void {
+    this.goToPageBornes(this.totalPagesBornes);
   }
 }

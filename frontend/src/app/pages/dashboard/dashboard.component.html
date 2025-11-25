@@ -1,5 +1,5 @@
 @if (currentUser && !loading) {
-  <div class="min-h-screen bg-gray-50 p-6">
+<div class="min-h-screen bg-gray-50 p-6">
   <!-- En-tête moderne -->
   <header class="mb-8">
     <div class="flex items-center gap-3">
@@ -60,7 +60,7 @@
           </thead>
           <tbody class="bg-white divide-y divide-gray-100">
             @for (reservation of activeReservations; track reservation.idReservation) {
-              <tr class="hover:bg-gray-50 transition-colors duration-200">
+            <tr class="hover:bg-gray-50 transition-colors duration-200">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm font-semibold text-gray-900">{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</div>
                 <div class="text-xs text-gray-500">{{ reservation.dateDebut | date:'HH:mm' }}</div>
@@ -77,10 +77,12 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-bold text-green-600">{{ reservation.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</div>
+                <div class="text-sm font-bold text-green-600">{{ reservation.montantTotal |
+                  currency:'EUR':'symbol':'1.2-2' }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-3 py-1.5 inline-flex items-center gap-1.5 text-xs font-bold rounded-full shadow-sm" [ngClass]="getStatutClass(reservation.statut)">
+                <span class="px-3 py-1.5 inline-flex items-center gap-1.5 text-xs font-bold rounded-full shadow-sm"
+                  [ngClass]="getStatutClass(reservation.statut)">
                   <i class="bi bi-circle-fill" style="font-size: 6px;"></i>
                   {{ getStatutLabel(reservation.statut) }}
                 </span>
@@ -88,8 +90,8 @@
             </tr>
             }
             @if (!activeReservations || activeReservations.length === 0) {
-              <tr>
-                <td colspan="5" class="px-6 py-12 text-center">
+            <tr>
+              <td colspan="5" class="px-6 py-12 text-center">
                 <div class="flex flex-col items-center gap-3">
                   <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                     <i class="bi bi-inbox text-3xl text-gray-400"></i>
@@ -104,8 +106,8 @@
       </div>
     </div>
     <div class="mt-4">
-      <button (click)="voirMesReservations()" 
-              class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-semibold transition-colors">
+      <button (click)="voirMesReservations()"
+        class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-semibold transition-colors">
         <i class="bi bi-arrow-right-circle"></i>
         Voir toutes mes réservations
       </button>
@@ -120,7 +122,7 @@
       </div>
       <h2 class="text-2xl font-bold text-gray-900">Mes réservations passées</h2>
     </div>
-    
+
     <!-- Filtres modernisés -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6 border border-gray-200">
       <div class="flex flex-wrap gap-4 items-end">
@@ -129,22 +131,20 @@
             <i class="bi bi-calendar-range text-slate-600"></i>
             Date début
           </label>
-          <input type="date" 
-                 [(ngModel)]="filterDateDebut" 
-                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all">
+          <input type="date" [(ngModel)]="filterDateDebut"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all">
         </div>
         <div class="flex-1 min-w-[200px]">
           <label class="flex items-center gap-2 text-sm font-bold text-gray-700 mb-2">
             <i class="bi bi-calendar-range text-slate-600"></i>
             Date fin
           </label>
-          <input type="date" 
-                 [(ngModel)]="filterDateFin" 
-                 class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all">
+          <input type="date" [(ngModel)]="filterDateFin"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all">
         </div>
         <div>
-          <button (click)="applyFilters()" 
-                  class="px-6 py-2.5 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2">
+          <button (click)="applyFilters()"
+            class="px-6 py-2.5 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2">
             <i class="bi bi-funnel-fill"></i>
             Filtrer
           </button>
@@ -214,18 +214,20 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-bold text-gray-900">{{ reservation.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</div>
+                <div class="text-sm font-bold text-gray-900">{{ reservation.montantTotal |
+                  currency:'EUR':'symbol':'1.2-2' }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-3 py-1.5 inline-flex items-center gap-1.5 text-xs font-bold rounded-full shadow-sm" [ngClass]="getStatutClass(reservation.statut)">
+                <span class="px-3 py-1.5 inline-flex items-center gap-1.5 text-xs font-bold rounded-full shadow-sm"
+                  [ngClass]="getStatutClass(reservation.statut)">
                   <i class="bi bi-circle-fill" style="font-size: 6px;"></i>
                   {{ getStatutLabel(reservation.statut) }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm">
                 @if (reservation.receiptPath) {
-                <button (click)="downloadReceipt(reservation.idReservation)" 
-                        class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all">
+                <button (click)="downloadReceipt(reservation.idReservation)"
+                  class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition-all">
                   <i class="bi bi-file-earmark-pdf"></i>
                   PDF
                 </button>
@@ -251,19 +253,17 @@
           </tbody>
         </table>
       </div>
-      
+
       <!-- Pagination modernisée -->
       @if (allPastReservations.length > 0) {
       <div class="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
         <div class="flex-1 flex justify-between sm:hidden">
-          <button (click)="previousPagePast()" 
-                  [disabled]="currentPagePast === 1"
-                  class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          <button (click)="previousPagePast()" [disabled]="currentPagePast === 1"
+            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
             Précédent
           </button>
-          <button (click)="nextPagePast()" 
-                  [disabled]="currentPagePast === totalPagesPast"
-                  class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          <button (click)="nextPagePast()" [disabled]="currentPagePast === totalPagesPast"
+            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
             Suivant
           </button>
         </div>
@@ -273,29 +273,26 @@
               <i class="bi bi-file-text text-gray-600"></i>
             </div>
             <p class="text-sm font-semibold text-gray-700">
-              Page <span class="text-slate-700">{{ currentPagePast }}</span> sur <span class="text-slate-700">{{ totalPagesPast }}</span>
+              Page <span class="text-slate-700">{{ currentPagePast }}</span> sur <span class="text-slate-700">{{
+                totalPagesPast }}</span>
             </p>
           </div>
           <div>
             <nav class="relative z-0 inline-flex rounded-lg shadow-sm gap-1" aria-label="Pagination">
-              <button (click)="firstPagePast()" 
-                      [disabled]="currentPagePast === 1"
-                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <button (click)="firstPagePast()" [disabled]="currentPagePast === 1"
+                class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                 <i class="bi bi-chevron-double-left"></i>
               </button>
-              <button (click)="previousPagePast()" 
-                      [disabled]="currentPagePast === 1"
-                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <button (click)="previousPagePast()" [disabled]="currentPagePast === 1"
+                class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                 <i class="bi bi-chevron-left"></i>
               </button>
-              <button (click)="nextPagePast()" 
-                      [disabled]="currentPagePast === totalPagesPast"
-                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <button (click)="nextPagePast()" [disabled]="currentPagePast === totalPagesPast"
+                class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                 <i class="bi bi-chevron-right"></i>
               </button>
-              <button (click)="lastPagePast()" 
-                      [disabled]="currentPagePast === totalPagesPast"
-                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <button (click)="lastPagePast()" [disabled]="currentPagePast === totalPagesPast"
+                class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                 <i class="bi bi-chevron-double-right"></i>
               </button>
             </nav>
@@ -305,8 +302,8 @@
       }
     </div>
     <div class="mt-6">
-      <button (click)="exporterReservations()" 
-              class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+      <button (click)="exporterReservations()"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
         <i class="bi bi-file-earmark-excel"></i>
         Exporter toutes les réservations (Excel)
       </button>
@@ -322,17 +319,18 @@
       </div>
       <h2 class="text-2xl font-bold text-gray-900">Lieux de recharge</h2>
     </div>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-      @for (borne of recentBornes; track borne.idBorne) {
+      @for (borne of displayedBornes; track borne.idBorne) {
       <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
         <div class="flex items-start gap-4">
           @if (borne.medias && borne.medias.length > 0) {
-            <img [src]="borne.medias[0]" alt="{{ borne.nom }}" class="w-14 h-14 rounded-lg object-cover shadow-md flex-shrink-0">
+          <img [src]="borne.medias[0]" alt="{{ borne.nom }}"
+            class="w-14 h-14 rounded-lg object-cover shadow-md flex-shrink-0">
           } @else {
-            <div class="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
-              <i class="bi bi-lightning-charge-fill text-2xl text-white"></i>
-            </div>
+          <div class="w-14 h-14 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
+            <i class="bi bi-lightning-charge-fill text-2xl text-white"></i>
+          </div>
           }
           <div class="flex-1">
             <h3 class="text-xl font-bold text-gray-900 mb-3">{{ borne.nom }}</h3>
@@ -357,13 +355,13 @@
               </div>
             </div>
             <div class="flex flex-wrap gap-2 pt-4 border-t border-gray-100">
-              <button (click)="modifierBorne(borne)" 
-                      class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
+              <button (click)="modifierBorne(borne)"
+                class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
                 <i class="bi bi-pencil-fill"></i>
                 Modifier
               </button>
-              <button (click)="supprimerBorne(borne)" 
-                      class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
+              <button (click)="supprimerBorne(borne)"
+                class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-md transition-all">
                 <i class="bi bi-trash-fill"></i>
                 Supprimer
               </button>
@@ -374,14 +372,61 @@
       }
     </div>
 
+    <!-- Pagination pour les bornes -->
+    @if (allBornes.length > 0) {
+    <div class="bg-gray-50 px-6 py-4 flex items-center justify-between border border-gray-200 rounded-lg mb-6">
+      <div class="flex-1 flex justify-between sm:hidden">
+        <button (click)="previousPageBornes()" [disabled]="currentPageBornes === 1"
+          class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          Précédent
+        </button>
+        <button (click)="nextPageBornes()" [disabled]="currentPageBornes === totalPagesBornes"
+          class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          Suivant
+        </button>
+      </div>
+      <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
+            <i class="bi bi-file-text text-gray-600"></i>
+          </div>
+          <p class="text-sm font-semibold text-gray-700">
+            Page <span class="text-slate-700">{{ currentPageBornes }}</span> sur <span class="text-slate-700">{{
+              totalPagesBornes }}</span>
+          </p>
+        </div>
+        <div>
+          <nav class="relative z-0 inline-flex rounded-lg shadow-sm gap-1" aria-label="Pagination">
+            <button (click)="firstPageBornes()" [disabled]="currentPageBornes === 1"
+              class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="bi bi-chevron-double-left"></i>
+            </button>
+            <button (click)="previousPageBornes()" [disabled]="currentPageBornes === 1"
+              class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <button (click)="nextPageBornes()" [disabled]="currentPageBornes === totalPagesBornes"
+              class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+            <button (click)="lastPageBornes()" [disabled]="currentPageBornes === totalPagesBornes"
+              class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="bi bi-chevron-double-right"></i>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+    }
+
     <div class="flex gap-4">
-      <button (click)="ajouterBorne()" 
-              class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+      <button (click)="ajouterBorne()"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
         <i class="bi bi-plus-circle-fill"></i>
         Ajouter une borne
       </button>
-      <button (click)="voirMesBornes()" 
-              class="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 text-blue-600 font-bold border-2 border-blue-600 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
+      <button (click)="voirMesBornes()"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-50 text-blue-600 font-bold border-2 border-blue-600 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
         <i class="bi bi-lightning-charge-fill"></i>
         Gérer mes bornes
       </button>
@@ -459,11 +504,13 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-2">
-                  <div class="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center text-white font-bold">
+                  <div
+                    class="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center text-white font-bold">
                     {{ demande.utilisateur?.prenom?.charAt(0) }}{{ demande.utilisateur?.nom?.charAt(0) }}
                   </div>
                   <div>
-                    <div class="text-sm font-semibold text-gray-900">{{ demande.utilisateur?.prenom }} {{ demande.utilisateur?.nom }}</div>
+                    <div class="text-sm font-semibold text-gray-900">{{ demande.utilisateur?.prenom }} {{
+                      demande.utilisateur?.nom }}</div>
                   </div>
                 </div>
               </td>
@@ -475,19 +522,20 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-bold text-emerald-600">{{ demande.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</div>
+                <div class="text-sm font-bold text-emerald-600">{{ demande.montantTotal |
+                  currency:'EUR':'symbol':'1.2-2' }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-center">
                 <div class="flex items-center justify-center gap-2">
-                  <button (click)="accepterDemande(demande.idReservation)" 
-                          class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                          [disabled]="loading">
+                  <button (click)="accepterDemande(demande.idReservation)"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    [disabled]="loading">
                     <i class="bi bi-check-circle-fill"></i>
                     Accepter
                   </button>
-                  <button (click)="refuserDemande(demande.idReservation)" 
-                          class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                          [disabled]="loading">
+                  <button (click)="refuserDemande(demande.idReservation)"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    [disabled]="loading">
                     <i class="bi bi-x-circle-fill"></i>
                     Refuser
                   </button>
@@ -580,11 +628,13 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-2">
-                  <div class="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center text-white font-bold">
+                  <div
+                    class="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center text-white font-bold">
                     {{ demande.utilisateur?.prenom?.charAt(0) }}{{ demande.utilisateur?.nom?.charAt(0) }}
                   </div>
                   <div>
-                    <div class="text-sm font-semibold text-gray-900">{{ demande.utilisateur?.prenom }} {{ demande.utilisateur?.nom }}</div>
+                    <div class="text-sm font-semibold text-gray-900">{{ demande.utilisateur?.prenom }} {{
+                      demande.utilisateur?.nom }}</div>
                   </div>
                 </div>
               </td>
@@ -596,10 +646,12 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-bold text-gray-900">{{ demande.montantTotal | currency:'EUR':'symbol':'1.2-2' }}</div>
+                <div class="text-sm font-bold text-gray-900">{{ demande.montantTotal | currency:'EUR':'symbol':'1.2-2'
+                  }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-3 py-1.5 inline-flex items-center gap-1.5 text-xs font-bold rounded-full shadow-sm" [ngClass]="getStatutClass(demande.statut)">
+                <span class="px-3 py-1.5 inline-flex items-center gap-1.5 text-xs font-bold rounded-full shadow-sm"
+                  [ngClass]="getStatutClass(demande.statut)">
                   <i class="bi bi-circle-fill" style="font-size: 6px;"></i>
                   {{ getStatutLabel(demande.statut) }}
                 </span>
@@ -621,19 +673,17 @@
           </tbody>
         </table>
       </div>
-      
+
       <!-- Pagination modernisée -->
       @if (allProcessedRequests.length > 0) {
       <div class="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
         <div class="flex-1 flex justify-between sm:hidden">
-          <button (click)="previousPageProcessed()" 
-                  [disabled]="currentPageProcessed === 1"
-                  class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          <button (click)="previousPageProcessed()" [disabled]="currentPageProcessed === 1"
+            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
             Précédent
           </button>
-          <button (click)="nextPageProcessed()" 
-                  [disabled]="currentPageProcessed === totalPagesProcessed"
-                  class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          <button (click)="nextPageProcessed()" [disabled]="currentPageProcessed === totalPagesProcessed"
+            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-semibold rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
             Suivant
           </button>
         </div>
@@ -643,29 +693,26 @@
               <i class="bi bi-file-text text-gray-600"></i>
             </div>
             <p class="text-sm font-semibold text-gray-700">
-              Page <span class="text-slate-700">{{ currentPageProcessed }}</span> sur <span class="text-slate-700">{{ totalPagesProcessed }}</span>
+              Page <span class="text-slate-700">{{ currentPageProcessed }}</span> sur <span class="text-slate-700">{{
+                totalPagesProcessed }}</span>
             </p>
           </div>
           <div>
             <nav class="relative z-0 inline-flex rounded-lg shadow-sm gap-1" aria-label="Pagination">
-              <button (click)="firstPageProcessed()" 
-                      [disabled]="currentPageProcessed === 1"
-                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <button (click)="firstPageProcessed()" [disabled]="currentPageProcessed === 1"
+                class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                 <i class="bi bi-chevron-double-left"></i>
               </button>
-              <button (click)="previousPageProcessed()" 
-                      [disabled]="currentPageProcessed === 1"
-                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <button (click)="previousPageProcessed()" [disabled]="currentPageProcessed === 1"
+                class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                 <i class="bi bi-chevron-left"></i>
               </button>
-              <button (click)="nextPageProcessed()" 
-                      [disabled]="currentPageProcessed === totalPagesProcessed"
-                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <button (click)="nextPageProcessed()" [disabled]="currentPageProcessed === totalPagesProcessed"
+                class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                 <i class="bi bi-chevron-right"></i>
               </button>
-              <button (click)="lastPageProcessed()" 
-                      [disabled]="currentPageProcessed === totalPagesProcessed"
-                      class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <button (click)="lastPageProcessed()" [disabled]="currentPageProcessed === totalPagesProcessed"
+                class="relative inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-semibold text-gray-500 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                 <i class="bi bi-chevron-double-right"></i>
               </button>
             </nav>
@@ -681,23 +728,24 @@
 
 <!-- Loading State -->
 @if (loading) {
-  <div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
-    <div class="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-blue-600 mb-6"></div>
-    <p class="text-gray-600 text-xl font-medium">Chargement de votre tableau de bord...</p>
-  </div>
+<div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
+  <div class="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-blue-600 mb-6"></div>
+  <p class="text-gray-600 text-xl font-medium">Chargement de votre tableau de bord...</p>
+</div>
 }
 
 <!-- Empty State -->
 @if (!currentUser && !loading) {
-  <div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
+<div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
   <div class="text-center bg-white rounded-2xl shadow-xl p-12 max-w-md">
     <div class="text-6xl mb-6">🔒</div>
     <h2 class="text-3xl font-bold text-gray-900 mb-4">Accès non autorisé</h2>
     <p class="text-gray-600 mb-8">Veuillez vous connecter pour accéder à votre tableau de bord.</p>
-    <button class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
-            routerLink="/auth/login">
+    <button
+      class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+      routerLink="/auth/login">
       Se connecter
     </button>
   </div>
-  </div>
+</div>
 }

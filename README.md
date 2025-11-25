@@ -56,7 +56,7 @@ electricity-business/
 ├── backend/                # Spring Boot backend application
 │   ├── src/
 │   │   ├── main/
-│   │   │   ├── java/com/electriccharge/app/
+│   │   │   ├── java/com/eb/electricitybusiness/
 │   │   │   │   ├── config/       # Application configuration
 │   │   │   │   ├── controller/   # REST API controllers
 │   │   │   │   ├── dto/          # Data Transfer Objects

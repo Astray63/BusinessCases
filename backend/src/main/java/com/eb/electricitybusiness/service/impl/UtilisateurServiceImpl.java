@@ -195,14 +195,6 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<UtilisateurDto> getUtilisateursWithVehicules() {
-        return utilisateurRepository.findAll().stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public boolean validerMotDePasse(AuthRequestDto authRequestDto) {
         Utilisateur utilisateur = utilisateurRepository.findByPseudo(authRequestDto.pseudo())
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "pseudo", authRequestDto.pseudo()));

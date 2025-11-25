@@ -28,7 +28,6 @@ DROP VIEW IF EXISTS v_reservation_complete CASCADE;
 DROP TABLE IF EXISTS signalement CASCADE;
 DROP TABLE IF EXISTS avis CASCADE;
 DROP TABLE IF EXISTS reservation CASCADE;
-DROP TABLE IF EXISTS vehicule CASCADE;
 DROP TABLE IF EXISTS charging_station_lieu CASCADE;
 DROP TABLE IF EXISTS utilisateur_lieu CASCADE;
 DROP TABLE IF EXISTS borne_medias CASCADE;
@@ -137,22 +136,6 @@ CREATE TABLE borne_medias (
 SELECT AddGeometryColumn('charging_stations', 'geom', 4326, 'POINT', 2);
 CREATE INDEX idx_charging_stations_geom ON charging_stations USING GIST (geom);
 
--- ========================================
--- Table: vehicule
--- ========================================
-CREATE TABLE vehicule (
-    plaque_immatriculation VARCHAR(20) PRIMARY KEY,
-    marque VARCHAR(50) NOT NULL,
-    modele VARCHAR(50) NOT NULL,
-    annee INTEGER,
-    capacite_batterie INTEGER,
-    user_id BIGINT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT chk_annee CHECK (annee >= 1900 AND annee <= EXTRACT(YEAR FROM CURRENT_DATE) + 1),
-    CONSTRAINT fk_vehicule_user FOREIGN KEY (user_id) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE
-);
 
 -- ========================================
 -- Table: reservation
@@ -270,7 +253,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER update_lieu_modtime BEFORE UPDATE ON lieu FOR EACH ROW EXECUTE FUNCTION update_modified_column();
 CREATE TRIGGER update_utilisateur_modtime BEFORE UPDATE ON utilisateur FOR EACH ROW EXECUTE FUNCTION update_modified_column();
 CREATE TRIGGER update_charging_modtime BEFORE UPDATE ON charging_stations FOR EACH ROW EXECUTE FUNCTION update_modified_column();
-CREATE TRIGGER update_vehicule_modtime BEFORE UPDATE ON vehicule FOR EACH ROW EXECUTE FUNCTION update_modified_column();
 CREATE TRIGGER update_reservation_modtime BEFORE UPDATE ON reservation FOR EACH ROW EXECUTE FUNCTION update_modified_column();
 CREATE TRIGGER update_avis_modtime BEFORE UPDATE ON avis FOR EACH ROW EXECUTE FUNCTION update_modified_column();
 CREATE TRIGGER update_signalement_modtime BEFORE UPDATE ON signalement FOR EACH ROW EXECUTE FUNCTION update_modified_column();

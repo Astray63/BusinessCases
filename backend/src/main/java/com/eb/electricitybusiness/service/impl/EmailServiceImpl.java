@@ -39,7 +39,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendVerificationEmail(String to, String name, String verificationCode) {
-        String subject = "Code de validation - Electric Charge Platform";
+        String subject = "Code de validation - ELECTRICITY BUSINESS";
         String htmlContent = buildVerificationEmailHtml(name, verificationCode);
 
         try {
@@ -190,7 +190,7 @@ public class EmailServiceImpl implements EmailService {
                         <div class="content">
                             <p class="greeting">Bonjour <strong>%s</strong>,</p>
                             <p class="message">
-                                Merci de vous être inscrit sur <strong>Electricity Business</strong>.<br>
+                                Merci de vous être inscrit sur <strong>ELECTRICITY BUSINESS</strong>.<br>
                                 Pour finaliser votre inscription, veuillez utiliser le code de validation ci-dessous.
                             </p>
 
