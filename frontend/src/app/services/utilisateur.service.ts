@@ -8,6 +8,7 @@ import { ApiResponse } from '../models/api-response.model';
 export interface PasswordChangeRequest {
   ancienMotDePasse: string;
   nouveauMotDePasse: string;
+  confirmationMotDePasse: string;
 }
 
 @Injectable({
@@ -16,7 +17,7 @@ export interface PasswordChangeRequest {
 export class UtilisateurService {
   private apiUrl = `${environment.apiUrl}/utilisateurs`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getUtilisateurById(id: number): Observable<ApiResponse<Utilisateur>> {
     return this.http.get<ApiResponse<Utilisateur>>(`${this.apiUrl}/${id}`);

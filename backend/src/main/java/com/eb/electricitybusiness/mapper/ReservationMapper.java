@@ -94,7 +94,6 @@ public class ReservationMapper {
         }
 
         dto.setInstructionSurPied(station.getInstructionSurPied());
-        dto.setConnectorType(station.getConnectorType());
         dto.setDescription(station.getDescription());
         dto.setEtat(station.getEtat() != null ? station.getEtat().name() : null);
         dto.setOccupee(station.getOccupee());
@@ -127,7 +126,6 @@ public class ReservationMapper {
         dto.setEmail(utilisateur.getEmail());
         dto.setDateNaissance(utilisateur.getDateNaissance());
         dto.setRole(utilisateur.getRole() != null ? utilisateur.getRole().name() : null);
-        dto.setIban(utilisateur.getIban());
         dto.setAdressePhysique(utilisateur.getAdressePhysique());
 
         dto.setAccountLocked(!utilisateur.isAccountNonLocked());

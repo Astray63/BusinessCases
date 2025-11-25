@@ -147,11 +147,12 @@ export class ProfileComponent implements OnInit {
       this.loading = true;
       this.clearMessages();
 
-      const { ancienMotDePasse, nouveauMotDePasse } = this.passwordForm.value;
+      const { ancienMotDePasse, nouveauMotDePasse, confirmMotDePasse } = this.passwordForm.value;
 
       this.utilisateurService.changePassword(this.currentUser.idUtilisateur, {
         ancienMotDePasse,
-        nouveauMotDePasse
+        nouveauMotDePasse,
+        confirmationMotDePasse: confirmMotDePasse
       }).subscribe({
         next: (response) => {
           this.loading = false;

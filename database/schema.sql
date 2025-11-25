@@ -1,5 +1,5 @@
 -- ========================================
--- Database: electricity_business
+-- Database: electricity
 -- IMPORTANT: Script entièrement robuste et ré-exécutable
 -- ========================================
 
@@ -42,13 +42,9 @@ CREATE TABLE lieu (
     id_lieu BIGSERIAL PRIMARY KEY,
     adresse VARCHAR(255) NOT NULL,
     nom VARCHAR(100) NOT NULL,
-    numero VARCHAR(20),
-    rue VARCHAR(255),
     code_postal VARCHAR(20) NOT NULL,
     ville VARCHAR(100) NOT NULL,
     pays VARCHAR(100) NOT NULL DEFAULT 'France',
-    region VARCHAR(100),
-    complement_etape TEXT,
     latitude DOUBLE PRECISION,
     longitude DOUBLE PRECISION,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -73,20 +69,16 @@ CREATE TABLE utilisateur (
     email VARCHAR(100) NOT NULL UNIQUE,
     adresse_physique VARCHAR(255),
     date_naissance DATE,
-    age INTEGER,
     telephone VARCHAR(20),
     code_postal VARCHAR(10),
     ville VARCHAR(100),
-    est_banni BOOLEAN DEFAULT FALSE,
     email_verified BOOLEAN DEFAULT FALSE,
     verification_code VARCHAR(64),
     verification_code_expiry TIMESTAMP,
-    iban VARCHAR(34),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT chk_role CHECK (role IN ('client','proprietaire','admin')),
-    CONSTRAINT chk_age CHECK (age >= 0 AND age <= 120)
+    CONSTRAINT chk_role CHECK (role IN ('client','proprietaire'))
 );
 
 
@@ -98,18 +90,14 @@ CREATE TABLE charging_stations (
     numero VARCHAR(50) NOT NULL,
     nom VARCHAR(100) NOT NULL,
     localisation VARCHAR(255) NOT NULL,
-    address VARCHAR(255) NOT NULL,
     latitude DOUBLE PRECISION,
     longitude DOUBLE PRECISION,
-    puissance INTEGER NOT NULL,
-    instruction_sur_pied TEXT,
     etat VARCHAR(20) NOT NULL DEFAULT 'DISPONIBLE',
     occupee BOOLEAN DEFAULT FALSE,
+    puissance INTEGER NOT NULL,
     prix_a_la_minute DECIMAL(10,4) NOT NULL,
-    hourly_rate DECIMAL(10,2),
-    connector_type VARCHAR(50) NOT NULL DEFAULT '2S',
+    instruction_sur_pied TEXT,
     description TEXT,
-    power_output DOUBLE PRECISION,
     owner_id BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

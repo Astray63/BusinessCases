@@ -20,63 +20,51 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Lieu {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_lieu")
     private Long idLieu;
-    
+
     @Column(name = "adresse", nullable = false)
     private String adresse;
-    
+
     @Column(name = "nom", nullable = false, length = 100)
     private String nom;
-    
-    @Column(name = "numero", length = 20)
-    private String numero;
-    
-    @Column(name = "rue")
-    private String rue;
-    
+
     @Column(name = "code_postal", nullable = false, length = 20)
     private String codePostal;
-    
+
     @Column(name = "ville", nullable = false, length = 100)
     private String ville;
-    
+
     @Column(name = "pays", nullable = false, length = 100)
     private String pays = "France";
-    
-    @Column(name = "region", length = 100)
-    private String region;
-    
-    @Column(name = "complement_etape")
-    private String complementEtape;
-    
+
     @Column(name = "latitude")
     private Double latitude;
-    
+
     @Column(name = "longitude")
     private Double longitude;
-    
+
     @Column(name = "geom", columnDefinition = "geometry(Point,4326)")
     @JsonIgnore
     private Point geom;
-    
+
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    
+
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    
+
     // Relations
     @OneToMany(mappedBy = "lieu")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<UtilisateurLieu> utilisateurLieux;
-    
+
     @OneToMany(mappedBy = "lieu")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

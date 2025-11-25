@@ -21,10 +21,10 @@ public class UtilisateurController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<?>> creerUtilisateur(@Valid @RequestBody UtilisateurDto utilisateurDto,
-                                                          @RequestParam String motDePasse) {
+            @RequestParam String motDePasse) {
         try {
             UtilisateurDto nouveauUtilisateur = utilisateurService.creerUtilisateur(utilisateurDto, motDePasse);
-            return new ResponseEntity<>(ApiResponse.success("Utilisateur créé avec succès", nouveauUtilisateur), 
+            return new ResponseEntity<>(ApiResponse.success("Utilisateur créé avec succès", nouveauUtilisateur),
                     HttpStatus.CREATED);
         } catch (Exception e) {
             throw e; // Let GlobalExceptionHandler handle it
@@ -45,16 +45,16 @@ public class UtilisateurController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> updateUtilisateur(@PathVariable Long id,
-                                                           @Valid @RequestBody UtilisateurDto utilisateurDto) {
+            @Valid @RequestBody UtilisateurDto utilisateurDto) {
         UtilisateurDto updatedUtilisateur = utilisateurService.updateUtilisateur(id, utilisateurDto);
-        return new ResponseEntity<>(ApiResponse.success("Utilisateur mis à jour avec succès", updatedUtilisateur), 
+        return new ResponseEntity<>(ApiResponse.success("Utilisateur mis à jour avec succès", updatedUtilisateur),
                 HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> deleteUtilisateur(@PathVariable Long id) {
         utilisateurService.deleteUtilisateur(id);
-        return new ResponseEntity<>(ApiResponse.success("Utilisateur supprimé avec succès"), 
+        return new ResponseEntity<>(ApiResponse.success("Utilisateur supprimé avec succès"),
                 HttpStatus.OK);
     }
 
@@ -70,18 +70,9 @@ public class UtilisateurController {
         return new ResponseEntity<>(ApiResponse.success(utilisateur), HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/ban")
-    public ResponseEntity<ApiResponse<?>> banirUtilisateur(@PathVariable Long id) {
-        utilisateurService.banirUtilisateur(id);
-        return new ResponseEntity<>(ApiResponse.success("Utilisateur banni avec succès"), 
-                HttpStatus.OK);
-    }
-
-    @PutMapping("/{id}/unban")
-    public ResponseEntity<ApiResponse<?>> reactiverUtilisateur(@PathVariable Long id) {
-        utilisateurService.reactiverUtilisateur(id);
-        return new ResponseEntity<>(ApiResponse.success("Utilisateur réactivé avec succès"), 
-                HttpStatus.OK);
+    @GetMapping("/exists-by-email")
+    public ResponseEntity<Boolean> existsByEmail(@RequestParam String email) {
+        return ResponseEntity.ok(utilisateurService.existsByEmail(email));
     }
 
     @PutMapping("/{id}/change-password")
@@ -90,10 +81,10 @@ public class UtilisateurController {
             @Valid @RequestBody ChangePasswordRequestDto request) {
         try {
             utilisateurService.changePassword(id, request);
-            return new ResponseEntity<>(ApiResponse.success("Mot de passe changé avec succès"), 
+            return new ResponseEntity<>(ApiResponse.success("Mot de passe changé avec succès"),
                     HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(ApiResponse.error(e.getMessage()), 
+            return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.BAD_REQUEST);
         }
     }

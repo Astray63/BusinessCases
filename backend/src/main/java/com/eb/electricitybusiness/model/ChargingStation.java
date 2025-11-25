@@ -1,12 +1,11 @@
 package com.eb.electricitybusiness.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.locationtech.jts.geom.Point;
@@ -48,11 +47,6 @@ public class ChargingStation {
     @Column(name = "puissance", nullable = false)
     private Integer puissance;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "borne_medias", joinColumns = @JoinColumn(name = "borne_id"))
-    @Column(name = "media_url")
-    private List<String> medias = new ArrayList<>();
-
     @Column(name = "instruction_sur_pied")
     private String instructionSurPied;
 
@@ -66,73 +60,40 @@ public class ChargingStation {
     @Column(name = "prix_a_la_minute", nullable = false, precision = 10, scale = 4)
     private BigDecimal prixALaMinute;
 
-    @Column(name = "hourly_rate", precision = 10, scale = 2)
-    private BigDecimal hourlyRate;
-
-    @Column(name = "connector_type", nullable = false, length = 50)
-    private String connectorType = "2S";
-
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "geom", columnDefinition = "geometry(Point,4326)")
     @JsonIgnore
     private Point geom;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @Column(name = "power_output")
-    private Double powerOutput;
-
-    // Relations
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
-    @JsonIgnore
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "motDePasse", "reservations", "bornes", "avis",
+            "signalements" })
     private Utilisateur owner;
 
-    @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private Set<Reservation> reservations = new HashSet<>();
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "borne_medias", joinColumns = @JoinColumn(name = "borne_id"))
+    @Column(name = "media_url")
+    private List<String> medias = new ArrayList<>();
 
-    @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private Set<Avis> avis = new HashSet<>();
+    @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("chargingStation")
+    private List<Reservation> reservations = new ArrayList<>();
 
-    @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private Set<Signalement> signalements = new HashSet<>();
+    @ManyToMany
+    @JoinTable(name = "charging_station_lieu", joinColumns = @JoinColumn(name = "borne_id"), inverseJoinColumns = @JoinColumn(name = "lieu_id"))
+    @JsonIgnoreProperties("bornes")
+    private Set<Lieu> lieux = new HashSet<>();
 
-    @OneToOne(mappedBy = "chargingStation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private ChargingStationLieu chargingStationLieu;
+    @Column(name = "created_at", updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-    @Column(name = "address", nullable = false)
-    private String address;
-
-    /**
-     * Force le type de connecteur à "2S" avant toute persistance ou mise à jour
-     */
-    @PrePersist
-    @PreUpdate
-    private void enforceConnectorType() {
-        this.connectorType = "2S";
-    }
+    @Column(name = "updated_at")
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     public enum Etat {
         DISPONIBLE,

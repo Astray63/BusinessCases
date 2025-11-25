@@ -89,12 +89,13 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
         utilisateur.setMotDePasse(passwordEncoder.encode(motDePasse));
         utilisateur.setRole(Utilisateur.Role.valueOf(utilisateurDto.role() != null ? utilisateurDto.role() : "client"));
         utilisateur.setDateNaissance(utilisateurDto.dateNaissance());
-        utilisateur.setIban(utilisateurDto.iban());
         utilisateur.setAdressePhysique(utilisateurDto.adressePhysique());
         utilisateur.setTelephone(utilisateurDto.telephone());
         utilisateur.setCodePostal(utilisateurDto.codePostal());
         utilisateur.setVille(utilisateurDto.ville());
-        utilisateur.setEstBanni(false);
+        utilisateur.setVille(utilisateurDto.ville());
+        // utilisateur.setEstBanni(false); // Removed
+        utilisateur.setEmailVerified(false);
 
         // Générer un code de vérification à 6 chiffres
         String verificationCode = generateVerificationCode();
@@ -158,7 +159,6 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
         utilisateur.setPseudo(utilisateurDto.pseudo());
         utilisateur.setEmail(utilisateurDto.email());
         utilisateur.setDateNaissance(utilisateurDto.dateNaissance());
-        utilisateur.setIban(utilisateurDto.iban());
         utilisateur.setAdressePhysique(utilisateurDto.adressePhysique());
         utilisateur.setTelephone(utilisateurDto.telephone());
         utilisateur.setCodePostal(utilisateurDto.codePostal());
@@ -198,24 +198,6 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "pseudo", authRequestDto.pseudo()));
 
         return passwordEncoder.matches(authRequestDto.password(), utilisateur.getMotDePasse());
-    }
-
-    @Override
-    @Transactional
-    public void banirUtilisateur(Long id) {
-        Utilisateur utilisateur = utilisateurRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "id", id));
-        utilisateur.setEstBanni(true);
-        utilisateurRepository.save(utilisateur);
-    }
-
-    @Override
-    @Transactional
-    public void reactiverUtilisateur(Long id) {
-        Utilisateur utilisateur = utilisateurRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "id", id));
-        utilisateur.setEstBanni(false);
-        utilisateurRepository.save(utilisateur);
     }
 
     @Override
@@ -321,21 +303,19 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
     private UtilisateurDto mapToDto(Utilisateur utilisateur) {
         return new UtilisateurDto(
                 utilisateur.getIdUtilisateur(),
-                utilisateur.getRole() != null ? utilisateur.getRole().getValue() : "client", // role
+                utilisateur.getRole().getValue(),
                 utilisateur.getNom(),
                 utilisateur.getPrenom(),
                 utilisateur.getPseudo(),
                 utilisateur.getEmail(),
                 utilisateur.getDateNaissance(),
-                utilisateur.getIban(),
                 utilisateur.getAdressePhysique(),
                 utilisateur.getTelephone(),
                 utilisateur.getCodePostal(),
                 utilisateur.getVille(),
-                null, // idAdresse - à ajuster selon votre logique métier
-                !utilisateur.getEstBanni(), // actif (inverse de estBanni)
-                utilisateur.getCreatedAt(),
-                null // dateModification - pas dans le modèle actuel
-        );
+                null, // idAdresse n'existe pas dans l'entité Utilisateur
+                true, // actif
+                utilisateur.getDateCreation(),
+                utilisateur.getDateModification());
     }
 }

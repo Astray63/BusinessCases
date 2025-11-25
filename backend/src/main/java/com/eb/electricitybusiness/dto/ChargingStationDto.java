@@ -49,11 +49,6 @@ public class ChargingStationDto {
     @NotNull(message = "L'owner id est obligatoire")
     private Long ownerId;
 
-    @NotBlank(message = "L'adresse est obligatoire")
-    private String address;
-
-    @NotNull(message = "Le taux horaire est obligatoire")
-    @Positive(message = "Le taux horaire doit être positif")
     private BigDecimal hourlyRate;
 
     public Long getId() {
@@ -136,15 +131,6 @@ public class ChargingStationDto {
         this.instructionSurPied = instructionSurPied;
     }
 
-    public String getConnectorType() {
-        return "2S"; // Toujours retourner "2S"
-    }
-
-    public void setConnectorType(String connectorType) {
-        // Ignorer toute valeur passée, toujours forcer à "2S"
-        // this.connectorType = "2S";
-    }
-
     public String getDescription() {
         return description;
     }
@@ -175,14 +161,6 @@ public class ChargingStationDto {
 
     public void setOwnerId(Long ownerId) {
         this.ownerId = ownerId;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 
     public BigDecimal getHourlyRate() {

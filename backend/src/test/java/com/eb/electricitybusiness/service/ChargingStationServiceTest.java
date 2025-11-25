@@ -55,7 +55,6 @@ class ChargingStationServiceTest {
         dto.setEtat("DISPONIBLE");
         dto.setOccupee(false);
         dto.setPrixALaMinute(new BigDecimal("2.50"));
-        dto.setAddress("123 Test Street");
         dto.setOwnerId(1L);
 
         Utilisateur owner = new Utilisateur();
@@ -64,7 +63,6 @@ class ChargingStationServiceTest {
         ChargingStation savedStation = new ChargingStation();
         savedStation.setIdBorne(1L);
         savedStation.setNom(dto.getNom());
-        savedStation.setAddress(dto.getAddress());
         savedStation.setOwner(owner);
 
         when(utilisateurRepository.findById(1L)).thenReturn(Optional.of(owner));
@@ -76,7 +74,6 @@ class ChargingStationServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(dto.getNom(), result.getNom());
-        assertEquals(dto.getAddress(), result.getAddress());
         assertEquals(1L, result.getOwnerId());
         verify(chargingStationRepository, times(1)).save(any(ChargingStation.class));
     }
@@ -270,13 +267,13 @@ class ChargingStationServiceTest {
         // Arrange
         ChargingStation station1 = new ChargingStation();
         station1.setIdBorne(1L);
-        station1.setHourlyRate(new BigDecimal("10.00"));
+        station1.setPrixALaMinute(new BigDecimal("0.1667")); // ~10.00 hourly
         station1.setPuissance(50);
         station1.setEtat(ChargingStation.Etat.DISPONIBLE);
 
         ChargingStation station2 = new ChargingStation();
         station2.setIdBorne(2L);
-        station2.setHourlyRate(new BigDecimal("20.00"));
+        station2.setPrixALaMinute(new BigDecimal("0.3333")); // ~20.00 hourly
         station2.setPuissance(22);
         station2.setEtat(ChargingStation.Etat.OCCUPEE);
 
@@ -286,8 +283,7 @@ class ChargingStationServiceTest {
         List<ChargingStationDto> result = chargingStationService.searchAdvanced(
                 null, null, null,
                 new BigDecimal("5.00"), new BigDecimal("15.00"),
-                40, "DISPONIBLE", true
-        );
+                40, "DISPONIBLE", true);
 
         // Assert
         assertNotNull(result);

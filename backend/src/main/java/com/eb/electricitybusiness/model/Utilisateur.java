@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "utilisateur")
@@ -49,7 +50,7 @@ public class Utilisateur implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !estBanni;
+        return true;
     }
 
     @Override
@@ -92,9 +93,6 @@ public class Utilisateur implements UserDetails {
     @Column(name = "date_naissance")
     private LocalDate dateNaissance;
 
-    @Column(name = "age")
-    private Integer age;
-
     @Column(name = "telephone", length = 20)
     private String telephone;
 
@@ -103,9 +101,6 @@ public class Utilisateur implements UserDetails {
 
     @Column(name = "ville", length = 100)
     private String ville;
-
-    @Column(name = "est_banni")
-    private Boolean estBanni = false;
 
     @Column(name = "email_verified")
     private Boolean emailVerified = false;
@@ -116,12 +111,11 @@ public class Utilisateur implements UserDetails {
     @Column(name = "verification_code_expiry")
     private LocalDateTime verificationCodeExpiry;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime dateCreation;
 
-    @Column(name = "iban")
-    private String iban;
+    @Column(name = "updated_at")
+    private LocalDateTime dateModification;
 
     // Relations
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -141,8 +135,7 @@ public class Utilisateur implements UserDetails {
 
     public enum Role {
         client("client"),
-        proprietaire("proprietaire"),
-        admin("admin");
+        proprietaire("proprietaire");
 
         private final String value;
 

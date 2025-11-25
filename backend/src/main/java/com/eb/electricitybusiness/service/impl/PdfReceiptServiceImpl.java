@@ -154,10 +154,7 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
         addTableRow(table, "Localisation", reservation.getChargingStation().getLocalisation(), font);
         addTableRow(table, "Numéro", reservation.getChargingStation().getNumero(), font);
         addTableRow(table, "Puissance", reservation.getChargingStation().getPuissance() + " kW", font);
-        if (reservation.getChargingStation().getConnectorType() != null) {
-            addTableRow(table, "Type de connecteur",
-                    reservation.getChargingStation().getConnectorType(), font);
-        }
+        addTableRow(table, "Type de connecteur", "Type 2S", font);
 
         document.add(table);
     }

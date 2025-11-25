@@ -26,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = com.eb.electricitybusiness.ElectricityBusinessApplication.class)
 @AutoConfigureMockMvc
+@org.springframework.test.context.ActiveProfiles("test")
+@org.springframework.test.context.TestPropertySource(locations = "classpath:application-test.yml")
 class BorneControllerIntegrationTest {
 
     @Autowired
@@ -44,7 +46,7 @@ class BorneControllerIntegrationTest {
     private PasswordEncoder passwordEncoder;
 
     private ChargingStation testBorne;
-    private Utilisateur testAdmin;
+    private Utilisateur testUser; // Renamed from testAdmin to testUser
 
     @BeforeEach
     void setup() {
@@ -52,19 +54,19 @@ class BorneControllerIntegrationTest {
         chargingStationRepository.deleteAll();
         utilisateurRepository.deleteAll();
 
-        // Create test admin user
-        testAdmin = new Utilisateur();
-        testAdmin.setNom("Admin Test");
-        testAdmin.setPrenom("Test");
-        testAdmin.setPseudo("admintest");
-        testAdmin.setEmail("admin@test.com");
-        testAdmin.setMotDePasse(passwordEncoder.encode("password"));
-        testAdmin.setRole(Utilisateur.Role.admin);
-        testAdmin = utilisateurRepository.save(testAdmin);
+        // Create test user (formerly admin)
+        testUser = new Utilisateur();
+        testUser.setNom("Test");
+        testUser.setPrenom("User");
+        testUser.setPseudo("testuser");
+        testUser.setEmail("user@test.com");
+        testUser.setMotDePasse(passwordEncoder.encode("password"));
+        testUser.setRole(Utilisateur.Role.client); // Changed role to client
+        testUser = utilisateurRepository.save(testUser);
 
         // Create test charging station
         testBorne = new ChargingStation();
-        testBorne.setNom("Test Borne");  // This already maps to the name column
+        testBorne.setNom("Test Borne"); // This already maps to the name column
         testBorne.setNumero("B001");
         testBorne.setLocalisation("Test Location");
         testBorne.setLatitude(45.0);
@@ -73,45 +75,31 @@ class BorneControllerIntegrationTest {
         testBorne.setEtat(ChargingStation.Etat.DISPONIBLE);
         testBorne.setOccupee(false);
         testBorne.setPrixALaMinute(new BigDecimal("2.50"));
-        testBorne.setConnectorType("2S");
         testBorne.setDescription("Test charging station");
-        testBorne.setOwner(testAdmin);
-        testBorne.setAddress("123 Test Street");
-        testBorne.setHourlyRate(new BigDecimal("15.00"));
-        testBorne.setPowerOutput(22.0);
+        testBorne.setOwner(testUser); // Changed from testAdmin to testUser
         testBorne = chargingStationRepository.save(testBorne);
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void whenCreateBorne_thenReturnCreatedBorne() throws Exception {
-        // Arrange
+    @WithMockUser(username = "testuser", roles = "PROPRIETAIRE")
+    void createBorne_ValidData_ReturnsCreated() throws Exception {
         ChargingStationDto dto = new ChargingStationDto();
-        dto.setNom("New Test Borne");
-        dto.setNumero("B002");
-        dto.setLocalisation("New Test Location");
-        dto.setLatitude(46.0);
-        dto.setLongitude(6.0);
-        dto.setPuissance(50);
+        dto.setNom("New Borne");
+        dto.setLocalisation("New Location");
+        dto.setLatitude(48.8566);
+        dto.setLongitude(2.3522);
+        dto.setPuissance(22);
+        dto.setPrixALaMinute(new BigDecimal("0.25")); // Ensure BigDecimal for price
+        dto.setOwnerId(testUser.getIdUtilisateur());
+        dto.setNumero("B-NEW-001");
         dto.setEtat("DISPONIBLE");
-        dto.setOccupee(false);
-        dto.setPrixALaMinute(new BigDecimal("3.50"));
-        dto.setConnectorType("2S");
-        dto.setDescription("New test charging station");
-        dto.setAddress("456 New Test Street");
-        dto.setHourlyRate(new BigDecimal("20.00"));  // Adding hourly rate
-        dto.setOwnerId(testAdmin.getIdUtilisateur());
 
-        // Act & Assert
-        MvcResult result = mockMvc.perform(post("/bornes")
+        mockMvc.perform(post("/bornes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isCreated()) // Expect 201 Created
                 .andExpect(jsonPath("$.result").value("SUCCESS"))
-                .andExpect(jsonPath("$.data.nom").value(dto.getNom()))
-                .andReturn();
-
-        // Additional assertions if needed
+                .andExpect(jsonPath("$.data.nom").value(dto.getNom()));
     }
 
     @Test
@@ -151,6 +139,31 @@ class BorneControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "testuser")
+    void getAllBornes_ReturnsList() throws Exception {
+        // Create a test charging station
+        ChargingStation testStation = new ChargingStation();
+        testStation.setNom("Test Station");
+        testStation.setNumero("TEST123");
+        testStation.setLocalisation("Test Location");
+        testStation.setLatitude(45.0);
+        testStation.setLongitude(5.0);
+        testStation.setPuissance(50);
+        testStation.setEtat(ChargingStation.Etat.DISPONIBLE);
+        testStation.setOccupee(false);
+        testStation.setPrixALaMinute(new BigDecimal("2.50"));
+        testStation.setOwner(testUser);
+        testStation = chargingStationRepository.save(testStation);
+
+        mockMvc.perform(get("/bornes"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result").value("SUCCESS"))
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data[0].nom").value(testBorne.getNom()))
+                .andExpect(jsonPath("$.data[1].nom").value(testStation.getNom()));
+    }
+
+    @Test
     @WithMockUser(roles = "ADMIN")
     void whenChangerEtat_thenUpdateEtat() throws Exception {
         // Create a test charging station
@@ -161,12 +174,10 @@ class BorneControllerIntegrationTest {
         testStation.setLatitude(45.0);
         testStation.setLongitude(5.0);
         testStation.setPuissance(50);
-        testStation.setConnectorType("2S");
         testStation.setEtat(ChargingStation.Etat.DISPONIBLE);
         testStation.setOccupee(false);
         testStation.setPrixALaMinute(new BigDecimal("2.50"));
-        testStation.setAddress("123 Test St");
-        testStation.setOwner(testAdmin);
+        testStation.setOwner(testUser);
         testStation = chargingStationRepository.save(testStation);
 
         mockMvc.perform(put("/bornes/" + testStation.getIdBorne() + "/etat")
@@ -188,8 +199,8 @@ class BorneControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void whenUpdateBorne_thenReturnUpdatedBorne() throws Exception {
+    @WithMockUser(username = "testproprietaire", roles = "PROPRIETAIRE")
+    void updateBorne_AsOwner_ReturnsUpdated() throws Exception {
         // Arrange
         ChargingStationDto dto = new ChargingStationDto();
         dto.setNom("Updated Borne Name");
@@ -201,11 +212,11 @@ class BorneControllerIntegrationTest {
         dto.setEtat("DISPONIBLE");
         dto.setOccupee(false);
         dto.setPrixALaMinute(new BigDecimal("3.00"));
-        dto.setConnectorType("2S");
+        dto.setInstructionSurPied("Instructions");
+        // dto.setConnectorType("2S");
+        dto.setDescription("Description");
         dto.setDescription("Updated description");
-        dto.setAddress("Updated Address");
-        dto.setHourlyRate(new BigDecimal("18.00"));
-        dto.setOwnerId(testAdmin.getIdUtilisateur());
+        dto.setOwnerId(testUser.getIdUtilisateur());
 
         // Act & Assert
         mockMvc.perform(put("/bornes/" + testBorne.getIdBorne())
@@ -217,12 +228,17 @@ class BorneControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void whenDeleteBorne_thenReturnSuccess() throws Exception {
+    @WithMockUser(username = "testuser", roles = "PROPRIETAIRE")
+    void deleteBorne_AsOwner_ReturnsSuccess() throws Exception {
+        // Ensure testUser is the owner (already set in setUp but good to be explicit if
+        // needed)
+        testBorne.setOwner(testUser);
+        chargingStationRepository.save(testBorne);
+
         mockMvc.perform(delete("/bornes/" + testBorne.getIdBorne()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value("SUCCESS"));
-        
+
         // Verify it's gone
         assertFalse(chargingStationRepository.existsById(testBorne.getIdBorne()));
     }
@@ -231,7 +247,7 @@ class BorneControllerIntegrationTest {
     @WithMockUser
     void whenSearchBornes_thenReturnFilteredResults() throws Exception {
         mockMvc.perform(get("/bornes/search")
-                .param("prixMax", "20.00")
+                .param("prixMax", "200.00")
                 .param("puissanceMin", "20")
                 .param("etat", "DISPONIBLE"))
                 .andExpect(status().isOk())

@@ -23,10 +23,6 @@ public interface UtilisateurService {
 
     boolean validerMotDePasse(AuthRequestDto authRequestDto);
 
-    void banirUtilisateur(Long id);
-
-    void reactiverUtilisateur(Long id);
-
     boolean existsByEmail(String email);
 
     boolean existsByPseudo(String pseudo);

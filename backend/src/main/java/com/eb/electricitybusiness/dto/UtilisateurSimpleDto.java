@@ -10,7 +10,6 @@ public class UtilisateurSimpleDto {
     private String email;
     private LocalDate dateNaissance;
     private String role;
-    private String iban;
     private String adressePhysique;
     private String medias;
     private Boolean accountLocked;
@@ -70,14 +69,6 @@ public class UtilisateurSimpleDto {
 
     public void setRole(String role) {
         this.role = role;
-    }
-
-    public String getIban() {
-        return iban;
-    }
-
-    public void setIban(String iban) {
-        this.iban = iban;
     }
 
     public String getAdressePhysique() {

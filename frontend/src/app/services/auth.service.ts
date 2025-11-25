@@ -76,6 +76,9 @@ export class AuthService {
         role: 'client',
         iban: user.iban || '',
         adressePhysique: user.adressePhysique || '',
+        telephone: user.telephone || '',
+        codePostal: user.codePostal || '',
+        ville: user.ville || '',
       },
       motDePasse: motDePasse
     };

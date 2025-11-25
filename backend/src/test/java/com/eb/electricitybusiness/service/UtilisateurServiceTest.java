@@ -1,6 +1,7 @@
 package com.eb.electricitybusiness.service;
 
 import com.eb.electricitybusiness.dto.AuthRequestDto;
+import com.eb.electricitybusiness.dto.ChangePasswordRequestDto;
 import com.eb.electricitybusiness.dto.UtilisateurDto;
 import com.eb.electricitybusiness.exception.DuplicateResourceException;
 import com.eb.electricitybusiness.exception.ResourceNotFoundException;
@@ -15,6 +16,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -45,23 +47,9 @@ class UtilisateurServiceTest {
         String motDePasse = "password123";
         String motDePasseEncode = "encoded_password";
         UtilisateurDto dto = new UtilisateurDto(
-                null, // idUtilisateur
-                "client", // role
-                "John", // nom
-                "Doe", // prenom
-                "johndoe", // pseudo
-                "john.doe@example.com", // email
-                LocalDate.of(1990, 1, 1), // dateNaissance
-                "FR123456789", // iban
-                "123 Main St", // adressePhysique
-                "0612345678", // telephone
-                "75001", // codePostal
-                "Paris", // ville
-                1L, // idAdresse
-                true, // actif
-                null, // dateCreation
-                null // dateModification
-        );
+                null, "client", "Test", "User", "testuser", "test@test.com",
+                LocalDate.of(1990, 1, 1), "123 Rue Test", "0123456789", "75000", "Paris",
+                null, true, null, null);
 
         when(utilisateurRepository.existsByEmail(dto.email())).thenReturn(false);
         when(utilisateurRepository.existsByPseudo(dto.pseudo())).thenReturn(false);
@@ -86,22 +74,9 @@ class UtilisateurServiceTest {
     void creerUtilisateur_DuplicateEmail_ThrowsDuplicateResourceException() {
         // Arrange
         UtilisateurDto dto = new UtilisateurDto(
-                null,
-                "client",
-                "John",
-                "Doe",
-                "johndoe",
-                "existing@example.com",
-                LocalDate.of(1990, 1, 1),
-                "FR123456789",
-                "123 Main St",
-                "0612345678",
-                "75001",
-                "Paris",
-                1L,
-                true,
-                null,
-                null);
+                null, "client", "Test", "User", "testuser", "existing@example.com",
+                LocalDate.of(1990, 1, 1), "123 Rue Test", "0123456789", "75000", "Paris",
+                null, true, null, null);
 
         when(utilisateurRepository.existsByEmail(dto.email())).thenReturn(true);
 
@@ -187,21 +162,42 @@ class UtilisateurServiceTest {
     }
 
     @Test
-    void banirUtilisateur_ValidId_BansUser() {
-        // Arrange
-        Long id = 1L;
+    void getUtilisateurByPseudo_ValidPseudo_ReturnsDto() {
         Utilisateur utilisateur = new Utilisateur();
-        utilisateur.setIdUtilisateur(id);
-        utilisateur.setEstBanni(false);
+        utilisateur.setIdUtilisateur(1L);
+        utilisateur.setPseudo("testuser");
+        utilisateur.setRole(Utilisateur.Role.client);
+        utilisateur.setNom("Test");
+        utilisateur.setPrenom("User");
+        utilisateur.setEmail("test@test.com");
+        utilisateur.setDateCreation(LocalDateTime.now());
 
-        when(utilisateurRepository.findById(id)).thenReturn(Optional.of(utilisateur));
-        when(utilisateurRepository.save(any(Utilisateur.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(utilisateurRepository.findByPseudo("testuser")).thenReturn(Optional.of(utilisateur));
 
-        // Act
-        utilisateurService.banirUtilisateur(id);
+        UtilisateurDto result = utilisateurService.getUtilisateurByPseudo("testuser");
 
-        // Assert
-        verify(utilisateurRepository).save(any(Utilisateur.class));
-        assertTrue(utilisateur.getEstBanni());
+        assertNotNull(result);
+        assertEquals("testuser", result.pseudo());
+    }
+
+    @Test
+    void changePassword_ValidData_UpdatesPassword() {
+        Utilisateur utilisateur = new Utilisateur();
+        utilisateur.setIdUtilisateur(1L);
+        utilisateur.setMotDePasse("encodedOldPassword");
+
+        ChangePasswordRequestDto request = new ChangePasswordRequestDto();
+        request.setAncienMotDePasse("oldPassword");
+        request.setNouveauMotDePasse("newPassword");
+        request.setConfirmationMotDePasse("newPassword");
+
+        when(utilisateurRepository.findById(1L)).thenReturn(Optional.of(utilisateur));
+        when(passwordEncoder.matches("oldPassword", "encodedOldPassword")).thenReturn(true);
+        when(passwordEncoder.encode("newPassword")).thenReturn("encodedNewPassword");
+
+        utilisateurService.changePassword(1L, request);
+
+        assertEquals("encodedNewPassword", utilisateur.getMotDePasse());
+        verify(utilisateurRepository, times(1)).save(utilisateur);
     }
 }

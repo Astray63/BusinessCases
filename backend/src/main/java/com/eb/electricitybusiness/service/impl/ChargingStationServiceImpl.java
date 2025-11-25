@@ -32,13 +32,13 @@ public class ChargingStationServiceImpl implements ChargingStationService {
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
-    
+
     @Autowired
     private ReservationRepository reservationRepository;
-    
+
     @Value("${app.upload.dir:${user.home}/electriccharge/uploads/bornes}")
     private String uploadDir;
-    
+
     @Value("${app.upload.base-url:http://localhost:8080/uploads/bornes}")
     private String uploadBaseUrl;
 
@@ -76,11 +76,8 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         station.setEtat(parseEtat(dto.getEtat()));
         station.setOccupee(dto.getOccupee());
         station.setPrixALaMinute(dto.getPrixALaMinute());
-        station.setConnectorType(dto.getConnectorType());
         station.setDescription(dto.getDescription());
-        station.setAddress(dto.getAddress());
-        station.setHourlyRate(dto.getHourlyRate());
-        
+
         @SuppressWarnings("null")
         Utilisateur owner = utilisateurRepository.findById(dto.getOwnerId())
                 .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé avec l'id " + dto.getOwnerId()));
@@ -117,7 +114,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional(readOnly = true)
     public List<ChargingStationDto> getByLieu(Long idLieu) {
-        List<ChargingStation> stations = chargingStationRepository.findByChargingStationLieu_Lieu_IdLieu(idLieu);
+        List<ChargingStation> stations = chargingStationRepository.findByLieuxId(idLieu);
         return stations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -134,7 +131,8 @@ public class ChargingStationServiceImpl implements ChargingStationService {
                         try {
                             return convertToDto(station);
                         } catch (Exception e) {
-                            System.err.println("Error converting station " + station.getIdBorne() + ": " + e.getMessage());
+                            System.err.println(
+                                    "Error converting station " + station.getIdBorne() + ": " + e.getMessage());
                             e.printStackTrace();
                             return null;
                         }
@@ -165,12 +163,13 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         @SuppressWarnings("null")
         ChargingStation station = chargingStationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
-        
+
         // Vérifier s'il y a des réservations actives
         if (reservationRepository.hasActiveReservations(id)) {
-            throw new IllegalStateException("Impossible de supprimer la borne : des réservations actives existent pour cette borne");
+            throw new IllegalStateException(
+                    "Impossible de supprimer la borne : des réservations actives existent pour cette borne");
         }
-        
+
         @SuppressWarnings("null")
         Long idToDelete = id;
         chargingStationRepository.deleteById(idToDelete);
@@ -212,13 +211,13 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         ChargingStation updatedStation = chargingStationRepository.save(station);
         return convertToDto(updatedStation);
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public List<ChargingStationDto> searchAdvanced(Double latitude, Double longitude, Double distance,
-                                                     java.math.BigDecimal prixMin, java.math.BigDecimal prixMax,
-                                                     Integer puissanceMin, String etat, Boolean disponible) {
-        
+            java.math.BigDecimal prixMin, java.math.BigDecimal prixMax,
+            Integer puissanceMin, String etat, Boolean disponible) {
+
         // D'abord filtrer par distance si coordonnées fournies
         List<ChargingStation> stations;
         if (latitude != null && longitude != null && distance != null) {
@@ -226,19 +225,25 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         } else {
             stations = chargingStationRepository.findAll();
         }
-        
+
         // Appliquer les filtres supplémentaires
         List<ChargingStationDto> results = stations.stream()
                 .filter(s -> {
-                    if (prixMin != null && s.getHourlyRate() != null) {
-                        boolean matches = s.getHourlyRate().compareTo(prixMin) >= 0;
+                    if (prixMin != null && s.getPrixALaMinute() != null) {
+                        // Convertir prixALaMinute en hourlyRate pour comparaison
+                        java.math.BigDecimal hourlyRate = s.getPrixALaMinute()
+                                .multiply(java.math.BigDecimal.valueOf(60));
+                        boolean matches = hourlyRate.compareTo(prixMin) >= 0;
                         return matches;
                     }
                     return true;
                 })
                 .filter(s -> {
-                    if (prixMax != null && s.getHourlyRate() != null) {
-                        boolean matches = s.getHourlyRate().compareTo(prixMax) <= 0;
+                    if (prixMax != null && s.getPrixALaMinute() != null) {
+                        // Convertir prixALaMinute en hourlyRate pour comparaison
+                        java.math.BigDecimal hourlyRate = s.getPrixALaMinute()
+                                .multiply(java.math.BigDecimal.valueOf(60));
+                        boolean matches = hourlyRate.compareTo(prixMax) <= 0;
                         return matches;
                     }
                     return true;
@@ -267,7 +272,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
                 })
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
-        
+
         return results;
     }
 
@@ -296,7 +301,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         dto.setLatitude(station.getLatitude());
         dto.setLongitude(station.getLongitude());
         dto.setPuissance(station.getPuissance());
-        
+
         // Charger les medias de manière sûre (lazy loading)
         try {
             List<String> medias = station.getMedias();
@@ -305,26 +310,24 @@ public class ChargingStationServiceImpl implements ChargingStationService {
             System.err.println("Could not load medias for station " + station.getIdBorne() + ": " + e.getMessage());
             dto.setMedias(List.of());
         }
-        
+
         dto.setInstructionSurPied(station.getInstructionSurPied());
         dto.setEtat(convertEtatToString(station.getEtat()));
         dto.setOccupee(station.getOccupee());
         dto.setPrixALaMinute(station.getPrixALaMinute());
-        dto.setConnectorType(station.getConnectorType());
         dto.setDescription(station.getDescription());
-        dto.setAddress(station.getAddress());
-        dto.setHourlyRate(station.getHourlyRate());
-        
-        // Mapper pour le frontend
-        if (station.getHourlyRate() != null) {
-            dto.setPrix(station.getHourlyRate()); // prix = hourlyRate
+
+        // Calculate hourly rate
+        if (station.getPrixALaMinute() != null) {
+            dto.setHourlyRate(station.getPrixALaMinute().multiply(java.math.BigDecimal.valueOf(60)));
+            dto.setPrix(dto.getHourlyRate()); // prix = hourlyRate
         }
-        
+
         // Déterminer le type basé sur la puissance
         if (station.getPuissance() != null) {
             dto.setType(station.getPuissance() >= 50 ? "RAPIDE" : "NORMALE");
         }
-        
+
         // Safely handle lazy-loaded owner relationship
         try {
             if (station.getOwner() != null) {
@@ -336,57 +339,55 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         }
         return dto;
     }
-    
+
     @Override
     @Transactional
     public List<String> uploadPhotos(Long borneId, MultipartFile[] photos) throws Exception {
-        
+
         @SuppressWarnings("null")
         ChargingStation station = chargingStationRepository.findById(borneId)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + borneId));
-        
+
         List<String> photoUrls = new ArrayList<>();
-        
+
         // Créer le répertoire d'upload s'il n'existe pas
         Path uploadPath = Paths.get(uploadDir);
-        
+
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
-        
+
         // Créer un sous-dossier pour cette borne
         Path borneUploadPath = uploadPath.resolve("borne-" + borneId);
         if (!Files.exists(borneUploadPath)) {
             Files.createDirectories(borneUploadPath);
         }
-        
+
         // Limiter à 5 photos au total
         int currentPhotoCount = station.getMedias() != null ? station.getMedias().size() : 0;
         int maxPhotos = 5;
         int remainingSlots = maxPhotos - currentPhotoCount;
-        
-        
+
         if (remainingSlots <= 0) {
             throw new Exception("Limite de " + maxPhotos + " photos atteinte");
         }
-        
+
         int photosToUpload = Math.min(photos.length, remainingSlots);
-        
+
         for (int i = 0; i < photosToUpload; i++) {
             MultipartFile photo = photos[i];
-            
-            
+
             // Valider le type de fichier
             String contentType = photo.getContentType();
             if (contentType == null || !contentType.startsWith("image/")) {
                 throw new Exception("Le fichier doit être une image");
             }
-            
+
             // Valider la taille (max 5MB)
             if (photo.getSize() > 5 * 1024 * 1024) {
                 throw new Exception("La taille maximale par image est de 5MB");
             }
-            
+
             // Générer un nom de fichier unique
             String originalFilename = photo.getOriginalFilename();
             String extension = "";
@@ -394,42 +395,42 @@ public class ChargingStationServiceImpl implements ChargingStationService {
                 extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             }
             String uniqueFilename = UUID.randomUUID().toString() + extension;
-            
+
             // Sauvegarder le fichier
             Path filePath = borneUploadPath.resolve(uniqueFilename);
             Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            
+
             // Générer l'URL accessible
             String photoUrl = uploadBaseUrl + "/borne-" + borneId + "/" + uniqueFilename;
             photoUrls.add(photoUrl);
         }
-        
+
         // Ajouter les nouvelles URLs à la liste existante
         if (station.getMedias() == null) {
             station.setMedias(new ArrayList<>());
         }
         station.getMedias().addAll(photoUrls);
-        
+
         chargingStationRepository.save(station);
-        
+
         return photoUrls;
     }
-    
+
     @Override
     @Transactional
     public void deletePhoto(Long borneId, String photoUrl) throws Exception {
         @SuppressWarnings("null")
         ChargingStation station = chargingStationRepository.findById(borneId)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + borneId));
-        
+
         if (station.getMedias() == null || !station.getMedias().contains(photoUrl)) {
             throw new EntityNotFoundException("Photo non trouvée");
         }
-        
+
         // Supprimer l'URL de la liste
         station.getMedias().remove(photoUrl);
         chargingStationRepository.save(station);
-        
+
         // Essayer de supprimer le fichier physique
         try {
             String filename = photoUrl.substring(photoUrl.lastIndexOf("/") + 1);
