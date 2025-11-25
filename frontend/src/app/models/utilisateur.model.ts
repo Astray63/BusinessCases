@@ -13,9 +13,12 @@ export interface Utilisateur {
   dateNaissance?: Date;
   iban?: string;
   adressePhysique?: string;
+  telephone?: string;
+  codePostal?: string;
+  ville?: string;
   medias?: string;
   idAdresse?: number;
-  
+
   // Flag dynamique calculé côté front selon si l'utilisateur possède des bornes
   isProprietaire?: boolean;
   nombreBornes?: number;
@@ -36,6 +39,9 @@ export interface RegisterRequest {
     role: string;
     iban?: string;
     adressePhysique?: string;
+    telephone?: string;
+    codePostal?: string;
+    ville?: string;
     medias?: string;
   };
   motDePasse: string;

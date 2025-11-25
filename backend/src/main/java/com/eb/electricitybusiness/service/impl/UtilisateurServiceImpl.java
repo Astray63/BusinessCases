@@ -30,16 +30,17 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String pseudo) throws UsernameNotFoundException {
-        return utilisateurRepository.findByPseudo(pseudo)
-            .map(user -> {
-                if (user.isEnabled()) {
-                    return user;
-                } else {
-                    throw new UsernameNotFoundException("Compte non vérifié: " + pseudo);
-                }
-            })
-            .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé: " + pseudo));
+    public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
+        // Try to find by pseudo first, then by email
+        Utilisateur user = utilisateurRepository.findByPseudo(identifier)
+                .or(() -> utilisateurRepository.findByEmail(identifier))
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé: " + identifier));
+
+        if (user.isEnabled()) {
+            return user;
+        } else {
+            throw new UsernameNotFoundException("Compte non vérifié: " + identifier);
+        }
     }
 
     @Autowired
@@ -62,25 +63,41 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
             throw new DuplicateResourceException("Utilisateur", "email", utilisateurDto.email());
         }
 
-        // Vérifier si le pseudo existe déjà
-        if (utilisateurRepository.existsByPseudo(utilisateurDto.pseudo())) {
-            throw new DuplicateResourceException("Utilisateur", "pseudo", utilisateurDto.pseudo());
+        // Générer un pseudo si non fourni
+        String pseudo = utilisateurDto.pseudo();
+        if (pseudo == null || pseudo.isBlank()) {
+            pseudo = (utilisateurDto.prenom() + "." + utilisateurDto.nom()).toLowerCase();
+            // Ensure uniqueness (simple logic for now, can be improved)
+            int counter = 1;
+            String originalPseudo = pseudo;
+            while (utilisateurRepository.existsByPseudo(pseudo)) {
+                pseudo = originalPseudo + counter++;
+            }
+        } else {
+            // Vérifier si le pseudo existe déjà
+            if (utilisateurRepository.existsByPseudo(utilisateurDto.pseudo())) {
+                throw new DuplicateResourceException("Utilisateur", "pseudo", utilisateurDto.pseudo());
+            }
         }
 
         // Créer l'utilisateur
         Utilisateur utilisateur = new Utilisateur();
         utilisateur.setNom(utilisateurDto.nom());
         utilisateur.setPrenom(utilisateurDto.prenom());
-        utilisateur.setPseudo(utilisateurDto.pseudo());
+        utilisateur.setPseudo(pseudo);
         utilisateur.setEmail(utilisateurDto.email());
         utilisateur.setMotDePasse(passwordEncoder.encode(motDePasse));
         utilisateur.setRole(Utilisateur.Role.valueOf(utilisateurDto.role() != null ? utilisateurDto.role() : "client"));
         utilisateur.setDateNaissance(utilisateurDto.dateNaissance());
         utilisateur.setIban(utilisateurDto.iban());
         utilisateur.setAdressePhysique(utilisateurDto.adressePhysique());
-        utilisateur.setMedias(utilisateurDto.medias() != null ? List.of(utilisateurDto.medias().split(",")) : List.of());
+        utilisateur.setTelephone(utilisateurDto.telephone());
+        utilisateur.setCodePostal(utilisateurDto.codePostal());
+        utilisateur.setVille(utilisateurDto.ville());
+        utilisateur
+                .setMedias(utilisateurDto.medias() != null ? List.of(utilisateurDto.medias().split(",")) : List.of());
         utilisateur.setEstBanni(false);
-        
+
         // Générer un code de vérification à 6 chiffres
         String verificationCode = generateVerificationCode();
         utilisateur.setVerificationCode(verificationCode);
@@ -88,19 +105,18 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
         utilisateur.setEmailVerified(false);
 
         Utilisateur savedUtilisateur = utilisateurRepository.save(utilisateur);
-        
+
         // Envoyer l'email de vérification
         try {
             emailService.sendVerificationEmail(
-                savedUtilisateur.getEmail(), 
-                savedUtilisateur.getPrenom() + " " + savedUtilisateur.getNom(),
-                verificationCode
-            );
+                    savedUtilisateur.getEmail(),
+                    savedUtilisateur.getPrenom() + " " + savedUtilisateur.getNom(),
+                    verificationCode);
         } catch (Exception e) {
             // Log l'erreur mais ne bloque pas l'inscription
             System.err.println("Erreur lors de l'envoi de l'email: " + e.getMessage());
         }
-        
+
         return mapToDto(savedUtilisateur);
     }
 
@@ -127,13 +143,13 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "id", id));
 
         // Vérifier si l'email existe déjà pour un autre utilisateur
-        if (!utilisateur.getEmail().equals(utilisateurDto.email()) 
+        if (!utilisateur.getEmail().equals(utilisateurDto.email())
                 && utilisateurRepository.existsByEmail(utilisateurDto.email())) {
             throw new DuplicateResourceException("Utilisateur", "email", utilisateurDto.email());
         }
 
         // Vérifier si le pseudo existe déjà pour un autre utilisateur
-        if (!utilisateur.getPseudo().equals(utilisateurDto.pseudo()) 
+        if (!utilisateur.getPseudo().equals(utilisateurDto.pseudo())
                 && utilisateurRepository.existsByPseudo(utilisateurDto.pseudo())) {
             throw new DuplicateResourceException("Utilisateur", "pseudo", utilisateurDto.pseudo());
         }
@@ -146,6 +162,9 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
         utilisateur.setDateNaissance(utilisateurDto.dateNaissance());
         utilisateur.setIban(utilisateurDto.iban());
         utilisateur.setAdressePhysique(utilisateurDto.adressePhysique());
+        utilisateur.setTelephone(utilisateurDto.telephone());
+        utilisateur.setCodePostal(utilisateurDto.codePostal());
+        utilisateur.setVille(utilisateurDto.ville());
 
         Utilisateur updatedUtilisateur = utilisateurRepository.save(utilisateur);
         return mapToDto(updatedUtilisateur);
@@ -187,7 +206,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
     public boolean validerMotDePasse(AuthRequestDto authRequestDto) {
         Utilisateur utilisateur = utilisateurRepository.findByPseudo(authRequestDto.pseudo())
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "pseudo", authRequestDto.pseudo()));
-        
+
         return passwordEncoder.matches(authRequestDto.password(), utilisateur.getMotDePasse());
     }
 
@@ -224,12 +243,12 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
     public void changePassword(Long userId, ChangePasswordRequestDto request) {
         Utilisateur utilisateur = utilisateurRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "id", userId));
-        
+
         // Vérifier l'ancien mot de passe
         if (!passwordEncoder.matches(request.getAncienMotDePasse(), utilisateur.getMotDePasse())) {
             throw new IllegalArgumentException("L'ancien mot de passe est incorrect");
         }
-        
+
         // Mettre à jour avec le nouveau mot de passe
         utilisateur.setMotDePasse(passwordEncoder.encode(request.getNouveauMotDePasse()));
         utilisateurRepository.save(utilisateur);
@@ -275,16 +294,8 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
         utilisateur.setVerificationCodeExpiry(null);
         utilisateurRepository.save(utilisateur);
 
-        // Envoyer l'email de bienvenue
-        try {
-            emailService.sendWelcomeEmail(
-                utilisateur.getEmail(),
-                utilisateur.getPrenom() + " " + utilisateur.getNom()
-            );
-        } catch (Exception e) {
-            // Log l'erreur mais ne bloque pas la vérification
-            System.err.println("Erreur lors de l'envoi de l'email de bienvenue: " + e.getMessage());
-        }
+        // Email de bienvenue supprimé sur demande
+        // L'utilisateur est simplement redirigé vers le login après vérification
 
         return true;
     }
@@ -309,10 +320,9 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
         // Envoyer le nouvel email
         try {
             emailService.sendVerificationEmail(
-                utilisateur.getEmail(),
-                utilisateur.getPrenom() + " " + utilisateur.getNom(),
-                newCode
-            );
+                    utilisateur.getEmail(),
+                    utilisateur.getPrenom() + " " + utilisateur.getNom(),
+                    newCode);
         } catch (Exception e) {
             throw new RuntimeException("Erreur lors de l'envoi de l'email de vérification", e);
         }
@@ -320,21 +330,25 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
 
     private UtilisateurDto mapToDto(Utilisateur utilisateur) {
         return new UtilisateurDto(
-            utilisateur.getIdUtilisateur(),
-            utilisateur.getRole() != null ? utilisateur.getRole().getValue() : "client", // role
-            utilisateur.getNom(),
-            utilisateur.getPrenom(),
-            utilisateur.getPseudo(),
-            utilisateur.getEmail(),
-            utilisateur.getDateNaissance(),
-            utilisateur.getIban(),
-            utilisateur.getAdressePhysique(),
-            utilisateur.getMedias() != null && !utilisateur.getMedias().isEmpty() ? 
-                String.join(",", utilisateur.getMedias()) : "", // medias
-            null, // idAdresse - à ajuster selon votre logique métier
-            !utilisateur.getEstBanni(), // actif (inverse de estBanni)
-            utilisateur.getCreatedAt(),
-            null // dateModification - pas dans le modèle actuel
+                utilisateur.getIdUtilisateur(),
+                utilisateur.getRole() != null ? utilisateur.getRole().getValue() : "client", // role
+                utilisateur.getNom(),
+                utilisateur.getPrenom(),
+                utilisateur.getPseudo(),
+                utilisateur.getEmail(),
+                utilisateur.getDateNaissance(),
+                utilisateur.getIban(),
+                utilisateur.getAdressePhysique(),
+                utilisateur.getTelephone(),
+                utilisateur.getCodePostal(),
+                utilisateur.getVille(),
+                utilisateur.getMedias() != null && !utilisateur.getMedias().isEmpty()
+                        ? String.join(",", utilisateur.getMedias())
+                        : "", // medias
+                null, // idAdresse - à ajuster selon votre logique métier
+                !utilisateur.getEstBanni(), // actif (inverse de estBanni)
+                utilisateur.getCreatedAt(),
+                null // dateModification - pas dans le modèle actuel
         );
     }
 }

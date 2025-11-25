@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inscription - E-Charge</title>
+  <title>Inscription</title>
 
   <!-- Lien vers le fichier CSS -->
   <link rel="stylesheet" href="register.css">
@@ -11,6 +12,7 @@
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
+
 <body>
   <div class="page-container">
     <div class="content-wrapper">
@@ -24,7 +26,7 @@
             </div>
             <h1 class="header-title">Créer un compte</h1>
             <p class="header-subtitle">
-              Rejoignez <span class="highlight">E-Charge</span> et commencez à recharger
+              Rejoignez <span class="highlight">Notre Plateforme</span> et commencez à recharger
             </p>
           </div>
         </div>
@@ -50,12 +52,7 @@
                   <i class="bi bi-person"></i>
                   <span>Nom</span>
                 </label>
-                <input
-                  type="text"
-                  id="nom"
-                  name="nom"
-                  class="form-input"
-                  placeholder="Votre nom">
+                <input type="text" id="nom" name="nom" class="form-input" placeholder="Votre nom">
                 <div id="nomError" class="field-error">
                   <i class="bi bi-exclamation-circle"></i>
                   <span>Le nom est requis</span>
@@ -68,12 +65,7 @@
                   <i class="bi bi-person"></i>
                   <span>Prénom</span>
                 </label>
-                <input
-                  type="text"
-                  id="prenom"
-                  name="prenom"
-                  class="form-input"
-                  placeholder="Votre prénom">
+                <input type="text" id="prenom" name="prenom" class="form-input" placeholder="Votre prénom">
                 <div id="prenomError" class="field-error">
                   <i class="bi bi-exclamation-circle"></i>
                   <span>Le prénom est requis</span>
@@ -81,59 +73,87 @@
               </div>
             </div>
 
-            <!-- Pseudo -->
+            <!-- Téléphone -->
             <div class="form-group">
-              <label for="pseudo" class="form-label">
-                <i class="bi bi-at"></i>
-                <span>Pseudo</span>
+              <label for="telephone" class="form-label">
+                <i class="bi bi-telephone"></i>
+                <span>Téléphone</span>
+                <span class="required">*</span>
               </label>
-              <input
-                type="text"
-                id="pseudo"
-                name="pseudo"
-                class="form-input"
-                placeholder="Choisissez un pseudo unique">
-              <div id="pseudoError" class="field-error">
+              <input type="tel" id="telephone" name="telephone" class="form-input" placeholder="06 12 34 56 78">
+              <div id="telephoneError" class="field-error">
                 <i class="bi bi-exclamation-circle"></i>
-                <span>Le pseudo est requis</span>
+                <span>Le téléphone est requis</span>
               </div>
             </div>
 
-            <!-- Email et Date de naissance -->
-            <div class="form-row">
-              <!-- Email -->
-              <div class="form-group">
-                <label for="email" class="form-label">
-                  <i class="bi bi-envelope"></i>
-                  <span>Email</span>
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  class="form-input"
-                  placeholder="votre@email.com">
-                <div id="emailError" class="field-error">
-                  <i class="bi bi-exclamation-circle"></i>
-                  <span id="emailErrorText">L'email est requis</span>
-                </div>
+            <!-- Date de naissance -->
+            <div class="form-group">
+              <label for="dateNaissance" class="form-label">
+                <span>Date de naissance</span>
+                <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <input type="date" id="dateNaissance" name="dateNaissance" class="form-input">
               </div>
+              <div id="dateNaissanceError" class="field-error">
+                <i class="bi bi-exclamation-circle"></i>
+                <span>La date de naissance est requise</span>
+              </div>
+            </div>
 
-              <!-- Date de naissance -->
-              <div class="form-group">
-                <label for="dateNaissance" class="form-label">
-                  <i class="bi bi-calendar"></i>
-                  <span>Date de naissance</span>
-                </label>
-                <input
-                  type="date"
-                  id="dateNaissance"
-                  name="dateNaissance"
-                  class="form-input">
-                <div id="dateNaissanceError" class="field-error">
-                  <i class="bi bi-exclamation-circle"></i>
-                  <span>La date de naissance est requise</span>
-                </div>
+            <!-- Adresse -->
+            <div class="form-group">
+              <label for="adressePhysique" class="form-label">
+                <span>Adresse</span>
+                <span class="required">*</span>
+              </label>
+              <input type="text" id="adressePhysique" name="adressePhysique" class="form-input"
+                placeholder="Votre adresse">
+              <div id="adressePhysiqueError" class="field-error">
+                <i class="bi bi-exclamation-circle"></i>
+                <span>L'adresse est requise</span>
+              </div>
+            </div>
+
+            <!-- Code postal -->
+            <div class="form-group">
+              <label for="codePostal" class="form-label">
+                <span>Code postal</span>
+                <span class="required">*</span>
+              </label>
+              <input type="text" id="codePostal" name="codePostal" class="form-input" placeholder="Code postal">
+              <div id="codePostalError" class="field-error">
+                <i class="bi bi-exclamation-circle"></i>
+                <span>Le code postal est requis</span>
+              </div>
+            </div>
+
+            <!-- Ville -->
+            <div class="form-group">
+              <label for="ville" class="form-label">
+                <span>Ville</span>
+                <span class="required">*</span>
+              </label>
+              <div class="input">
+                <input type="text" id="ville" name="ville" class="form-input" placeholder="Ville">
+              </div>
+              <div id="villeError" class="field-error">
+                <i class="bi bi-exclamation-circle"></i>
+                <span>La ville est requise</span>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label for="email" class="form-label">
+                <span>Email</span>
+                <span class="required">*</span>
+              </label>
+              <input type="email" id="email" name="email" class="form-input" placeholder="votre@email.com">
+              <div id="emailError" class="field-error">
+                <i class="bi bi-exclamation-circle"></i>
+                <span id="emailErrorText">L'email est requis</span>
               </div>
             </div>
 
@@ -145,11 +165,7 @@
                   <i class="bi bi-lock"></i>
                   <span>Mot de passe</span>
                 </label>
-                <input
-                  type="password"
-                  id="motDePasse"
-                  name="motDePasse"
-                  class="form-input"
+                <input type="password" id="motDePasse" name="motDePasse" class="form-input"
                   placeholder="Min. 6 caractères">
                 <div id="motDePasseError" class="field-error">
                   <i class="bi bi-exclamation-circle"></i>
@@ -163,11 +179,7 @@
                   <i class="bi bi-shield-check"></i>
                   <span>Confirmer</span>
                 </label>
-                <input
-                  type="password"
-                  id="confirmMotDePasse"
-                  name="confirmMotDePasse"
-                  class="form-input"
+                <input type="password" id="confirmMotDePasse" name="confirmMotDePasse" class="form-input"
                   placeholder="Confirmer le mot de passe">
                 <div id="confirmMotDePasseError" class="field-error">
                   <i class="bi bi-exclamation-circle"></i>
@@ -179,11 +191,7 @@
             <!-- Accepter les conditions -->
             <div class="terms-container">
               <label class="checkbox-wrapper">
-                <input
-                  type="checkbox"
-                  id="acceptTerms"
-                  name="acceptTerms"
-                  class="form-checkbox">
+                <input type="checkbox" id="acceptTerms" name="acceptTerms" class="form-checkbox">
                 <span class="checkbox-label">
                   J'accepte les
                   <a href="#">conditions d'utilisation</a>
@@ -233,4 +241,5 @@
   <!-- Lien vers le fichier JavaScript -->
   <script src="register.js"></script>
 </body>
+
 </html>

@@ -16,9 +16,12 @@ const errorMessage = document.getElementById('errorMessage');
 // Récupération de tous les champs du formulaire
 const nomInput = document.getElementById('nom');
 const prenomInput = document.getElementById('prenom');
-const pseudoInput = document.getElementById('pseudo');
-const emailInput = document.getElementById('email');
+const telephoneInput = document.getElementById('telephone');
 const dateNaissanceInput = document.getElementById('dateNaissance');
+const adressePhysiqueInput = document.getElementById('adressePhysique');
+const codePostalInput = document.getElementById('codePostal');
+const villeInput = document.getElementById('ville');
+const emailInput = document.getElementById('email');
 const motDePasseInput = document.getElementById('motDePasse');
 const confirmMotDePasseInput = document.getElementById('confirmMotDePasse');
 const acceptTermsInput = document.getElementById('acceptTerms');
@@ -92,11 +95,15 @@ function validateForm() {
 
   // Cacher toutes les erreurs avant de revalider
   hideGeneralError();
+  hideGeneralError();
   hideFieldError('nom');
   hideFieldError('prenom');
-  hideFieldError('pseudo');
-  hideFieldError('email');
+  hideFieldError('telephone');
   hideFieldError('dateNaissance');
+  hideFieldError('adressePhysique');
+  hideFieldError('codePostal');
+  hideFieldError('ville');
+  hideFieldError('email');
   hideFieldError('motDePasse');
   hideFieldError('confirmMotDePasse');
   hideFieldError('acceptTerms');
@@ -113,9 +120,33 @@ function validateForm() {
     isValid = false;
   }
 
-  // Validation du pseudo
-  if (!pseudoInput.value.trim()) {
-    showFieldError('pseudo');
+  // Validation du téléphone
+  if (!telephoneInput.value.trim()) {
+    showFieldError('telephone');
+    isValid = false;
+  }
+
+  // Validation de la date de naissance
+  if (!dateNaissanceInput.value) {
+    showFieldError('dateNaissance');
+    isValid = false;
+  }
+
+  // Validation de l'adresse
+  if (!adressePhysiqueInput.value.trim()) {
+    showFieldError('adressePhysique');
+    isValid = false;
+  }
+
+  // Validation du code postal
+  if (!codePostalInput.value.trim()) {
+    showFieldError('codePostal');
+    isValid = false;
+  }
+
+  // Validation de la ville
+  if (!villeInput.value.trim()) {
+    showFieldError('ville');
     isValid = false;
   }
 
@@ -128,11 +159,7 @@ function validateForm() {
     isValid = false;
   }
 
-  // Validation de la date de naissance
-  if (!dateNaissanceInput.value) {
-    showFieldError('dateNaissance');
-    isValid = false;
-  }
+
 
   // Validation du mot de passe
   if (!motDePasseInput.value) {
@@ -184,12 +211,14 @@ async function submitRegistration(userData) {
       utilisateur: {
         nom: userData.nom,
         prenom: userData.prenom,
-        pseudo: userData.pseudo,
+        telephone: userData.telephone,
         email: userData.email,
         dateNaissance: userData.dateNaissance,
+        adressePhysique: userData.adressePhysique,
+        codePostal: userData.codePostal,
+        ville: userData.ville,
         role: 'client',
         iban: '',
-        adressePhysique: '',
         medias: ''
       },
       motDePasse: userData.motDePasse
@@ -243,9 +272,12 @@ form.addEventListener('submit', function(event) {
   const userData = {
     nom: nomInput.value.trim(),
     prenom: prenomInput.value.trim(),
-    pseudo: pseudoInput.value.trim(),
-    email: emailInput.value.trim(),
+    telephone: telephoneInput.value.trim(),
     dateNaissance: dateNaissanceInput.value,
+    adressePhysique: adressePhysiqueInput.value.trim(),
+    codePostal: codePostalInput.value.trim(),
+    ville: villeInput.value.trim(),
+    email: emailInput.value.trim(),
     motDePasse: motDePasseInput.value
   };
 
@@ -259,9 +291,12 @@ form.addEventListener('submit', function(event) {
 // Masquer les erreurs quand l'utilisateur modifie un champ
 nomInput.addEventListener('input', () => hideFieldError('nom'));
 prenomInput.addEventListener('input', () => hideFieldError('prenom'));
-pseudoInput.addEventListener('input', () => hideFieldError('pseudo'));
-emailInput.addEventListener('input', () => hideFieldError('email'));
+telephoneInput.addEventListener('input', () => hideFieldError('telephone'));
 dateNaissanceInput.addEventListener('input', () => hideFieldError('dateNaissance'));
+adressePhysiqueInput.addEventListener('input', () => hideFieldError('adressePhysique'));
+codePostalInput.addEventListener('input', () => hideFieldError('codePostal'));
+villeInput.addEventListener('input', () => hideFieldError('ville'));
+emailInput.addEventListener('input', () => hideFieldError('email'));
 motDePasseInput.addEventListener('input', () => hideFieldError('motDePasse'));
 confirmMotDePasseInput.addEventListener('input', () => hideFieldError('confirmMotDePasse'));
 acceptTermsInput.addEventListener('change', () => hideFieldError('acceptTerms'));

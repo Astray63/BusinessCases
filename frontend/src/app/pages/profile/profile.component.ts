@@ -12,10 +12,10 @@ export class ProfileComponent implements OnInit {
   currentUser: Utilisateur | null = null;
   editMode = false;
   changePasswordMode = false;
-  
+
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
-  
+
   loading = false;
   successMessage = '';
   errorMessage = '';
@@ -24,15 +24,15 @@ export class ProfileComponent implements OnInit {
     private authService: AuthService,
     private utilisateurService: UtilisateurService,
     private fb: FormBuilder
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
-    
+
     if (this.currentUser) {
       this.loadUserData();
     }
-    
+
     this.initForms();
   }
 
@@ -58,7 +58,12 @@ export class ProfileComponent implements OnInit {
       nom: [this.currentUser?.nom || '', Validators.required],
       prenom: [this.currentUser?.prenom || '', Validators.required],
       email: [this.currentUser?.email || '', [Validators.required, Validators.email]],
-      pseudo: [{ value: this.currentUser?.pseudo || '', disabled: true }]
+      pseudo: [{ value: this.currentUser?.pseudo || '', disabled: true }],
+      telephone: [this.currentUser?.telephone || '', Validators.required],
+      codePostal: [this.currentUser?.codePostal || '', Validators.required],
+      ville: [this.currentUser?.ville || '', Validators.required],
+      dateNaissance: [this.currentUser?.dateNaissance || ''],
+      adressePhysique: [this.currentUser?.adressePhysique || '', Validators.required]
     });
 
     this.passwordForm = this.fb.group({
@@ -74,7 +79,12 @@ export class ProfileComponent implements OnInit {
         nom: this.currentUser.nom,
         prenom: this.currentUser.prenom,
         email: this.currentUser.email,
-        pseudo: this.currentUser.pseudo
+        pseudo: this.currentUser.pseudo,
+        telephone: this.currentUser.telephone,
+        codePostal: this.currentUser.codePostal,
+        ville: this.currentUser.ville,
+        dateNaissance: this.currentUser.dateNaissance,
+        adressePhysique: this.currentUser.adressePhysique
       });
     }
   }
@@ -82,7 +92,7 @@ export class ProfileComponent implements OnInit {
   private passwordMatchValidator(form: FormGroup) {
     const nouveauMotDePasse = form.get('nouveauMotDePasse')?.value;
     const confirmMotDePasse = form.get('confirmMotDePasse')?.value;
-    
+
     return nouveauMotDePasse === confirmMotDePasse ? null : { passwordMismatch: true };
   }
 
@@ -138,7 +148,7 @@ export class ProfileComponent implements OnInit {
       this.clearMessages();
 
       const { ancienMotDePasse, nouveauMotDePasse } = this.passwordForm.value;
-      
+
       this.utilisateurService.changePassword(this.currentUser.idUtilisateur, {
         ancienMotDePasse,
         nouveauMotDePasse

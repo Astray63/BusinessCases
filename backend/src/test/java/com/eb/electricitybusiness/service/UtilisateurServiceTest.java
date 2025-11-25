@@ -45,20 +45,23 @@ class UtilisateurServiceTest {
         String motDePasse = "password123";
         String motDePasseEncode = "encoded_password";
         UtilisateurDto dto = new UtilisateurDto(
-            null, // idUtilisateur
-            "client", // role
-            "John", // nom
-            "Doe", // prenom
-            "johndoe", // pseudo
-            "john.doe@example.com", // email
-            LocalDate.of(1990, 1, 1), // dateNaissance
-            "FR123456789", // iban
-            "123 Main St", // adressePhysique
-            "avatar.jpg", // medias
-            1L, // idAdresse
-            true, // actif
-            null, // dateCreation
-            null  // dateModification
+                null, // idUtilisateur
+                "client", // role
+                "John", // nom
+                "Doe", // prenom
+                "johndoe", // pseudo
+                "john.doe@example.com", // email
+                LocalDate.of(1990, 1, 1), // dateNaissance
+                "FR123456789", // iban
+                "123 Main St", // adressePhysique
+                "0612345678", // telephone
+                "75001", // codePostal
+                "Paris", // ville
+                "avatar.jpg", // medias
+                1L, // idAdresse
+                true, // actif
+                null, // dateCreation
+                null // dateModification
         );
 
         when(utilisateurRepository.existsByEmail(dto.email())).thenReturn(false);
@@ -84,27 +87,29 @@ class UtilisateurServiceTest {
     void creerUtilisateur_DuplicateEmail_ThrowsDuplicateResourceException() {
         // Arrange
         UtilisateurDto dto = new UtilisateurDto(
-            null,
-            "client",
-            "John",
-            "Doe",
-            "johndoe",
-            "existing@example.com",
-            LocalDate.of(1990, 1, 1),
-            "FR123456789",
-            "123 Main St",
-            "profile.jpg",
-            1L,
-            true,
-            null,
-            null
-        );
+                null,
+                "client",
+                "John",
+                "Doe",
+                "johndoe",
+                "existing@example.com",
+                LocalDate.of(1990, 1, 1),
+                "FR123456789",
+                "123 Main St",
+                "0612345678",
+                "75001",
+                "Paris",
+                "profile.jpg",
+                1L,
+                true,
+                null,
+                null);
 
         when(utilisateurRepository.existsByEmail(dto.email())).thenReturn(true);
 
         // Act & Assert
         assertThrows(DuplicateResourceException.class,
-            () -> utilisateurService.creerUtilisateur(dto, "password"));
+                () -> utilisateurService.creerUtilisateur(dto, "password"));
         verify(utilisateurRepository, never()).save(any(Utilisateur.class));
     }
 
@@ -136,7 +141,7 @@ class UtilisateurServiceTest {
 
         // Act & Assert
         assertThrows(ResourceNotFoundException.class,
-            () -> utilisateurService.getUtilisateurById(id));
+                () -> utilisateurService.getUtilisateurById(id));
     }
 
     @Test

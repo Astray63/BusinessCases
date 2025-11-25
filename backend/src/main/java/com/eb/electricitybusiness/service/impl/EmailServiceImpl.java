@@ -1,13 +1,11 @@
 package com.eb.electricitybusiness.service.impl;
 
 import com.eb.electricitybusiness.service.EmailService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -34,16 +32,16 @@ public class EmailServiceImpl implements EmailService {
     public EmailServiceImpl() {
         // Configuration simple du RestTemplate
         this.restTemplate = new RestTemplate();
-        
+
         // Log de test au démarrage
         logger.info("✅ EmailService initialisé avec RestTemplate");
     }
 
     @Override
     public void sendVerificationEmail(String to, String name, String verificationCode) {
-        String subject = "Validation de votre compte";
+        String subject = "Code de validation - Electric Charge Platform";
         String htmlContent = buildVerificationEmailHtml(name, verificationCode);
-        
+
         try {
             logger.info("📧 Tentative d'envoi d'email de vérification à: {}", to);
             sendEmail(to, name, subject, htmlContent);
@@ -51,25 +49,7 @@ public class EmailServiceImpl implements EmailService {
         } catch (Exception e) {
             logger.error("❌ ERREUR lors de l'envoi de l'email de vérification à {}", to);
             logger.error("❌ Message d'erreur: {}", e.getMessage());
-            logger.error("❌ Type d'exception: {}", e.getClass().getName());
-            if (e.getCause() != null) {
-                logger.error("❌ Cause: {}", e.getCause().getMessage());
-            }
-            logger.error("❌ Stack trace:", e);
             throw new RuntimeException("Erreur lors de l'envoi de l'email de vérification", e);
-        }
-    }
-
-    @Override
-    public void sendWelcomeEmail(String to, String name) {
-        String subject = "Bienvenue sur notre plateforme !";
-        String htmlContent = buildWelcomeEmailHtml(name);
-        
-        try {
-            sendEmail(to, name, subject, htmlContent);
-            logger.info("Email de bienvenue envoyé à: {}", to);
-        } catch (Exception e) {
-            logger.error("Erreur lors de l'envoi de l'email de bienvenue à {}: {}", to, e.getMessage());
         }
     }
 
@@ -77,11 +57,7 @@ public class EmailServiceImpl implements EmailService {
         try {
             logger.info("=== DÉBUT ENVOI EMAIL ===");
             logger.info("Destinataire: {}", to);
-            logger.info("Sujet: {}", subject);
-            logger.info("API Key configurée: {}", brevoApiKey != null && !brevoApiKey.isEmpty());
-            logger.info("Email expéditeur: {}", senderEmail);
-            logger.info("Nom expéditeur: {}", senderName);
-            
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("api-key", brevoApiKey);
@@ -101,183 +77,139 @@ public class EmailServiceImpl implements EmailService {
             emailData.put("subject", subject);
             emailData.put("htmlContent", htmlContent);
 
-            // Afficher le JSON envoyé
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                String jsonPayload = mapper.writeValueAsString(emailData);
-                logger.debug("Payload JSON: {}", jsonPayload);
-            } catch (Exception e) {
-                logger.warn("Impossible d'afficher le JSON payload");
-            }
-
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(emailData, headers);
 
-            logger.info("Envoi de la requête à: {}", BREVO_API_URL);
-            
             ResponseEntity<String> response = restTemplate.exchange(
-                BREVO_API_URL,
-                HttpMethod.POST,
-                request,
-                String.class
-            );
-
-            logger.info("✅ Réponse reçue - Status: {}", response.getStatusCode());
-            logger.info("✅ Body: {}", response.getBody());
+                    BREVO_API_URL,
+                    HttpMethod.POST,
+                    request,
+                    String.class);
 
             if (response.getStatusCode() == HttpStatus.CREATED || response.getStatusCode() == HttpStatus.OK) {
-                logger.info("✅ Email envoyé avec succès à: {}", to);
+                logger.info("✅ Email envoyé avec succès");
             } else {
-                logger.error("❌ Échec de l'envoi. Status: {}, Body: {}", response.getStatusCode(), response.getBody());
+                logger.error("❌ Échec de l'envoi. Status: {}", response.getStatusCode());
                 throw new RuntimeException("Échec de l'envoi de l'email: " + response.getStatusCode());
             }
-            
+
             logger.info("=== FIN ENVOI EMAIL ===");
-            
-        } catch (RestClientException e) {
-            logger.error("❌ Erreur REST lors de l'envoi d'email à {}: {}", to, e.getMessage());
-            logger.error("❌ Détails de l'erreur:", e);
-            throw new RuntimeException("Erreur REST lors de l'envoi de l'email: " + e.getMessage(), e);
+
         } catch (Exception e) {
-            logger.error("❌ Erreur générale lors de l'envoi d'email à {}: {}", to, e.getMessage());
-            logger.error("❌ Stack trace complète:", e);
-            throw new RuntimeException("Erreur lors de l'envoi de l'email: " + e.getMessage(), e);
+            logger.error("❌ Erreur lors de l'envoi d'email à {}: {}", to, e.getMessage());
+            throw new RuntimeException("Erreur lors de l'envoi de l'email", e);
         }
     }
 
     private String buildVerificationEmailHtml(String name, String verificationCode) {
         return String.format("""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        background-color: #f4f4f4;
-                        margin: 0;
-                        padding: 0;
-                    }
-                    .container {
-                        max-width: 600px;
-                        margin: 50px auto;
-                        background-color: #ffffff;
-                        border-radius: 10px;
-                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                        overflow: hidden;
-                    }
-                    .header {
-                        background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%);
-                        color: white;
-                        padding: 30px;
-                        text-align: center;
-                    }
-                    .content {
-                        padding: 40px 30px;
-                        text-align: center;
-                    }
-                    .code {
-                        background-color: #f8f9fa;
-                        border: 2px dashed #667eea;
-                        border-radius: 8px;
-                        font-size: 32px;
-                        font-weight: bold;
-                        letter-spacing: 5px;
-                        padding: 20px;
-                        margin: 30px 0;
-                        color: #667eea;
-                    }
-                    .footer {
-                        background-color: #f8f9fa;
-                        padding: 20px;
-                        text-align: center;
-                        font-size: 12px;
-                        color: #6c757d;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>Validation de votre compte</h1>
-                    </div>
-                    <div class="content">
-                        <p>Bonjour <strong>%s</strong>,</p>
-                        <p>Un code de validation a été envoyé à votre adresse email.</p>
-                        <p>Voici votre code de vérification à 6 chiffres :</p>
-                        <div class="code">%s</div>
-                        <p>Ce code est valable pendant 15 minutes.</p>
-                        <p>Si vous n'avez pas demandé cette vérification, vous pouvez ignorer cet email.</p>
-                    </div>
-                    <div class="footer">
-                        <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
-                        <p>&copy; 2025 Electric Charge Platform. Tous droits réservés.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-            """, name, verificationCode);
-    }
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Validation de votre compte</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            background-color: #f3f4f6;
+                            margin: 0;
+                            padding: 0;
+                            line-height: 1.6;
+                            color: #1f2937;
+                        }
+                        .container {
+                            max-width: 600px;
+                            margin: 40px auto;
+                            background-color: #ffffff;
+                            border-radius: 16px;
+                            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                            overflow: hidden;
+                        }
+                        .header {
+                            background-color: #2563eb; /* Blue-600 */
+                            padding: 32px 24px;
+                            text-align: center;
+                        }
+                        .header h1 {
+                            color: #ffffff;
+                            margin: 0;
+                            font-size: 24px;
+                            font-weight: 600;
+                        }
+                        .content {
+                            padding: 40px 32px;
+                            text-align: center;
+                        }
+                        .greeting {
+                            font-size: 18px;
+                            margin-bottom: 24px;
+                            color: #111827;
+                        }
+                        .message {
+                            color: #4b5563;
+                            margin-bottom: 32px;
+                        }
+                        .code-container {
+                            background-color: #eff6ff; /* Blue-50 */
+                            border: 2px dashed #2563eb;
+                            border-radius: 12px;
+                            padding: 24px;
+                            margin: 32px 0;
+                            display: inline-block;
+                        }
+                        .code {
+                            font-family: 'Courier New', Courier, monospace;
+                            font-size: 36px;
+                            font-weight: 700;
+                            color: #2563eb;
+                            letter-spacing: 8px;
+                        }
+                        .expiry {
+                            font-size: 14px;
+                            color: #6b7280;
+                            margin-top: 16px;
+                        }
+                        .footer {
+                            background-color: #f9fafb;
+                            padding: 24px;
+                            text-align: center;
+                            font-size: 12px;
+                            color: #9ca3af;
+                            border-top: 1px solid #e5e7eb;
+                        }
+                        .footer p {
+                            margin: 4px 0;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>Validation de votre compte</h1>
+                        </div>
+                        <div class="content">
+                            <p class="greeting">Bonjour <strong>%s</strong>,</p>
+                            <p class="message">
+                                Merci de vous être inscrit sur <strong>Electricity Business</strong>.<br>
+                                Pour finaliser votre inscription, veuillez utiliser le code de validation ci-dessous.
+                            </p>
 
-    private String buildWelcomeEmailHtml(String name) {
-        return String.format("""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        background-color: #f4f4f4;
-                        margin: 0;
-                        padding: 0;
-                    }
-                    .container {
-                        max-width: 600px;
-                        margin: 50px auto;
-                        background-color: #ffffff;
-                        border-radius: 10px;
-                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                        overflow: hidden;
-                    }
-                    .header {
-                        background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%);
-                        color: white;
-                        padding: 40px 30px;
-                        text-align: center;
-                    }
-                    .content {
-                        padding: 40px 30px;
-                    }
-                    .footer {
-                        background-color: #f8f9fa;
-                        padding: 20px;
-                        text-align: center;
-                        font-size: 12px;
-                        color: #6c757d;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>🎉 Bienvenue !</h1>
+                            <div class="code-container">
+                                <div class="code">%s</div>
+                            </div>
+
+                            <p class="expiry">Ce code est valable pendant 15 minutes.</p>
+                            <p class="message" style="font-size: 14px; margin-top: 32px;">
+                                Si vous n'avez pas créé de compte, vous pouvez ignorer cet email en toute sécurité.
+                            </p>
+                        </div>
+                        <div class="footer">
+                            <p>Cet email a été envoyé automatiquement.</p>
+                            <p>&copy; 2025 Electricity Business. Tous droits réservés.</p>
+                        </div>
                     </div>
-                    <div class="content">
-                        <p>Bonjour <strong>%s</strong>,</p>
-                        <p>Votre compte a été validé avec succès ! Bienvenue sur notre plateforme de recharge pour véhicules électriques.</p>
-                        <p>Vous pouvez maintenant :</p>
-                        <ul>
-                            <li>Réserver des bornes de recharge</li>
-                            <li>Gérer vos véhicules électriques</li>
-                            <li>Suivre vos réservations</li>
-                            <li>Laisser des avis sur les bornes</li>
-                        </ul>
-                        <p>Nous sommes ravis de vous compter parmi nous !</p>
-                    </div>
-                    <div class="footer">
-                        <p>&copy; 2025 Electric Charge Platform. Tous droits réservés.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-            """, name);
+                </body>
+                </html>
+                """, name, verificationCode);
     }
 }
