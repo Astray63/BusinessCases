@@ -16,7 +16,6 @@ export interface Utilisateur {
   telephone?: string;
   codePostal?: string;
   ville?: string;
-  medias?: string;
   idAdresse?: number;
 
   // Flag dynamique calculé côté front selon si l'utilisateur possède des bornes
@@ -42,7 +41,6 @@ export interface RegisterRequest {
     telephone?: string;
     codePostal?: string;
     ville?: string;
-    medias?: string;
   };
   motDePasse: string;
 }

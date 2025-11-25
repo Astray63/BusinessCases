@@ -24,7 +24,7 @@ export class AuthService {
   constructor(private http: HttpClient) {
     // Nettoyer les tokens invalides au démarrage
     this.cleanupInvalidTokens();
-    
+
     const storedUser = localStorage.getItem('currentUser');
     this.currentUserSubject = new BehaviorSubject<Utilisateur | null>(
       storedUser ? JSON.parse(storedUser) : null
@@ -50,10 +50,10 @@ export class AuthService {
             if (response.data.accessToken.split('.').length !== 3) {
               throw new Error('Invalid JWT token received from server');
             }
-            
+
             const expirationDate = new Date();
             expirationDate.setDate(expirationDate.getDate() + 7);
-            
+
             localStorage.setItem('token', response.data.accessToken);
             localStorage.setItem('refreshToken', response.data.refreshToken);
             localStorage.setItem('tokenExpiration', expirationDate.getTime().toString());
@@ -76,7 +76,6 @@ export class AuthService {
         role: 'client',
         iban: user.iban || '',
         adressePhysique: user.adressePhysique || '',
-        medias: user.medias || ''
       },
       motDePasse: motDePasse
     };
@@ -124,16 +123,16 @@ export class AuthService {
     const token = this.getToken();
     const user = this.getCurrentUser();
     const expiration = localStorage.getItem('tokenExpiration');
-    
+
     if (!token || !user) {
       return false;
     }
-    
+
     if (token.split('.').length !== 3) {
       this.logout();
       return false;
     }
-    
+
     if (expiration) {
       const expirationDate = parseInt(expiration, 10);
       if (Date.now() > expirationDate) {
@@ -141,7 +140,7 @@ export class AuthService {
         return false;
       }
     }
-    
+
     return true;
   }
 

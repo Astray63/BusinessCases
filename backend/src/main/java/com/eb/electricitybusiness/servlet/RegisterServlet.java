@@ -32,7 +32,7 @@ public class RegisterServlet extends HttpServlet {
 
         // Récupérer le contexte Spring pour accéder aux services
         WebApplicationContext context = WebApplicationContextUtils
-            .getRequiredWebApplicationContext(getServletContext());
+                .getRequiredWebApplicationContext(getServletContext());
 
         // Injecter les dépendances manuellement
         this.utilisateurService = context.getBean(UtilisateurService.class);
@@ -57,31 +57,36 @@ public class RegisterServlet extends HttpServlet {
             String requestBody = lireCorpsRequete(request);
 
             // Parser le JSON en Map
-            Map<String, Object> requestData = objectMapper.readValue(requestBody, Map.class);
+            Map<String, Object> requestData = objectMapper.readValue(requestBody,
+                    new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {
+                    });
 
             // Extraire les données de l'utilisateur et le mot de passe
-            Map<String, Object> utilisateurData = (Map<String, Object>) requestData.get("utilisateur");
+            Map<String, Object> utilisateurData = objectMapper.convertValue(requestData.get("utilisateur"),
+                    new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {
+                    });
             String motDePasse = (String) requestData.get("motDePasse");
 
             // Valider les données
             if (utilisateurData == null || motDePasse == null || motDePasse.trim().isEmpty()) {
                 envoyerErreur(response, HttpServletResponse.SC_BAD_REQUEST,
-                    "Les données utilisateur et le mot de passe sont requis");
+                        "Les données utilisateur et le mot de passe sont requis");
                 return;
             }
 
             // Créer l'objet utilisateur (conversion manuelle)
-            com.eb.electricitybusiness.dto.UtilisateurDto utilisateurDto =
-                objectMapper.convertValue(utilisateurData, com.eb.electricitybusiness.dto.UtilisateurDto.class);
+            com.eb.electricitybusiness.dto.UtilisateurDto utilisateurDto = objectMapper.convertValue(utilisateurData,
+                    com.eb.electricitybusiness.dto.UtilisateurDto.class);
 
             // Appeler le service pour créer l'utilisateur
-            com.eb.electricitybusiness.dto.UtilisateurDto nouveauUtilisateur =
-                utilisateurService.creerUtilisateur(utilisateurDto, motDePasse);
+            com.eb.electricitybusiness.dto.UtilisateurDto nouveauUtilisateur = utilisateurService
+                    .creerUtilisateur(utilisateurDto, motDePasse);
 
             // Préparer la réponse de succès
             Map<String, Object> responseData = new HashMap<>();
             responseData.put("result", "SUCCESS");
-            responseData.put("message", "Inscription réussie. Un code de vérification a été envoyé à votre adresse email.");
+            responseData.put("message",
+                    "Inscription réussie. Un code de vérification a été envoyé à votre adresse email.");
             responseData.put("data", nouveauUtilisateur);
 
             // Envoyer la réponse
@@ -93,7 +98,7 @@ public class RegisterServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             envoyerErreur(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                "Une erreur est survenue lors de l'inscription: " + e.getMessage());
+                    "Une erreur est survenue lors de l'inscription: " + e.getMessage());
         }
     }
 

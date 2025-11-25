@@ -57,7 +57,6 @@ class UtilisateurServiceTest {
                 "0612345678", // telephone
                 "75001", // codePostal
                 "Paris", // ville
-                "avatar.jpg", // medias
                 1L, // idAdresse
                 true, // actif
                 null, // dateCreation
@@ -99,7 +98,6 @@ class UtilisateurServiceTest {
                 "0612345678",
                 "75001",
                 "Paris",
-                "profile.jpg",
                 1L,
                 true,
                 null,

@@ -27,11 +27,6 @@ INSERT INTO utilisateur (nom, prenom, pseudo, mot_de_passe, role, email, adresse
 VALUES
 ('Zeyko', 'User', 'Zeyko63', '$2b$12$gctjSVvz62dkbGEkVzdP4.KJXUyRXxCp9U9SJ3TCUhOmHpUrqP0cq', 'proprietaire', 'astray63000@gmail.com', '123 Rue de Rivoli, 75001 Paris', '1985-03-15', 39, false, true);
 
--- Insert medias pour utilisateurs
-INSERT INTO utilisateur_medias (utilisateur_id, medias)
-VALUES
-((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), 'profile1.jpg'),
-((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), 'car1.jpg');
 
 -- ========================================
 -- Insert liaisons utilisateur-lieu

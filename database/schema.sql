@@ -31,7 +31,6 @@ DROP TABLE IF EXISTS reservation CASCADE;
 DROP TABLE IF EXISTS charging_station_lieu CASCADE;
 DROP TABLE IF EXISTS utilisateur_lieu CASCADE;
 DROP TABLE IF EXISTS borne_medias CASCADE;
-DROP TABLE IF EXISTS utilisateur_medias CASCADE;
 DROP TABLE IF EXISTS charging_stations CASCADE;
 DROP TABLE IF EXISTS utilisateur CASCADE;
 DROP TABLE IF EXISTS lieu CASCADE;
@@ -90,12 +89,6 @@ CREATE TABLE utilisateur (
     CONSTRAINT chk_age CHECK (age >= 0 AND age <= 120)
 );
 
-CREATE TABLE utilisateur_medias (
-    utilisateur_id BIGINT NOT NULL,
-    medias TEXT NOT NULL,
-    CONSTRAINT fk_utilisateur_medias
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE
-);
 
 -- ========================================
 -- Table: charging_stations

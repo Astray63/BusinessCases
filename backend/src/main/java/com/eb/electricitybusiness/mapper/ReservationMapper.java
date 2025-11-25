@@ -32,24 +32,26 @@ public class ReservationMapper {
 
         ReservationDto dto = new ReservationDto();
         dto.setId(reservation.getNumeroReservation());
-        dto.setUtilisateurId(reservation.getUtilisateur() != null ? reservation.getUtilisateur().getIdUtilisateur() : null);
-        dto.setChargingStationId(reservation.getChargingStation() != null ? reservation.getChargingStation().getIdBorne() : null);
+        dto.setUtilisateurId(
+                reservation.getUtilisateur() != null ? reservation.getUtilisateur().getIdUtilisateur() : null);
+        dto.setChargingStationId(
+                reservation.getChargingStation() != null ? reservation.getChargingStation().getIdBorne() : null);
         dto.setDateDebut(reservation.getDateDebut());
         dto.setDateFin(reservation.getDateFin());
         dto.setEtat(reservation.getEtat() != null ? reservation.getEtat().name() : null);
         dto.setPrixALaMinute(reservation.getPrixALaMinute());
         dto.setTotalPrice(reservation.getTotalPrice());
         dto.setReceiptPath(reservation.getReceiptPath());
-        
+
         // Populate nested objects
         if (reservation.getChargingStation() != null) {
             dto.setBorne(toBorneDto(reservation.getChargingStation()));
         }
-        
+
         if (reservation.getUtilisateur() != null) {
             dto.setUtilisateur(toUtilisateurSimpleDto(reservation.getUtilisateur()));
         }
-        
+
         return dto;
     }
 
@@ -82,7 +84,7 @@ public class ReservationMapper {
         dto.setLongitude(station.getLongitude());
         dto.setPrixALaMinute(station.getPrixALaMinute());
         dto.setPuissance(station.getPuissance());
-        
+
         // Safely handle lazy loading of medias
         try {
             dto.setMedias(station.getMedias());
@@ -90,13 +92,13 @@ public class ReservationMapper {
             logger.warn("Could not load medias for station {}", station.getIdBorne());
             dto.setMedias(new ArrayList<>());
         }
-        
+
         dto.setInstructionSurPied(station.getInstructionSurPied());
         dto.setConnectorType(station.getConnectorType());
         dto.setDescription(station.getDescription());
         dto.setEtat(station.getEtat() != null ? station.getEtat().name() : null);
         dto.setOccupee(station.getOccupee());
-        
+
         // Safely handle lazy loading of owner
         try {
             if (station.getOwner() != null) {
@@ -105,7 +107,7 @@ public class ReservationMapper {
         } catch (Exception e) {
             logger.warn("Could not load owner for station {}", station.getIdBorne());
         }
-        
+
         return dto;
     }
 
@@ -127,12 +129,7 @@ public class ReservationMapper {
         dto.setRole(utilisateur.getRole() != null ? utilisateur.getRole().name() : null);
         dto.setIban(utilisateur.getIban());
         dto.setAdressePhysique(utilisateur.getAdressePhysique());
-        
-        // Convert List<String> to String (comma-separated)
-        if (utilisateur.getMedias() != null && !utilisateur.getMedias().isEmpty()) {
-            dto.setMedias(String.join(",", utilisateur.getMedias()));
-        }
-        
+
         dto.setAccountLocked(!utilisateur.isAccountNonLocked());
         return dto;
     }

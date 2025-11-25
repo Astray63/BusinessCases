@@ -94,8 +94,6 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
         utilisateur.setTelephone(utilisateurDto.telephone());
         utilisateur.setCodePostal(utilisateurDto.codePostal());
         utilisateur.setVille(utilisateurDto.ville());
-        utilisateur
-                .setMedias(utilisateurDto.medias() != null ? List.of(utilisateurDto.medias().split(",")) : List.of());
         utilisateur.setEstBanni(false);
 
         // Générer un code de vérification à 6 chiffres
@@ -334,9 +332,6 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
                 utilisateur.getTelephone(),
                 utilisateur.getCodePostal(),
                 utilisateur.getVille(),
-                utilisateur.getMedias() != null && !utilisateur.getMedias().isEmpty()
-                        ? String.join(",", utilisateur.getMedias())
-                        : "", // medias
                 null, // idAdresse - à ajuster selon votre logique métier
                 !utilisateur.getEstBanni(), // actif (inverse de estBanni)
                 utilisateur.getCreatedAt(),

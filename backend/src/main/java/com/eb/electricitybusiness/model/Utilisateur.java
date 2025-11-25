@@ -95,11 +95,6 @@ public class Utilisateur implements UserDetails {
     @Column(name = "age")
     private Integer age;
 
-    @Column(name = "medias")
-    @ElementCollection
-    @CollectionTable(name = "utilisateur_medias", joinColumns = @JoinColumn(name = "utilisateur_id"))
-    private List<String> medias;
-
     @Column(name = "telephone", length = 20)
     private String telephone;
 
