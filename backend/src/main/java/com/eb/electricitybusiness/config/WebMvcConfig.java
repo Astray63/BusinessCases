@@ -13,7 +13,8 @@ import java.nio.file.Paths;
  * Configuration Spring MVC pour servir les fichiers statiques uploadés
  *
  * Permet l'accès aux photos des bornes via HTTP
- * Avec context-path /api, les URLs seront: http://localhost:8080/api/uploads/bornes/borne-123/photo.jpg
+ * Avec context-path /api, les URLs seront:
+ * http://localhost:8080/api/uploads/bornes/borne-123/photo.jpg
  */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -24,7 +25,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
         // Servir les fichiers uploadés comme ressources statiques
-        // URL pattern: /uploads/bornes/** (sera préfixé par /api à cause du context-path)
+        // URL pattern: /uploads/bornes/** (sera préfixé par /api à cause du
+        // context-path)
         // Fichier physique: file:/home/user/electriccharge/uploads/bornes/
 
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
@@ -34,8 +36,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addResourceLocations(uploadLocation)
                 .setCachePeriod(3600); // Cache 1 heure
 
-        System.out.println("📁 Static resources configured:");
-        System.out.println("   URL pattern: /api/uploads/bornes/** (avec context-path)");
-        System.out.println("   File location: " + uploadLocation);
     }
 }

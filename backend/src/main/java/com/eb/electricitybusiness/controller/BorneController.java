@@ -77,7 +77,7 @@ public class BorneController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> updateBorne(@PathVariable Long id,
-                                                    @Valid @RequestBody ChargingStationDto chargingStationDto) {
+            @Valid @RequestBody ChargingStationDto chargingStationDto) {
         try {
             ChargingStationDto updatedBorne = chargingStationService.update(id, chargingStationDto);
             return new ResponseEntity<>(ApiResponse.success("Borne mise à jour avec succès", updatedBorne),
@@ -129,7 +129,7 @@ public class BorneController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/disponibles")
     public ResponseEntity<ApiResponse<?>> getBornesDisponibles(
             @RequestParam(required = false) Double latitude,
@@ -142,16 +142,15 @@ public class BorneController {
             @RequestParam(required = false) Boolean disponible) {
         try {
             // Si aucun filtre n'est fourni, retourner toutes les bornes disponibles
-            if (latitude == null && longitude == null && prixMin == null && 
-                prixMax == null && puissanceMin == null && etat == null && disponible == null) {
+            if (latitude == null && longitude == null && prixMin == null &&
+                    prixMax == null && puissanceMin == null && etat == null && disponible == null) {
                 List<ChargingStationDto> bornes = chargingStationService.getByDisponibilite(true);
                 return new ResponseEntity<>(ApiResponse.success(bornes), HttpStatus.OK);
             }
-            
+
             // Sinon utiliser la recherche avancée
             List<ChargingStationDto> bornes = chargingStationService.searchAdvanced(
-                latitude, longitude, distance, prixMin, prixMax, puissanceMin, etat, disponible
-            );
+                    latitude, longitude, distance, prixMin, prixMax, puissanceMin, etat, disponible);
             return new ResponseEntity<>(ApiResponse.success(bornes),
                     HttpStatus.OK);
         } catch (Exception e) {
@@ -211,7 +210,7 @@ public class BorneController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/utilisateur/{userId}")
     public ResponseEntity<ApiResponse<?>> getBornesByUtilisateur(@PathVariable Long userId) {
         try {
@@ -223,7 +222,7 @@ public class BorneController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/proprietaire/{proprietaireId}")
     public ResponseEntity<ApiResponse<?>> getBornesByProprietaire(@PathVariable Long proprietaireId) {
         try {
@@ -235,7 +234,7 @@ public class BorneController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<?>> searchBornes(
             @RequestParam(required = false) Double latitude,
@@ -248,8 +247,7 @@ public class BorneController {
             @RequestParam(required = false) Boolean disponible) {
         try {
             List<ChargingStationDto> bornes = chargingStationService.searchAdvanced(
-                latitude, longitude, distance, prixMin, prixMax, puissanceMin, etat, disponible
-            );
+                    latitude, longitude, distance, prixMin, prixMax, puissanceMin, etat, disponible);
             return new ResponseEntity<>(ApiResponse.success(bornes),
                     HttpStatus.OK);
         } catch (Exception e) {
@@ -257,7 +255,7 @@ public class BorneController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping("/{id}/photos")
     public ResponseEntity<ApiResponse<?>> uploadPhotos(
             @PathVariable Long id,
@@ -267,17 +265,16 @@ public class BorneController {
             return new ResponseEntity<>(ApiResponse.success("Photos uploadées avec succès", photoUrls),
                     HttpStatus.OK);
         } catch (EntityNotFoundException e) {
-            System.err.println("Borne non trouvée: " + e.getMessage());
+
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Erreur lors de l'upload: " + e.getMessage());
+
             return new ResponseEntity<>(ApiResponse.error("Erreur lors de l'upload des photos: " + e.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @DeleteMapping("/{id}/photos")
     public ResponseEntity<ApiResponse<?>> deletePhoto(
             @PathVariable Long id,
@@ -290,7 +287,8 @@ public class BorneController {
             return new ResponseEntity<>(ApiResponse.error(e.getMessage()),
                     HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>(ApiResponse.error("Erreur lors de la suppression de la photo: " + e.getMessage()),
+            return new ResponseEntity<>(
+                    ApiResponse.error("Erreur lors de la suppression de la photo: " + e.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

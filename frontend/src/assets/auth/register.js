@@ -247,7 +247,7 @@ async function submitRegistration(userData) {
     }
   } catch (error) {
     // Erreur réseau ou autre erreur
-    console.error('Erreur lors de l\'inscription:', error);
+
     showGeneralError('Une erreur est survenue lors de l\'inscription. Veuillez réessayer.');
     setLoading(false);
   }
@@ -256,7 +256,7 @@ async function submitRegistration(userData) {
 // =====================================================
 // GESTIONNAIRE D'ÉVÉNEMENT : SOUMISSION DU FORMULAIRE
 // =====================================================
-form.addEventListener('submit', function(event) {
+form.addEventListener('submit', function (event) {
   // Empêcher le rechargement de la page
   event.preventDefault();
 

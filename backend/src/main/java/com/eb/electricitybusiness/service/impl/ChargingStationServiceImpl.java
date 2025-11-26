@@ -131,17 +131,14 @@ public class ChargingStationServiceImpl implements ChargingStationService {
                         try {
                             return convertToDto(station);
                         } catch (Exception e) {
-                            System.err.println(
-                                    "Error converting station " + station.getIdBorne() + ": " + e.getMessage());
-                            e.printStackTrace();
+
                             return null;
                         }
                     })
                     .filter(dto -> dto != null)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            System.err.println("Error in getByDisponibilite: " + e.getMessage());
-            e.printStackTrace();
+
             throw new RuntimeException("Error retrieving available charging stations: " + e.getMessage(), e);
         }
     }
@@ -307,7 +304,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
             List<String> medias = station.getMedias();
             dto.setMedias(medias != null ? new ArrayList<>(medias) : List.of());
         } catch (Exception e) {
-            System.err.println("Could not load medias for station " + station.getIdBorne() + ": " + e.getMessage());
+
             dto.setMedias(List.of());
         }
 
@@ -335,7 +332,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
             }
         } catch (Exception e) {
             // Handle LazyInitializationException or other issues
-            System.err.println("Could not load owner for station " + station.getIdBorne() + ": " + e.getMessage());
+
         }
         return dto;
     }
@@ -438,7 +435,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
             Path filePath = Paths.get(uploadDir).resolve(borneFolder).resolve(filename);
             Files.deleteIfExists(filePath);
         } catch (Exception e) {
-            System.err.println("Erreur lors de la suppression du fichier physique: " + e.getMessage());
+
             // On continue même si la suppression du fichier échoue
         }
     }

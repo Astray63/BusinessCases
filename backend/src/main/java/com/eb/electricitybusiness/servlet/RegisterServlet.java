@@ -96,7 +96,7 @@ public class RegisterServlet extends HttpServlet {
         } catch (IllegalArgumentException e) {
             envoyerErreur(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+
             envoyerErreur(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     "Une erreur est survenue lors de l'inscription: " + e.getMessage());
         }

@@ -19,7 +19,7 @@ export class SignalementFormComponent implements OnInit {
   signalements: Signalement[] = [];
   loading = false;
   showForm = false;
-  
+
   // Form data
   newSignalement: CreateSignalementRequest = {
     description: '',
@@ -32,7 +32,7 @@ export class SignalementFormComponent implements OnInit {
     private signalementService: SignalementService,
     private authService: AuthService,
     private toastService: ToastService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const user = this.authService.getCurrentUser();
@@ -50,7 +50,7 @@ export class SignalementFormComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des signalements:', error);
+
         this.toastService.showError('Erreur lors du chargement des signalements');
         this.loading = false;
       }
@@ -86,7 +86,7 @@ export class SignalementFormComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erreur lors de la création du signalement:', error);
+
         this.toastService.showError(error.error?.message || 'Erreur lors de la création du signalement');
         this.loading = false;
       }
@@ -106,7 +106,7 @@ export class SignalementFormComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Erreur lors de la suppression du signalement:', error);
+
         this.toastService.showError('Erreur lors de la suppression du signalement');
       }
     });

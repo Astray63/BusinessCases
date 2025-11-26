@@ -19,11 +19,11 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
   loading = false;
   locating = false;
   showMap = true;
-  
+
   // Modal
   selectedBorne: Borne | null = null;
   isModalOpen = false;
-  
+
   // Filters
   searchQuery = '';
   distance = 50;
@@ -32,13 +32,13 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
   puissanceMin = 0;
   selectedEtat = 'all';
   disponibleOnly = false;
-  
+
   // Geolocation
   userLocation: { lat: number; lng: number } | null = null;
   geolocationStatus: 'pending' | 'success' | 'error' = 'pending';
   geolocationMessage = '';
   errorMessage = '';
-  
+
   private mapInitialized = false;
 
   constructor(
@@ -46,7 +46,7 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
     private authService: AuthService,
     private router: Router,
     private ngZone: NgZone
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.getUserLocation();
@@ -82,16 +82,16 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
         };
         this.locating = false;
         this.geolocationStatus = 'success';
-        
+
         if (this.showMap && !this.mapInitialized) {
           this.initMap();
         }
-        
+
         this.searchBornes();
       },
       (error) => {
         let message = 'Impossible de récupérer votre position';
-        
+
         switch (error.code) {
           case error.PERMISSION_DENIED:
             message = 'Vous avez refusé l\'accès à la géolocalisation. Les résultats peuvent être limités.';
@@ -103,7 +103,7 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
             message = 'La demande de géolocalisation a expiré. Utilisation de la position par défaut.';
             break;
         }
-        
+
         this.handleGeolocationError(message);
       },
       {
@@ -118,14 +118,14 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
     this.geolocationMessage = message;
     this.geolocationStatus = 'error';
     this.locating = false;
-    
+
     // Fallback to default location (Paris)
     this.userLocation = { lat: 48.8566, lng: 2.3522 };
-    
+
     if (this.showMap && !this.mapInitialized) {
       this.initMap();
     }
-    
+
     this.searchBornes();
   }
 
@@ -186,14 +186,14 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
       this.mapInitialized = true;
       this.updateMapMarkers();
     } catch (error) {
-      console.error('Error initializing map:', error);
+
       // If map initialization failed, reset state so we can try again
       this.mapInitialized = false;
       if (this.map) {
-          try {
-            this.map.remove();
-          } catch (e) {}
-          this.map = undefined;
+        try {
+          this.map.remove();
+        } catch (e) { }
+        this.map = undefined;
       }
     }
   }
@@ -212,33 +212,33 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
       if (borne.latitude && borne.longitude) {
         try {
           const icon = this.getBorneIcon(borne.etat);
-          
+
           const marker = L.marker([borne.latitude, borne.longitude], { icon })
             .addTo(this.map!)
             .bindPopup(this.createPopupContent(borne));
-          
+
           marker.on('click', () => {
             this.onBorneSelect(borne);
           });
 
           marker.on('popupopen', () => {
-             const btnDetails = document.getElementById(`btn-details-${borne.idBorne}`);
-             if (btnDetails) {
-                 btnDetails.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.ngZone.run(() => this.openBorneDetails(borne));
-                 });
-             }
-             
-             const btnReserver = document.getElementById(`btn-reserver-${borne.idBorne}`);
-             if (btnReserver) {
-                 btnReserver.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.ngZone.run(() => this.reserverBorne(borne.idBorne!));
-                 });
-             }
+            const btnDetails = document.getElementById(`btn-details-${borne.idBorne}`);
+            if (btnDetails) {
+              btnDetails.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.ngZone.run(() => this.openBorneDetails(borne));
+              });
+            }
+
+            const btnReserver = document.getElementById(`btn-reserver-${borne.idBorne}`);
+            if (btnReserver) {
+              btnReserver.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.ngZone.run(() => this.reserverBorne(borne.idBorne!));
+              });
+            }
           });
-          
+
           this.markers.push(marker);
         } catch (error) {
           // Silent fail
@@ -255,8 +255,8 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   getBorneIcon(etat: string): L.DivIcon {
     let color = '#28a745';
-    
-    switch(etat) {
+
+    switch (etat) {
       case 'DISPONIBLE':
         color = '#28a745';
         break;
@@ -283,7 +283,7 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
     const prix = borne.prix ? `${borne.prix}€/h` : 'N/A';
     const distance = this.userLocation ? this.calculateDistance(borne.latitude!, borne.longitude!) : 0;
     const isDisponible = borne.etat === 'DISPONIBLE';
-    
+
     return `
       <div class="popup-content">
         <h6 class="mb-2"><strong>${borne.localisation}</strong></h6>
@@ -320,27 +320,27 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
       try {
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(this.searchQuery)}`);
         const data = await response.json();
-        
+
         if (data && data.length > 0) {
           const newLat = parseFloat(data[0].lat);
           const newLng = parseFloat(data[0].lon);
-          
+
           this.userLocation = {
             lat: newLat,
             lng: newLng
           };
-          
+
           if (this.map) {
             this.map.setView([newLat, newLng], 12);
           }
-          
+
           if (this.userMarker) {
             this.userMarker.setLatLng([newLat, newLng]);
             this.userMarker.bindPopup(`<strong>Position recherchée: ${this.searchQuery}</strong>`);
           }
         }
       } catch (e) {
-        console.error('Erreur de géocodage', e);
+
       }
     }
 
@@ -423,7 +423,7 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   toggleView(): void {
     this.showMap = !this.showMap;
-    
+
     if (this.showMap) {
       setTimeout(() => {
         if (!this.mapInitialized) {
@@ -446,7 +446,7 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
         } else if (this.map) {
           this.map.invalidateSize();
         }
-        
+
         if (this.map) {
           this.map.setView([borne.latitude!, borne.longitude!], 15);
         }
@@ -460,12 +460,12 @@ export class BornesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   reserverBorne(borneId: number): void {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/client/mes-reservations'], { 
-        queryParams: { borneId } 
+      this.router.navigate(['/client/mes-reservations'], {
+        queryParams: { borneId }
       });
     } else {
-      this.router.navigate(['/auth/login'], { 
-        queryParams: { returnUrl: '/client/mes-reservations', borneId } 
+      this.router.navigate(['/auth/login'], {
+        queryParams: { returnUrl: '/client/mes-reservations', borneId }
       });
     }
   }

@@ -113,7 +113,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
                     verificationCode);
         } catch (Exception e) {
             // Log l'erreur mais ne bloque pas l'inscription
-            System.err.println("Erreur lors de l'envoi de l'email: " + e.getMessage());
+
         }
 
         return mapToDto(savedUtilisateur);
