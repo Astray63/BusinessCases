@@ -1,6 +1,5 @@
 package com.eb.electricitybusiness.controller;
 
-import com.eb.electricitybusiness.dto.ApiResponse;
 import com.eb.electricitybusiness.dto.ChargingStationDto;
 import com.eb.electricitybusiness.model.ChargingStation;
 import com.eb.electricitybusiness.model.Utilisateur;
@@ -16,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.math.BigDecimal;
 
@@ -28,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureMockMvc
 @org.springframework.test.context.ActiveProfiles("test")
 @org.springframework.test.context.TestPropertySource(locations = "classpath:application-test.yml")
+@SuppressWarnings("null")
 class BorneControllerIntegrationTest {
 
     @Autowired

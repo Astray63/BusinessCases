@@ -15,6 +15,7 @@ import org.springframework.web.context.request.WebRequest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import jakarta.persistence.EntityNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -29,38 +30,50 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse<?>> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+    public ResponseEntity<ApiResponse<?>> handleResourceNotFoundException(ResourceNotFoundException ex,
+            WebRequest request) {
         logger.warn("Resource not found: {} - Request: {}", ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handleEntityNotFoundException(EntityNotFoundException ex,
+            WebRequest request) {
+        logger.warn("Entity not found: {} - Request: {}", ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<ApiResponse<?>> handleDuplicateResourceException(DuplicateResourceException ex, WebRequest request) {
+    public ResponseEntity<ApiResponse<?>> handleDuplicateResourceException(DuplicateResourceException ex,
+            WebRequest request) {
         logger.warn("Duplicate resource: {} - Request: {}", ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<?>> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+    public ResponseEntity<ApiResponse<?>> handleIllegalArgumentException(IllegalArgumentException ex,
+            WebRequest request) {
         logger.warn("Invalid argument: {} - Request: {}", ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
-    
+
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ApiResponse<?>> handleNoSuchElementException(NoSuchElementException ex, WebRequest request) {
         logger.warn("Element not found: {} - Request: {}", ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
-    
+
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiResponse<?>> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
+    public ResponseEntity<ApiResponse<?>> handleDataIntegrityViolationException(DataIntegrityViolationException ex,
+            WebRequest request) {
         logger.error("Data integrity violation - Request: {}", request.getDescription(false), ex);
         String message = "Contrainte de données violée. Veuillez vérifier vos données.";
         return new ResponseEntity<>(ApiResponse.error(message), HttpStatus.CONFLICT);
     }
-    
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
+    public ResponseEntity<ApiResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex,
+            WebRequest request) {
         logger.warn("Validation failed - Request: {}", request.getDescription(false));
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
@@ -68,14 +81,16 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        return new ResponseEntity<>(new ApiResponse<>("ERROR", "Erreurs de validation", errors), 
+        return new ResponseEntity<>(new ApiResponse<>("ERROR", "Erreurs de validation", errors),
                 HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
-    public ResponseEntity<ApiResponse<?>> handleAccessDeniedException(org.springframework.security.access.AccessDeniedException ex, WebRequest request) {
+    public ResponseEntity<ApiResponse<?>> handleAccessDeniedException(
+            org.springframework.security.access.AccessDeniedException ex, WebRequest request) {
         logger.warn("Access denied: {} - Request: {}", ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(ApiResponse.error("Accès refusé : Vous n'avez pas les permissions nécessaires"), HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(ApiResponse.error("Accès refusé : Vous n'avez pas les permissions nécessaires"),
+                HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(SecurityException.class)
@@ -89,11 +104,11 @@ public class GlobalExceptionHandler {
         logger.warn("Illegal state: {} - Request: {}", ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.CONFLICT);
     }
-    
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleGlobalException(Exception ex, WebRequest request) {
         logger.error("Unexpected error - Request: {}", request.getDescription(false), ex);
-        return new ResponseEntity<>(ApiResponse.error("Une erreur inattendue s'est produite. Veuillez réessayer."), 
+        return new ResponseEntity<>(ApiResponse.error("Une erreur inattendue s'est produite. Veuillez réessayer."),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
-} 
+}

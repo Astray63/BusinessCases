@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @TestPropertySource(locations = "classpath:application-test.yml")
+@SuppressWarnings("null")
 class ReservationControllerIntegrationTest {
 
     @Autowired

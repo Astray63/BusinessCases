@@ -53,6 +53,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @SuppressWarnings("null")
     private void sendEmail(String to, String name, String subject, String htmlContent) {
         try {
             logger.info("=== DÉBUT ENVOI EMAIL ===");

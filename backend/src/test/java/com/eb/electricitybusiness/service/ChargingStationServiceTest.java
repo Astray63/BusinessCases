@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("null")
 class ChargingStationServiceTest {
 
     @Mock
@@ -199,6 +200,7 @@ class ChargingStationServiceTest {
         owner.setIdUtilisateur(1L);
 
         when(chargingStationRepository.findById(id)).thenReturn(Optional.of(existingStation));
+        when(chargingStationRepository.existsById(id)).thenReturn(true);
         when(utilisateurRepository.findById(1L)).thenReturn(Optional.of(owner));
         when(chargingStationRepository.save(any(ChargingStation.class))).thenAnswer(i -> i.getArguments()[0]);
 
@@ -219,6 +221,7 @@ class ChargingStationServiceTest {
         station.setIdBorne(id);
 
         when(chargingStationRepository.findById(id)).thenReturn(Optional.of(station));
+        when(chargingStationRepository.existsById(id)).thenReturn(true);
         when(reservationRepository.hasActiveReservations(id)).thenReturn(false);
 
         // Act
@@ -236,6 +239,7 @@ class ChargingStationServiceTest {
         station.setIdBorne(id);
 
         when(chargingStationRepository.findById(id)).thenReturn(Optional.of(station));
+        when(chargingStationRepository.existsById(id)).thenReturn(true);
         when(reservationRepository.hasActiveReservations(id)).thenReturn(true);
 
         // Act & Assert

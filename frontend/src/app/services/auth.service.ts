@@ -18,6 +18,11 @@ export interface AuthResponse {
 export class AuthService {
   private currentUserSubject: BehaviorSubject<Utilisateur | null>;
   public currentUser$: Observable<Utilisateur | null>;
+  private readonly STORAGE_KEY_TOKEN = 'token';
+  private readonly STORAGE_KEY_REFRESH_TOKEN = 'refreshToken';
+  private readonly STORAGE_KEY_TOKEN_EXPIRATION = 'tokenExpiration';
+  private readonly STORAGE_KEY_CURRENT_USER = 'currentUser';
+
   private apiUrl = `${environment.apiUrl}/auth`;
   private utilisateurApiUrl = `${environment.apiUrl}/utilisateurs`;
 
@@ -25,7 +30,7 @@ export class AuthService {
     // Nettoyer les tokens invalides au démarrage
     this.cleanupInvalidTokens();
 
-    const storedUser = localStorage.getItem('currentUser');
+    const storedUser = localStorage.getItem(this.STORAGE_KEY_CURRENT_USER);
     this.currentUserSubject = new BehaviorSubject<Utilisateur | null>(
       storedUser ? JSON.parse(storedUser) : null
     );
@@ -33,13 +38,17 @@ export class AuthService {
   }
 
   private cleanupInvalidTokens(): void {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem(this.STORAGE_KEY_TOKEN);
     if (token && token.split('.').length !== 3) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('tokenExpiration');
-      localStorage.removeItem('currentUser');
+      this.clearStorage();
     }
+  }
+
+  private clearStorage(): void {
+    localStorage.removeItem(this.STORAGE_KEY_TOKEN);
+    localStorage.removeItem(this.STORAGE_KEY_REFRESH_TOKEN);
+    localStorage.removeItem(this.STORAGE_KEY_TOKEN_EXPIRATION);
+    localStorage.removeItem(this.STORAGE_KEY_CURRENT_USER);
   }
 
   login(credentials: UtilisateurAuth): Observable<ApiResponse<AuthResponse>> {
@@ -54,10 +63,10 @@ export class AuthService {
             const expirationDate = new Date();
             expirationDate.setDate(expirationDate.getDate() + 7);
 
-            localStorage.setItem('token', response.data.accessToken);
-            localStorage.setItem('refreshToken', response.data.refreshToken);
-            localStorage.setItem('tokenExpiration', expirationDate.getTime().toString());
-            localStorage.setItem('currentUser', JSON.stringify(response.data.user));
+            localStorage.setItem(this.STORAGE_KEY_TOKEN, response.data.accessToken);
+            localStorage.setItem(this.STORAGE_KEY_REFRESH_TOKEN, response.data.refreshToken);
+            localStorage.setItem(this.STORAGE_KEY_TOKEN_EXPIRATION, expirationDate.getTime().toString());
+            localStorage.setItem(this.STORAGE_KEY_CURRENT_USER, JSON.stringify(response.data.user));
             this.currentUserSubject.next(response.data.user);
           }
           return response;
@@ -65,14 +74,14 @@ export class AuthService {
       );
   }
 
-  register(user: any, motDePasse: string): Observable<ApiResponse<AuthResponse>> {
+  register(user: Partial<Utilisateur>, motDePasse: string): Observable<ApiResponse<AuthResponse>> {
     const registerRequest: RegisterRequest = {
       utilisateur: {
-        nom: user.nom,
-        prenom: user.prenom,
-        pseudo: user.pseudo,
-        email: user.email,
-        dateNaissance: user.dateNaissance,
+        nom: user.nom || '',
+        prenom: user.prenom || '',
+        pseudo: user.pseudo || '',
+        email: user.email || '',
+        dateNaissance: user.dateNaissance ? new Date(user.dateNaissance) : new Date(),
         role: 'client',
         iban: user.iban || '',
         adressePhysique: user.adressePhysique || '',
@@ -95,10 +104,7 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('tokenExpiration');
-    localStorage.removeItem('currentUser');
+    this.clearStorage();
     this.currentUserSubject.next(null);
   }
 
@@ -115,7 +121,7 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return localStorage.getItem(this.STORAGE_KEY_TOKEN);
   }
 
   getCurrentUser(): Utilisateur | null {
@@ -125,7 +131,7 @@ export class AuthService {
   isLoggedIn(): boolean {
     const token = this.getToken();
     const user = this.getCurrentUser();
-    const expiration = localStorage.getItem('tokenExpiration');
+    const expiration = localStorage.getItem(this.STORAGE_KEY_TOKEN_EXPIRATION);
 
     if (!token || !user) {
       return false;
@@ -153,7 +159,7 @@ export class AuthService {
   }
 
   updateCurrentUser(updatedUser: Utilisateur): void {
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+    localStorage.setItem(this.STORAGE_KEY_CURRENT_USER, JSON.stringify(updatedUser));
     this.currentUserSubject.next(updatedUser);
   }
 

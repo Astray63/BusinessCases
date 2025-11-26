@@ -27,6 +27,7 @@ public class RegisterServlet extends HttpServlet {
     private ObjectMapper objectMapper;
 
     @Override
+    @SuppressWarnings("null")
     public void init() throws ServletException {
         super.init();
 

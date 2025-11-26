@@ -121,6 +121,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
 
     @Override
     @Transactional(readOnly = true)
+    @SuppressWarnings("null")
     public UtilisateurDto getUtilisateurById(Long id) {
         Utilisateur utilisateur = utilisateurRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "id", id));
@@ -137,6 +138,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public UtilisateurDto updateUtilisateur(Long id, UtilisateurDto utilisateurDto) {
         Utilisateur utilisateur = utilisateurRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "id", id));
@@ -170,6 +172,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public void deleteUtilisateur(Long id) {
         Utilisateur utilisateur = utilisateurRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "id", id));
@@ -212,6 +215,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public void changePassword(Long userId, ChangePasswordRequestDto request) {
         Utilisateur utilisateur = utilisateurRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "id", userId));

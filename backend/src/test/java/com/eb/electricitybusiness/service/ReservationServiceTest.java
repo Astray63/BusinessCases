@@ -1,7 +1,6 @@
 package com.eb.electricitybusiness.service;
 
 import com.eb.electricitybusiness.dto.ReservationDto;
-import com.eb.electricitybusiness.exception.DuplicateResourceException;
 import com.eb.electricitybusiness.model.ChargingStation;
 import com.eb.electricitybusiness.model.Reservation;
 import com.eb.electricitybusiness.model.Utilisateur;
@@ -10,8 +9,7 @@ import com.eb.electricitybusiness.repository.ReservationRepository;
 import com.eb.electricitybusiness.repository.UtilisateurRepository;
 import com.eb.electricitybusiness.service.impl.ReservationServiceImpl;
 import com.eb.electricitybusiness.mapper.ReservationMapper;
-import com.eb.electricitybusiness.service.PdfReceiptService;
-import com.eb.electricitybusiness.service.PriceCalculator;
+
 import com.eb.electricitybusiness.validator.ReservationValidator;
 import com.eb.electricitybusiness.validator.ValidationResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,13 +20,13 @@ import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("null")
 class ReservationServiceTest {
 
     @Mock
@@ -67,7 +65,7 @@ class ReservationServiceTest {
         station = new ChargingStation();
         station.setIdBorne(1L);
         station.setPrixALaMinute(new BigDecimal("0.50"));
-        
+
         // Setup default mocks
         when(validator.validateReservationCreation(any(), any())).thenReturn(ValidationResult.success());
         when(priceCalculator.calculateTotalPrice(any(), any(), any())).thenReturn(new BigDecimal("10.00"));
@@ -91,8 +89,10 @@ class ReservationServiceTest {
 
         when(chargingStationRepository.findById(1L)).thenReturn(Optional.of(station));
         when(utilisateurRepository.findById(1L)).thenReturn(Optional.of(utilisateur));
-        // when(reservationRepository.findConflictingReservations(any(), any(), any())).thenReturn(Collections.emptyList()); // Removed as it's handled by validator
-        
+        // when(reservationRepository.findConflictingReservations(any(), any(),
+        // any())).thenReturn(Collections.emptyList()); // Removed as it's handled by
+        // validator
+
         // Fix findWithDetails mock to return the saved reservation
         when(reservationRepository.save(any(Reservation.class))).thenAnswer(i -> {
             Reservation saved = i.getArgument(0);
@@ -100,11 +100,11 @@ class ReservationServiceTest {
             return saved;
         });
         when(reservationRepository.findWithDetails(1L)).thenAnswer(i -> {
-             Reservation r = new Reservation();
-             r.setNumeroReservation(1L);
-             r.setUtilisateur(utilisateur);
-             r.setChargingStation(station);
-             return Optional.of(r);
+            Reservation r = new Reservation();
+            r.setNumeroReservation(1L);
+            r.setUtilisateur(utilisateur);
+            r.setChargingStation(station);
+            return Optional.of(r);
         });
 
         ReservationDto result = reservationService.create(dto);
@@ -124,10 +124,10 @@ class ReservationServiceTest {
 
         when(chargingStationRepository.findById(1L)).thenReturn(Optional.of(station));
         when(utilisateurRepository.findById(1L)).thenReturn(Optional.of(utilisateur));
-        
+
         // Mock validator to return error
         when(validator.validateReservationCreation(any(), any()))
-            .thenReturn(ValidationResult.failure("La borne est déjà réservée pour cette période"));
+                .thenReturn(ValidationResult.failure("La borne est déjà réservée pour cette période"));
 
         assertThrows(IllegalArgumentException.class, () -> reservationService.create(dto));
         verify(reservationRepository, never()).save(any());

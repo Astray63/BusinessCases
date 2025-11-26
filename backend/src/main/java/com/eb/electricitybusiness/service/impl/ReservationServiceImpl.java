@@ -58,8 +58,10 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public ReservationDto create(ReservationDto dto) {
-        logger.debug("Creating reservation for user {} on station {}", dto.getUtilisateurId(), dto.getChargingStationId());
+        logger.debug("Creating reservation for user {} on station {}", dto.getUtilisateurId(),
+                dto.getChargingStationId());
 
         ChargingStation station = chargingStationRepository.findById(dto.getChargingStationId())
                 .orElseThrow(() -> new ResourceNotFoundException("Borne", "id", dto.getChargingStationId()));
@@ -83,13 +85,14 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setTotalPrice(priceCalculator.calculateTotalPrice(station, dto.getDateDebut(), dto.getDateFin()));
 
         Reservation saved = reservationRepository.save(reservation);
-        
+
         // Reload with details to avoid lazy loading issues
         return mapper.toDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
                 .orElse(saved));
     }
 
     @Override
+    @SuppressWarnings("null")
     public ReservationDto cancel(Long reservationId, Long requesterId) {
         logger.debug("Cancelling reservation {} by requester {}", reservationId, requesterId);
         Reservation reservation = reservationRepository.findById(reservationId)
@@ -108,20 +111,21 @@ public class ReservationServiceImpl implements ReservationService {
 
         reservation.setEtat(Reservation.EtatReservation.ANNULEE);
         Reservation saved = reservationRepository.save(reservation);
-        
+
         // Reload with details to avoid lazy loading issues
         return mapper.toDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
                 .orElse(saved));
     }
 
     @Override
+    @SuppressWarnings("null")
     public ReservationDto complete(Long reservationId) {
         logger.debug("Completing reservation {}", reservationId);
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
         reservation.setEtat(Reservation.EtatReservation.TERMINEE);
         Reservation saved = reservationRepository.save(reservation);
-        
+
         // Reload with details to avoid lazy loading issues
         return mapper.toDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
                 .orElse(saved));
@@ -130,34 +134,35 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public ReservationDto accepter(Long reservationId, Long proprietaireId) {
         logger.debug("Accepting reservation {} by owner {}", reservationId, proprietaireId);
-        
+
         Reservation reservation = reservationRepository.findWithDetails(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
-        
+
         // Validate using ReservationValidator
-        ValidationResult ownerAuthResult = validator.validateOwnerAuthorization(reservation, proprietaireId, "accepter");
+        ValidationResult ownerAuthResult = validator.validateOwnerAuthorization(reservation, proprietaireId,
+                "accepter");
         if (!ownerAuthResult.isValid()) {
             throw new IllegalArgumentException(ownerAuthResult.getFirstError());
         }
-        
+
         ValidationResult canAcceptResult = validator.validateCanBeAccepted(reservation);
         if (!canAcceptResult.isValid()) {
             throw new IllegalArgumentException(canAcceptResult.getFirstError());
         }
-        
+
         // Validate no conflicts before accepting
         ValidationResult noConflictResult = validator.validateNoConflicts(
-                reservation.getChargingStation().getIdBorne(), 
-                reservation.getDateDebut(), 
+                reservation.getChargingStation().getIdBorne(),
+                reservation.getDateDebut(),
                 reservation.getDateFin(),
                 reservationId);
         if (!noConflictResult.isValid()) {
             throw new IllegalArgumentException(noConflictResult.getFirstError());
         }
-        
+
         // Change status
         reservation.setEtat(Reservation.EtatReservation.CONFIRMEE);
-        
+
         // Generate PDF receipt
         try {
             String receiptPath = pdfReceiptService.generateReceipt(reservation);
@@ -167,9 +172,9 @@ public class ReservationServiceImpl implements ReservationService {
             logger.error("Erreur lors de la génération du reçu PDF pour la réservation #{}", reservationId, e);
             // Continue even if PDF generation fails
         }
-        
+
         Reservation saved = reservationRepository.save(reservation);
-        
+
         // Reload with details to avoid lazy loading issues
         return mapper.toDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
                 .orElse(saved));
@@ -178,26 +183,26 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public ReservationDto refuser(Long reservationId, Long proprietaireId, String motif) {
         logger.debug("Refusing reservation {} by owner {} with reason: {}", reservationId, proprietaireId, motif);
-        
+
         Reservation reservation = reservationRepository.findWithDetails(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
-        
+
         // Validate using ReservationValidator
         ValidationResult ownerAuthResult = validator.validateOwnerAuthorization(reservation, proprietaireId, "refuser");
         if (!ownerAuthResult.isValid()) {
             throw new IllegalArgumentException(ownerAuthResult.getFirstError());
         }
-        
+
         ValidationResult canRefuseResult = validator.validateCanBeRefused(reservation);
         if (!canRefuseResult.isValid()) {
             throw new IllegalArgumentException(canRefuseResult.getFirstError());
         }
-        
+
         // Change status
         reservation.setEtat(Reservation.EtatReservation.REFUSEE);
-        
+
         Reservation saved = reservationRepository.save(reservation);
-        
+
         // Reload with details to avoid lazy loading issues
         return mapper.toDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
                 .orElse(saved));
@@ -230,7 +235,8 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ReservationDto> filtrer(String statut, java.time.LocalDateTime dateDebut, java.time.LocalDateTime dateFin, Long borneId, Long utilisateurId) {
+    public List<ReservationDto> filtrer(String statut, java.time.LocalDateTime dateDebut,
+            java.time.LocalDateTime dateFin, Long borneId, Long utilisateurId) {
         Specification<Reservation> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 

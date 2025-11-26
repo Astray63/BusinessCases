@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/reservations")
 public class ReservationController {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ReservationController.class);
 
     private final ReservationService reservationService;
@@ -32,7 +32,7 @@ public class ReservationController {
     private final AuthenticationFacade authenticationFacade;
 
     public ReservationController(
-            ReservationService reservationService, 
+            ReservationService reservationService,
             PdfReceiptService pdfReceiptService,
             AuthenticationFacade authenticationFacade) {
         this.reservationService = reservationService;
@@ -61,40 +61,40 @@ public class ReservationController {
         }
     }
 
-    // IMPORTANT: Ce mapping doit être AVANT /{id} pour éviter que "receipt" soit traité comme un ID
+    // IMPORTANT: Ce mapping doit être AVANT /{id} pour éviter que "receipt" soit
+    // traité comme un ID
     @GetMapping("/{id}/receipt")
     public ResponseEntity<?> getReceipt(@PathVariable Long id) {
         try {
             ReservationDto reservation = reservationService.getById(id);
-            
+
             // Vérifier si un reçu existe
             if (reservation.getReceiptPath() == null || reservation.getReceiptPath().isEmpty()) {
                 return new ResponseEntity<>(
-                    ApiResponse.error("Aucun reçu disponible pour cette réservation"), 
-                    HttpStatus.NOT_FOUND
-                );
+                        ApiResponse.error("Aucun reçu disponible pour cette réservation"),
+                        HttpStatus.NOT_FOUND);
             }
-            
+
             // Récupérer le contenu du PDF
-            @SuppressWarnings("null")
             byte[] pdfContent = pdfReceiptService.getReceiptContent(reservation.getReceiptPath());
-            
+            if (pdfContent == null) {
+                throw new IllegalStateException("Le contenu du PDF est null");
+            }
+
             // Créer la réponse avec le PDF
-            @SuppressWarnings("null")
             ByteArrayResource resource = new ByteArrayResource(pdfContent);
-            
+
             return ResponseEntity.ok()
                     .contentType(MediaType.valueOf(MediaType.APPLICATION_PDF_VALUE))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, 
-                        "attachment; filename=\"recu_reservation_" + id + ".pdf\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"recu_reservation_" + id + ".pdf\"")
                     .body(resource);
-                    
+
         } catch (Exception ex) {
             logger.error("Erreur lors de la récupération du reçu pour la réservation {}: {}", id, ex.getMessage());
             return new ResponseEntity<>(
-                ApiResponse.error("Erreur lors de la récupération du reçu"), 
-                HttpStatus.INTERNAL_SERVER_ERROR
-            );
+                    ApiResponse.error("Erreur lors de la récupération du reçu"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -123,7 +123,7 @@ public class ReservationController {
     public ResponseEntity<ApiResponse<?>> getByOwner(@PathVariable Long proprietaireId) {
         if (proprietaireId == null) {
             return ResponseEntity.badRequest()
-                .body(ApiResponse.error("L'ID du propriétaire est requis"));
+                    .body(ApiResponse.error("L'ID du propriétaire est requis"));
         }
         List<ReservationDto> list = reservationService.getByOwner(proprietaireId);
         return ResponseEntity.ok(ApiResponse.success(list));
@@ -137,33 +137,33 @@ public class ReservationController {
 
     @PutMapping("/{id}/cancel")
     public ResponseEntity<ApiResponse<?>> cancel(
-            @PathVariable Long id, 
+            @PathVariable Long id,
             @RequestParam(required = false) Long requesterId) {
         try {
             logger.debug("Demande d'annulation de la réservation {} avec requesterId: {}", id, requesterId);
-            
-            // Si requesterId n'est pas fourni, essayer de l'obtenir depuis le contexte d'authentification
+
+            // Si requesterId n'est pas fourni, essayer de l'obtenir depuis le contexte
+            // d'authentification
             Long actualRequesterId = requesterId;
             if (actualRequesterId == null) {
                 actualRequesterId = authenticationFacade.getPrincipal()
                         .filter(principal -> principal instanceof Utilisateur)
                         .map(principal -> ((Utilisateur) principal).getIdUtilisateur())
                         .orElse(null);
-                
+
                 if (actualRequesterId != null) {
                     logger.debug("RequesterId extrait du contexte d'authentification: {}", actualRequesterId);
                 }
             }
-            
+
             // Si toujours null, retourner une erreur
             if (actualRequesterId == null) {
                 logger.warn("Impossible d'identifier l'utilisateur pour l'annulation de la réservation {}", id);
                 return new ResponseEntity<>(
-                    ApiResponse.error("Impossible d'identifier l'utilisateur. Veuillez vous reconnecter."), 
-                    HttpStatus.UNAUTHORIZED
-                );
+                        ApiResponse.error("Impossible d'identifier l'utilisateur. Veuillez vous reconnecter."),
+                        HttpStatus.UNAUTHORIZED);
             }
-            
+
             logger.info("Annulation de la réservation {} par l'utilisateur {}", id, actualRequesterId);
             ReservationDto dto = reservationService.cancel(id, actualRequesterId);
             return ResponseEntity.ok(ApiResponse.success("Réservation annulée", dto));
@@ -182,25 +182,25 @@ public class ReservationController {
             return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
-    
+
     @PutMapping("/{id}/accepter")
     public ResponseEntity<ApiResponse<?>> accepter(
             @PathVariable Long id,
             @RequestBody(required = false) java.util.Map<String, Object> body) {
         try {
-            Long proprietaireId = body != null && body.get("proprietaireId") != null 
-                ? ((Number) body.get("proprietaireId")).longValue() 
-                : null;
-            
+            Long proprietaireId = body != null && body.get("proprietaireId") != null
+                    ? ((Number) body.get("proprietaireId")).longValue()
+                    : null;
+
             if (proprietaireId == null) {
                 return new ResponseEntity<>(
-                    ApiResponse.error("L'ID du propriétaire est requis"), 
-                    HttpStatus.BAD_REQUEST
-                );
+                        ApiResponse.error("L'ID du propriétaire est requis"),
+                        HttpStatus.BAD_REQUEST);
             }
-            
+
             ReservationDto dto = reservationService.accepter(id, proprietaireId);
-            return ResponseEntity.ok(ApiResponse.success("Réservation acceptée avec succès. Un reçu PDF a été généré.", dto));
+            return ResponseEntity
+                    .ok(ApiResponse.success("Réservation acceptée avec succès. Un reçu PDF a été généré.", dto));
         } catch (IllegalArgumentException ex) {
             return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.FORBIDDEN);
         } catch (Exception ex) {
@@ -208,24 +208,23 @@ public class ReservationController {
             return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
-    
+
     @PutMapping("/{id}/refuser")
     public ResponseEntity<ApiResponse<?>> refuser(
             @PathVariable Long id,
             @RequestBody(required = false) java.util.Map<String, Object> body) {
         try {
-            Long proprietaireId = body != null && body.get("proprietaireId") != null 
-                ? ((Number) body.get("proprietaireId")).longValue() 
-                : null;
+            Long proprietaireId = body != null && body.get("proprietaireId") != null
+                    ? ((Number) body.get("proprietaireId")).longValue()
+                    : null;
             String motif = body != null ? (String) body.get("motif") : null;
-            
+
             if (proprietaireId == null) {
                 return new ResponseEntity<>(
-                    ApiResponse.error("L'ID du propriétaire est requis"), 
-                    HttpStatus.BAD_REQUEST
-                );
+                        ApiResponse.error("L'ID du propriétaire est requis"),
+                        HttpStatus.BAD_REQUEST);
             }
-            
+
             ReservationDto dto = reservationService.refuser(id, proprietaireId, motif);
             return ResponseEntity.ok(ApiResponse.success("Réservation refusée", dto));
         } catch (IllegalArgumentException ex) {
@@ -235,4 +234,4 @@ public class ReservationController {
             return new ResponseEntity<>(ApiResponse.error(ex.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
-} 
+}

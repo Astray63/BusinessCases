@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = com.eb.electricitybusiness.ElectricityBusinessApplication.class)
 @AutoConfigureMockMvc
+@SuppressWarnings("null")
 public class BorneControllerTest {
 
         @Autowired

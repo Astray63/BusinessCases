@@ -30,6 +30,7 @@ public class LieuServiceImpl implements LieuService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public LieuDto create(LieuDto dto, Long userId) {
         // Vérifier que l'utilisateur existe
         Utilisateur utilisateur = utilisateurRepository.findById(userId)
@@ -59,6 +60,7 @@ public class LieuServiceImpl implements LieuService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public LieuDto update(Long id, LieuDto dto) {
         Lieu lieu = lieuRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lieu non trouvé avec l'ID: " + id));
@@ -77,6 +79,7 @@ public class LieuServiceImpl implements LieuService {
 
     @Override
     @Transactional
+    @SuppressWarnings("null")
     public void delete(Long id) {
         Lieu lieu = lieuRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lieu non trouvé avec l'ID: " + id));
@@ -90,6 +93,7 @@ public class LieuServiceImpl implements LieuService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public LieuDto getById(Long id) {
         Lieu lieu = lieuRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Lieu non trouvé avec l'ID: " + id));
