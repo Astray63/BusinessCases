@@ -34,7 +34,7 @@ describe('UtilisateurService', () => {
         pseudo: 'testuser',
         nom: 'Test',
         prenom: 'User',
-        role: 'client',
+        role: 'user',
         actif: true
       };
 
@@ -56,7 +56,7 @@ describe('UtilisateurService', () => {
         pseudo: 'testuser',
         nom: 'Updated',
         prenom: 'User',
-        role: 'client',
+        role: 'user',
         actif: true
       };
 
@@ -73,8 +73,9 @@ describe('UtilisateurService', () => {
   describe('changePassword', () => {
     it('should change user password', () => {
       const request: PasswordChangeRequest = {
-        ancienMotDePasse: 'oldPassword123',
-        nouveauMotDePasse: 'newPassword123'
+        ancienMotDePasse: 'oldpass',
+        nouveauMotDePasse: 'newpass',
+        confirmationMotDePasse: 'newpass'
       };
 
       service.changePassword(1, request).subscribe((response: ApiResponse<void>) => {

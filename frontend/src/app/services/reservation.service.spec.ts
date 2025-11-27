@@ -7,6 +7,8 @@ import { Borne, BorneStatus, BorneType } from '../models/borne.model';
 import { environment } from '../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
 
+import { ReservationMapperService } from './reservation-mapper.service';
+
 describe('ReservationService', () => {
   let service: ReservationService;
   let httpMock: HttpTestingController;
@@ -17,7 +19,7 @@ describe('ReservationService', () => {
     nom: 'Test',
     prenom: 'User',
     email: 'test@example.com',
-    role: 'client',
+    role: 'user',
     actif: true,
     dateCreation: new Date(),
     dateModification: new Date()
@@ -53,7 +55,16 @@ describe('ReservationService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [ReservationService]
+      providers: [
+        ReservationService,
+        {
+          provide: ReservationMapperService,
+          useValue: {
+            mapArrayToFrontend: (data: any) => data,
+            mapToFrontend: (data: any) => data
+          }
+        }
+      ]
     });
     service = TestBed.inject(ReservationService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -186,7 +197,7 @@ describe('ReservationService', () => {
         expect(response.data?.[0].utilisateur.idUtilisateur).toBe(1);
       });
 
-      const req = httpMock.expectOne(`${environment.apiUrl}/reservations/user/1`);
+      const req = httpMock.expectOne(`${environment.apiUrl}/reservations/utilisateur/1`);
       expect(req.request.method).toBe('GET');
       req.flush(mockResponse);
     });

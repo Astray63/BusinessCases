@@ -82,7 +82,7 @@ export class AuthService {
         pseudo: user.pseudo || '',
         email: user.email || '',
         dateNaissance: user.dateNaissance ? new Date(user.dateNaissance) : new Date(),
-        role: 'client',
+        role: 'user',
         iban: user.iban || '',
         adressePhysique: user.adressePhysique || '',
         telephone: user.telephone || '',

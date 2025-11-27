@@ -8,10 +8,11 @@ import { FormValidationService } from '../../services/form-validation.service';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div *ngIf="control && control.invalid && (control.dirty || control.touched)" 
-         class="invalid-feedback d-block">
-      {{ errorMessage }}
-    </div>
+    @if (control && control.invalid && (control.dirty || control.touched)) {
+      <div class="invalid-feedback d-block">
+        {{ errorMessage }}
+      </div>
+    }
   `,
   styles: [`
     .invalid-feedback {
@@ -23,7 +24,7 @@ import { FormValidationService } from '../../services/form-validation.service';
 export class FormErrorComponent {
   @Input() control: AbstractControl | null = null;
 
-  constructor(private formValidationService: FormValidationService) {}
+  constructor(private formValidationService: FormValidationService) { }
 
   get errorMessage(): string {
     if (!this.control) return '';

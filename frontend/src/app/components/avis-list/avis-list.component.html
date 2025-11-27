@@ -5,101 +5,105 @@
       <h3 class="text-xl font-bold text-gray-800 mb-2">Avis des utilisateurs</h3>
       <div class="flex items-center gap-3">
         <div class="flex items-center">
-          <ng-container *ngFor="let star of getStars(Math.round(averageNote || 0))">
-            <svg *ngIf="star === 'full'" class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          @for (star of getStars(Math.round(averageNote || 0)); track $index) {
+          <ng-container>
+            @if (star === 'full') {
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
-            <svg *ngIf="star === 'empty'" class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            }
+            @if (star === 'empty') {
+            <svg class="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
+            }
           </ng-container>
+          }
         </div>
         <span class="text-lg font-semibold text-gray-700">{{ averageNote | number:'1.1-1' }}</span>
         <span class="text-sm text-gray-500">({{ avis.length }} avis)</span>
       </div>
     </div>
-    
-    <button 
-      *ngIf="currentUserId && !showForm"
-      (click)="toggleForm()"
+
+    @if (currentUserId && !showForm) {
+    <button (click)="toggleForm()"
       class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
       </svg>
       Laisser un avis
     </button>
+    }
   </div>
 
   <!-- Formulaire d'ajout d'avis -->
-  <div *ngIf="showForm" class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+  @if (showForm) {
+  <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
     <h4 class="text-lg font-semibold text-gray-800 mb-4">Votre avis sur {{ chargingStationNom }}</h4>
-    
+
     <div class="mb-4">
       <label class="block text-sm font-medium text-gray-700 mb-2">Note *</label>
       <div class="flex gap-2">
-        <button 
-          *ngFor="let n of [1, 2, 3, 4, 5]"
-          type="button"
-          (click)="newAvis.note = n"
-          class="p-2 transition-all">
-          <svg 
-            class="w-8 h-8"
-            [class.text-yellow-400]="n <= newAvis.note"
-            [class.text-gray-300]="n > newAvis.note"
-            fill="currentColor" 
-            viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+        @for (n of [1, 2, 3, 4, 5]; track n) {
+        <button type="button" (click)="newAvis.note = n" class="p-2 transition-all">
+          <svg class="w-8 h-8" [class.text-yellow-400]="n <= newAvis.note" [class.text-gray-300]="n > newAvis.note"
+            fill="currentColor" viewBox="0 0 20 20">
+            <path
+              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
         </button>
+        }
       </div>
     </div>
 
     <div class="mb-4">
       <label for="commentaire" class="block text-sm font-medium text-gray-700 mb-2">Commentaire</label>
-      <textarea
-        id="commentaire"
-        [(ngModel)]="newAvis.commentaire"
-        rows="4"
+      <textarea id="commentaire" [(ngModel)]="newAvis.commentaire" rows="4"
         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         placeholder="Partagez votre expérience avec cette borne..."></textarea>
     </div>
 
     <div class="flex gap-2 justify-end">
-      <button
-        type="button"
-        (click)="toggleForm()"
+      <button type="button" (click)="toggleForm()"
         class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
         Annuler
       </button>
-      <button
-        type="button"
-        (click)="submitAvis()"
-        [disabled]="loading"
+      <button type="button" (click)="submitAvis()" [disabled]="loading"
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
         {{ loading ? 'Envoi...' : 'Publier l\'avis' }}
       </button>
     </div>
   </div>
+  }
 
   <!-- Liste des avis -->
-  <div *ngIf="loading && avis.length === 0" class="text-center py-8">
+  @if (loading && avis.length === 0) {
+  <div class="text-center py-8">
     <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
     <p class="mt-2 text-gray-600">Chargement des avis...</p>
   </div>
+  }
 
-  <div *ngIf="!loading && avis.length === 0" class="text-center py-8 text-gray-500">
+  @if (!loading && avis.length === 0) {
+  <div class="text-center py-8 text-gray-500">
     <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
     </svg>
     <p class="text-lg">Aucun avis pour le moment</p>
     <p class="text-sm mt-2">Soyez le premier à donner votre avis !</p>
   </div>
+  }
 
   <div class="space-y-4">
-    <div *ngFor="let avisItem of avis" class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+    @for (avisItem of avis; track avisItem.idAvis) {
+    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
       <div class="flex justify-between items-start mb-2">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+          <div
+            class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
             {{ avisItem.utilisateurPrenom.charAt(0) }}{{ avisItem.utilisateurNom.charAt(0) }}
           </div>
           <div>
@@ -107,34 +111,45 @@
             <p class="text-xs text-gray-500">{{ '@' }}{{ avisItem.utilisateurPseudo }}</p>
           </div>
         </div>
-        
+
         <div class="flex items-center gap-2">
           <div class="flex items-center">
-            <ng-container *ngFor="let star of getStars(avisItem.note)">
-              <svg *ngIf="star === 'full'" class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            @for (star of getStars(avisItem.note); track $index) {
+            <ng-container>
+              @if (star === 'full') {
+              <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
-              <svg *ngIf="star === 'empty'" class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              }
+              @if (star === 'empty') {
+              <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
+              }
             </ng-container>
+            }
           </div>
-          
-          <button
-            *ngIf="canDeleteAvis(avisItem)"
-            (click)="deleteAvis(avisItem.idAvis)"
-            class="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition-colors"
-            title="Supprimer">
+
+          @if (canDeleteAvis(avisItem)) {
+          <button (click)="deleteAvis(avisItem.idAvis)"
+            class="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition-colors" title="Supprimer">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </button>
+          }
         </div>
       </div>
 
-      <p *ngIf="avisItem.commentaire" class="text-gray-700 mt-2 mb-2">{{ avisItem.commentaire }}</p>
-      
+      @if (avisItem.commentaire) {
+      <p class="text-gray-700 mt-2 mb-2">{{ avisItem.commentaire }}</p>
+      }
+
       <p class="text-xs text-gray-400 mt-2">{{ formatDate(avisItem.createdAt) }}</p>
     </div>
+    }
   </div>
 </div>

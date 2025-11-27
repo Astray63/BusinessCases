@@ -8,7 +8,8 @@ import { ToastService } from '../../services/toast.service';
 import { of, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { ApiResponse } from '../../models/api-response.model';
-import { AuthResponse, Utilisateur } from '../../models/utilisateur.model';
+import { AuthResponse } from '../../services/auth.service';
+import { Utilisateur } from '../../models/utilisateur.model';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -23,7 +24,7 @@ describe('LoginComponent', () => {
     nom: 'Test',
     prenom: 'User',
     email: 'test@example.com',
-    role: 'client',
+    role: 'user',
     actif: true,
     dateCreation: new Date(),
     dateModification: new Date()
@@ -33,7 +34,8 @@ describe('LoginComponent', () => {
     result: 'SUCCESS',
     message: 'Connexion réussie',
     data: {
-      token: 'fake-token',
+      accessToken: 'fake-access-token',
+      refreshToken: 'fake-refresh-token',
       user: mockUser
     }
   };
@@ -43,8 +45,8 @@ describe('LoginComponent', () => {
     const toastServiceSpy = jasmine.createSpyObj('ToastService', ['showSuccess', 'showError']);
 
     await TestBed.configureTestingModule({
-      declarations: [ LoginComponent ],
-      imports: [ 
+      declarations: [LoginComponent],
+      imports: [
         ReactiveFormsModule,
         RouterTestingModule,
         HttpClientTestingModule
@@ -54,7 +56,7 @@ describe('LoginComponent', () => {
         { provide: ToastService, useValue: toastServiceSpy }
       ]
     })
-    .compileComponents();
+      .compileComponents();
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
@@ -81,13 +83,13 @@ describe('LoginComponent', () => {
         pseudo: 'testuser',
         password: 'password123'
       };
-      
+
       component.loginForm.setValue(loginCredentials);
       component.onSubmit();
 
       expect(authService.login).toHaveBeenCalledWith(loginCredentials);
       expect(toastService.showSuccess).toHaveBeenCalledWith('Connexion réussie');
-      expect(navigateSpy).toHaveBeenCalledWith(['/']);
+      expect(navigateSpy).toHaveBeenCalledWith(['/dashboard'], { queryParams: {} });
     });
 
     it('should show error toast on login failure', () => {
