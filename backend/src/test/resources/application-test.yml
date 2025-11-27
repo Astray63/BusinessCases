@@ -28,6 +28,18 @@ spring:
       mode: always
       schema-locations: classpath:schema.sql
       data-locations: classpath:data.sql
+  mail:
+    host: localhost
+    port: 3025
+    username: test
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -41,16 +53,6 @@ app:
     secret: testSecretKeyForJwtTokenGenerationInTestEnvironment123456789
     expiration-ms: 3600000  # 1 hour
     refresh-expiration-ms: 86400000 # 24 hours
-  mail:
-    host: localhost
-    port: 3025
-    username: test
-    password: test
-    properties:
-      mail:
-        smtp:
-          auth: false
-          starttls:
-            enable: false
+
 server:
   port: 8081
