@@ -35,10 +35,12 @@ logging:
     org.hibernate.type.descriptor.sql.BasicExtractor: TRACE
     org.hibernate.hql.internal.ast.HqlSqlWalker: DEBUG
     org.hibernate.engine.jdbc.spi.SqlStatementLogger: DEBUG
-  security:
-    jwt:
-      secret: testSecretKeyForJwtTokenGenerationInTestEnvironment123456789
-      expiration: 3600000  # 1 hour
+
+app:
+  jwt:
+    secret: testSecretKeyForJwtTokenGenerationInTestEnvironment123456789
+    expiration-ms: 3600000  # 1 hour
+    refresh-expiration-ms: 86400000 # 24 hours
   mail:
     host: localhost
     port: 3025
