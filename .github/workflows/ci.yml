@@ -15,7 +15,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15-alpine
+        image: postgis/postgis:15-3.3-alpine
         env:
           POSTGRES_DB: electricity_test
           POSTGRES_USER: postgres
