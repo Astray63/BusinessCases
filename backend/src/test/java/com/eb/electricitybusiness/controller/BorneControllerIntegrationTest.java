@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = com.eb.electricitybusiness.ElectricityBusinessApplication.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @org.springframework.test.context.ActiveProfiles("test")
 @org.springframework.test.context.TestPropertySource(locations = "classpath:application-test.yml")
