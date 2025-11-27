@@ -3,10 +3,10 @@ package com.eb.electricitybusiness.service;
 import com.eb.electricitybusiness.dto.AvisDto;
 import com.eb.electricitybusiness.dto.CreateAvisDto;
 import com.eb.electricitybusiness.model.Avis;
-import com.eb.electricitybusiness.model.ChargingStation;
+import com.eb.electricitybusiness.model.Borne;
 import com.eb.electricitybusiness.model.Utilisateur;
 import com.eb.electricitybusiness.repository.AvisRepository;
-import com.eb.electricitybusiness.repository.ChargingStationRepository;
+import com.eb.electricitybusiness.repository.BorneRepository;
 import com.eb.electricitybusiness.repository.UtilisateurRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class AvisService {
 
     private final AvisRepository avisRepository;
-    private final ChargingStationRepository chargingStationRepository;
+    private final BorneRepository borneRepository;
     private final UtilisateurRepository utilisateurRepository;
 
     /**
@@ -34,7 +34,7 @@ public class AvisService {
     public List<AvisDto> getAvisByChargingStation(Long chargingStationId) {
         log.info("Récupération des avis pour la borne {}", chargingStationId);
 
-        List<Avis> avisList = avisRepository.findByChargingStationIdBorneOrderByCreatedAtDesc(chargingStationId);
+        List<Avis> avisList = avisRepository.findByBorneIdBorneOrderByCreatedAtDesc(chargingStationId);
 
         return avisList.stream()
                 .map(this::convertToDto)
@@ -68,7 +68,7 @@ public class AvisService {
      */
     @Transactional(readOnly = true)
     public Double getAverageNoteByChargingStation(Long chargingStationId) {
-        Double average = avisRepository.getAverageNoteByChargingStation(chargingStationId);
+        Double average = avisRepository.getAverageNoteByBorne(chargingStationId);
         return average != null ? Math.round(average * 10.0) / 10.0 : 0.0;
     }
 
@@ -84,7 +84,7 @@ public class AvisService {
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
         // Vérifier si l'utilisateur a déjà laissé un avis sur cette borne
-        boolean exists = avisRepository.existsByUtilisateurIdUtilisateurAndChargingStationIdBorne(
+        boolean exists = avisRepository.existsByUtilisateurIdUtilisateurAndBorneIdBorne(
                 utilisateur.getIdUtilisateur(), createAvisDto.getChargingStationId());
         if (exists) {
             throw new RuntimeException("Vous avez déjà laissé un avis sur cette borne");
@@ -92,18 +92,18 @@ public class AvisService {
 
         Long stationId = java.util.Objects.requireNonNull(createAvisDto.getChargingStationId(),
                 "L'ID de la borne ne peut pas être null");
-        ChargingStation chargingStation = chargingStationRepository.findById(stationId)
+        Borne borne = borneRepository.findById(stationId)
                 .orElseThrow(() -> new RuntimeException("Borne non trouvée"));
 
         Avis avis = new Avis();
         avis.setNote(createAvisDto.getNote());
         avis.setCommentaire(createAvisDto.getCommentaire());
         avis.setUtilisateur(utilisateur);
-        avis.setChargingStation(chargingStation);
+        avis.setBorne(borne);
 
         Avis savedAvis = avisRepository.save(avis);
         log.info("Avis créé avec succès pour la borne {} par l'utilisateur {}",
-                chargingStation.getNumero(), utilisateur.getPseudo());
+                borne.getNumero(), utilisateur.getPseudo());
 
         return convertToDto(savedAvis);
     }
@@ -146,8 +146,8 @@ public class AvisService {
                 .utilisateurPseudo(avis.getUtilisateur().getPseudo())
                 .utilisateurNom(avis.getUtilisateur().getNom())
                 .utilisateurPrenom(avis.getUtilisateur().getPrenom())
-                .chargingStationId(avis.getChargingStation().getIdBorne())
-                .chargingStationNom(avis.getChargingStation().getNom())
+                .chargingStationId(avis.getBorne().getIdBorne())
+                .chargingStationNom(avis.getBorne().getNom())
                 .build();
     }
 }

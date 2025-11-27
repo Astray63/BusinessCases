@@ -1,9 +1,9 @@
 package com.eb.electricitybusiness.controller;
 
-import com.eb.electricitybusiness.dto.ChargingStationDto;
-import com.eb.electricitybusiness.model.ChargingStation;
+import com.eb.electricitybusiness.dto.BorneDto;
+import com.eb.electricitybusiness.model.Borne;
 import com.eb.electricitybusiness.model.Utilisateur;
-import com.eb.electricitybusiness.repository.ChargingStationRepository;
+import com.eb.electricitybusiness.repository.BorneRepository;
 import com.eb.electricitybusiness.repository.UtilisateurRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,67 +36,101 @@ class BorneControllerIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private ChargingStationRepository chargingStationRepository;
+    private BorneRepository borneRepository;
+
+    @Autowired
+    private com.eb.electricitybusiness.repository.ReservationRepository reservationRepository;
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
 
     @Autowired
+    private com.eb.electricitybusiness.repository.SignalementRepository signalementRepository;
+
+    @Autowired
+    private com.eb.electricitybusiness.repository.AvisRepository avisRepository;
+
+    @Autowired
+    private com.eb.electricitybusiness.repository.LieuRepository lieuRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private ChargingStation testBorne;
-    private Utilisateur testUser; // Renamed from testAdmin to testUser
+    private Borne testBorne;
+    private Utilisateur testUser;
+    private com.eb.electricitybusiness.model.Lieu testLieu;
 
     @BeforeEach
     void setup() {
         // Clean up existing test data
-        chargingStationRepository.deleteAll();
+        // Delete reservations first to avoid FK constraints
+        if (reservationRepository != null) {
+            reservationRepository.deleteAll();
+        }
+        if (signalementRepository != null) {
+            signalementRepository.deleteAll();
+        }
+        if (avisRepository != null) {
+            avisRepository.deleteAll();
+        }
+        borneRepository.deleteAll();
         utilisateurRepository.deleteAll();
+        lieuRepository.deleteAll();
 
-        // Create test user (formerly admin)
+        // Create test user
         testUser = new Utilisateur();
         testUser.setNom("Test");
         testUser.setPrenom("User");
         testUser.setPseudo("testuser");
         testUser.setEmail("user@test.com");
         testUser.setMotDePasse(passwordEncoder.encode("password"));
-        testUser.setRole(Utilisateur.Role.client); // Changed role to client
+        testUser.setRole(Utilisateur.Role.client);
         testUser = utilisateurRepository.save(testUser);
 
+        // Create test lieu
+        testLieu = new com.eb.electricitybusiness.model.Lieu();
+        testLieu.setAdresse("123 Test St");
+        testLieu.setVille("Test City");
+        testLieu.setCodePostal("12345");
+        testLieu.setNom("Test Lieu");
+        testLieu = lieuRepository.save(testLieu);
+
         // Create test charging station
-        testBorne = new ChargingStation();
-        testBorne.setNom("Test Borne"); // This already maps to the name column
+        testBorne = new Borne();
+        testBorne.setNom("Test Borne");
         testBorne.setNumero("B001");
         testBorne.setLocalisation("Test Location");
         testBorne.setLatitude(45.0);
         testBorne.setLongitude(5.0);
         testBorne.setPuissance(22);
-        testBorne.setEtat(ChargingStation.Etat.DISPONIBLE);
+        testBorne.setEtat(Borne.Etat.DISPONIBLE);
         testBorne.setOccupee(false);
         testBorne.setPrixALaMinute(new BigDecimal("2.50"));
         testBorne.setDescription("Test charging station");
-        testBorne.setOwner(testUser); // Changed from testAdmin to testUser
-        testBorne = chargingStationRepository.save(testBorne);
+        testBorne.setOwner(testUser);
+        testBorne.setLieu(testLieu);
+        testBorne = borneRepository.save(testBorne);
     }
 
     @Test
     @WithMockUser(username = "testuser", roles = "PROPRIETAIRE")
     void createBorne_ValidData_ReturnsCreated() throws Exception {
-        ChargingStationDto dto = new ChargingStationDto();
+        BorneDto dto = new BorneDto();
         dto.setNom("New Borne");
         dto.setLocalisation("New Location");
         dto.setLatitude(48.8566);
         dto.setLongitude(2.3522);
         dto.setPuissance(22);
-        dto.setPrixALaMinute(new BigDecimal("0.25")); // Ensure BigDecimal for price
+        dto.setPrixALaMinute(new BigDecimal("0.25"));
         dto.setOwnerId(testUser.getIdUtilisateur());
+        dto.setLieuId(testLieu.getIdLieu());
         dto.setNumero("B-NEW-001");
         dto.setEtat("DISPONIBLE");
 
         mockMvc.perform(post("/bornes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isCreated()) // Expect 201 Created
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.result").value("SUCCESS"))
                 .andExpect(jsonPath("$.data.nom").value(dto.getNom()));
     }
@@ -141,18 +175,19 @@ class BorneControllerIntegrationTest {
     @WithMockUser(username = "testuser")
     void getAllBornes_ReturnsList() throws Exception {
         // Create a test charging station
-        ChargingStation testStation = new ChargingStation();
+        Borne testStation = new Borne();
         testStation.setNom("Test Station");
         testStation.setNumero("TEST123");
         testStation.setLocalisation("Test Location");
         testStation.setLatitude(45.0);
         testStation.setLongitude(5.0);
         testStation.setPuissance(50);
-        testStation.setEtat(ChargingStation.Etat.DISPONIBLE);
+        testStation.setEtat(Borne.Etat.DISPONIBLE);
         testStation.setOccupee(false);
         testStation.setPrixALaMinute(new BigDecimal("2.50"));
         testStation.setOwner(testUser);
-        testStation = chargingStationRepository.save(testStation);
+        testStation.setLieu(testLieu);
+        testStation = borneRepository.save(testStation);
 
         mockMvc.perform(get("/bornes"))
                 .andExpect(status().isOk())
@@ -166,18 +201,19 @@ class BorneControllerIntegrationTest {
     @WithMockUser(roles = "ADMIN")
     void whenChangerEtat_thenUpdateEtat() throws Exception {
         // Create a test charging station
-        ChargingStation testStation = new ChargingStation();
+        Borne testStation = new Borne();
         testStation.setNom("Test Station");
         testStation.setNumero("TEST123");
         testStation.setLocalisation("Test Location");
         testStation.setLatitude(45.0);
         testStation.setLongitude(5.0);
         testStation.setPuissance(50);
-        testStation.setEtat(ChargingStation.Etat.DISPONIBLE);
+        testStation.setEtat(Borne.Etat.DISPONIBLE);
         testStation.setOccupee(false);
         testStation.setPrixALaMinute(new BigDecimal("2.50"));
         testStation.setOwner(testUser);
-        testStation = chargingStationRepository.save(testStation);
+        testStation.setLieu(testLieu);
+        testStation = borneRepository.save(testStation);
 
         mockMvc.perform(put("/bornes/" + testStation.getIdBorne() + "/etat")
                 .param("nouvelEtat", "EN_PANNE"))
@@ -201,7 +237,7 @@ class BorneControllerIntegrationTest {
     @WithMockUser(username = "testproprietaire", roles = "PROPRIETAIRE")
     void updateBorne_AsOwner_ReturnsUpdated() throws Exception {
         // Arrange
-        ChargingStationDto dto = new ChargingStationDto();
+        BorneDto dto = new BorneDto();
         dto.setNom("Updated Borne Name");
         dto.setNumero("B001-UPDATED");
         dto.setLocalisation("Updated Location");
@@ -212,10 +248,9 @@ class BorneControllerIntegrationTest {
         dto.setOccupee(false);
         dto.setPrixALaMinute(new BigDecimal("3.00"));
         dto.setInstructionSurPied("Instructions");
-        // dto.setConnectorType("2S");
-        dto.setDescription("Description");
         dto.setDescription("Updated description");
         dto.setOwnerId(testUser.getIdUtilisateur());
+        dto.setLieuId(testLieu.getIdLieu());
 
         // Act & Assert
         mockMvc.perform(put("/bornes/" + testBorne.getIdBorne())
@@ -229,17 +264,16 @@ class BorneControllerIntegrationTest {
     @Test
     @WithMockUser(username = "testuser", roles = "PROPRIETAIRE")
     void deleteBorne_AsOwner_ReturnsSuccess() throws Exception {
-        // Ensure testUser is the owner (already set in setUp but good to be explicit if
-        // needed)
+        // Ensure testUser is the owner
         testBorne.setOwner(testUser);
-        chargingStationRepository.save(testBorne);
+        borneRepository.save(testBorne);
 
         mockMvc.perform(delete("/bornes/" + testBorne.getIdBorne()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").value("SUCCESS"));
 
         // Verify it's gone
-        assertFalse(chargingStationRepository.existsById(testBorne.getIdBorne()));
+        assertFalse(borneRepository.existsById(testBorne.getIdBorne()));
     }
 
     @Test

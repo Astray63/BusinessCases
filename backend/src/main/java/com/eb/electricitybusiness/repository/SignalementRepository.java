@@ -9,30 +9,30 @@ import java.util.List;
 
 @Repository
 public interface SignalementRepository extends JpaRepository<Signalement, Long> {
-    
+
     /**
      * Récupère tous les signalements pour une borne spécifique
      */
-    List<Signalement> findByChargingStationIdBorneOrderByDateSignalementDesc(Long chargingStationId);
-    
+    List<Signalement> findByBorneIdBorneOrderByDateSignalementDesc(Long chargingStationId);
+
     /**
      * Récupère tous les signalements d'un utilisateur
      */
     List<Signalement> findByUserIdUtilisateurOrderByDateSignalementDesc(Long userId);
-    
+
     /**
      * Récupère les signalements par statut
      */
     List<Signalement> findByStatutOrderByDateSignalementDesc(StatutSignalement statut);
-    
+
     /**
      * Récupère les signalements d'une borne par statut
      */
-    List<Signalement> findByChargingStationIdBorneAndStatutOrderByDateSignalementDesc(
+    List<Signalement> findByBorneIdBorneAndStatutOrderByDateSignalementDesc(
             Long chargingStationId, StatutSignalement statut);
-    
+
     /**
      * Compte le nombre de signalements ouverts pour une borne
      */
-    long countByChargingStationIdBorneAndStatut(Long chargingStationId, StatutSignalement statut);
+    long countByBorneIdBorneAndStatut(Long chargingStationId, StatutSignalement statut);
 }

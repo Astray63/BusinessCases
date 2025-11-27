@@ -15,32 +15,32 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Avis {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_avis")
     private Long idAvis;
-    
+
     @Column(name = "note", nullable = false)
     private Integer note;
-    
+
     @Column(name = "commentaire")
     private String commentaire;
-    
+
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    
+
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    
+
     // Relations
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "utilisateur_id", nullable = false)
     private Utilisateur utilisateur;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "charging_station_id")
-    private ChargingStation chargingStation;
+    @JoinColumn(name = "borne_id")
+    private Borne borne;
 }

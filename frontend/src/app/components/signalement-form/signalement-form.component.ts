@@ -13,8 +13,8 @@ import { ToastService } from '../../services/toast.service';
   templateUrl: './signalement-form.component.html'
 })
 export class SignalementFormComponent implements OnInit {
-  @Input() chargingStationId!: number;
-  @Input() chargingStationNom!: string;
+  @Input() borneId!: number;
+  @Input() borneNom!: string;
 
   signalements: Signalement[] = [];
   loading = false;
@@ -23,7 +23,7 @@ export class SignalementFormComponent implements OnInit {
   // Form data
   newSignalement: CreateSignalementRequest = {
     description: '',
-    chargingStationId: 0
+    borneId: 0
   };
 
   currentUserId: number | null = null;
@@ -42,7 +42,7 @@ export class SignalementFormComponent implements OnInit {
 
   loadSignalements(): void {
     this.loading = true;
-    this.signalementService.getSignalementsByChargingStation(this.chargingStationId).subscribe({
+    this.signalementService.getSignalementsByChargingStation(this.borneId).subscribe({
       next: (response) => {
         if (response.result === 'SUCCESS') {
           this.signalements = response.data || [];
@@ -62,7 +62,7 @@ export class SignalementFormComponent implements OnInit {
     if (this.showForm) {
       this.newSignalement = {
         description: '',
-        chargingStationId: this.chargingStationId
+        borneId: this.borneId
       };
     }
   }
@@ -73,7 +73,7 @@ export class SignalementFormComponent implements OnInit {
       return;
     }
 
-    this.newSignalement.chargingStationId = this.chargingStationId;
+    this.newSignalement.borneId = this.borneId;
     this.loading = true;
 
     this.signalementService.createSignalement(this.newSignalement).subscribe({

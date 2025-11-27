@@ -1,16 +1,15 @@
 package com.eb.electricitybusiness.service.impl;
 
-import com.eb.electricitybusiness.dto.ChargingStationDto;
+import com.eb.electricitybusiness.dto.BorneDto;
 import com.eb.electricitybusiness.dto.DashboardStatsDto;
 import com.eb.electricitybusiness.dto.DashboardStatsDto.ClientStats;
 import com.eb.electricitybusiness.dto.DashboardStatsDto.OwnerStats;
 import com.eb.electricitybusiness.dto.ReservationDto;
-import com.eb.electricitybusiness.dto.BorneDto;
-import com.eb.electricitybusiness.model.ChargingStation;
+import com.eb.electricitybusiness.model.Borne;
 import com.eb.electricitybusiness.model.Reservation;
-import com.eb.electricitybusiness.repository.ChargingStationRepository;
+import com.eb.electricitybusiness.repository.BorneRepository;
 import com.eb.electricitybusiness.repository.ReservationRepository;
-import com.eb.electricitybusiness.service.ChargingStationService;
+import com.eb.electricitybusiness.service.BorneService;
 import com.eb.electricitybusiness.service.DashboardService;
 import com.eb.electricitybusiness.service.ReservationService;
 import org.slf4j.Logger;
@@ -31,22 +30,22 @@ public class DashboardServiceImpl implements DashboardService {
         private static final Logger logger = LoggerFactory.getLogger(DashboardServiceImpl.class);
 
         private final ReservationRepository reservationRepository;
-        private final ChargingStationRepository chargingStationRepository;
+        private final BorneRepository borneRepository;
         // private final UtilisateurRepository utilisateurRepository;
         private final ReservationService reservationService;
-        private final ChargingStationService chargingStationService;
+        private final BorneService borneService;
 
         public DashboardServiceImpl(
                         ReservationRepository reservationRepository,
-                        ChargingStationRepository chargingStationRepository,
+                        BorneRepository borneRepository,
                         // UtilisateurRepository utilisateurRepository,
                         ReservationService reservationService,
-                        ChargingStationService chargingStationService) {
+                        BorneService borneService) {
                 this.reservationRepository = reservationRepository;
-                this.chargingStationRepository = chargingStationRepository;
+                this.borneRepository = borneRepository;
                 // this.utilisateurRepository = utilisateurRepository;
                 this.reservationService = reservationService;
-                this.chargingStationService = chargingStationService;
+                this.borneService = borneService;
         }
 
         @Override
@@ -66,14 +65,14 @@ public class DashboardServiceImpl implements DashboardService {
                                 .collect(Collectors.toList()));
 
                 // Vérifier si l'utilisateur est propriétaire
-                List<ChargingStation> userStations = chargingStationRepository.findByOwner_IdUtilisateur(userId);
-                if (!userStations.isEmpty()) {
-                        stats.setOwnerStats(calculateOwnerStats(userId, userStations));
+                List<Borne> userBornes = borneRepository.findByOwnerIdUtilisateur(userId);
+                if (!userBornes.isEmpty()) {
+                        stats.setOwnerStats(calculateOwnerStats(userId, userBornes));
 
                         // Charger les bornes récentes (les 5 dernières)
-                        List<ChargingStationDto> allBornes = chargingStationService.getByOwner(userId);
+                        List<Borne> allBornes = borneService.getBornesByOwner(userId);
                         stats.setRecentBornes(allBornes.stream()
-                                        .map(this::convertChargingStationDtoToBorneDto)
+                                        .map(this::convertBorneToBorneDto)
                                         .limit(5)
                                         .collect(Collectors.toList()));
                 }
@@ -148,29 +147,29 @@ public class DashboardServiceImpl implements DashboardService {
                 return stats;
         }
 
-        private OwnerStats calculateOwnerStats(Long userId, List<ChargingStation> stations) {
+        private OwnerStats calculateOwnerStats(Long userId, List<Borne> bornes) {
                 OwnerStats stats = new OwnerStats();
 
-                stats.setTotalBornes(stations.size());
+                stats.setTotalBornes(bornes.size());
 
                 // Compter par état
-                Map<ChargingStation.Etat, Long> stationsByStatus = stations.stream()
-                                .collect(Collectors.groupingBy(ChargingStation::getEtat, Collectors.counting()));
+                Map<Borne.Etat, Long> bornesByStatus = bornes.stream()
+                                .collect(Collectors.groupingBy(Borne::getEtat, Collectors.counting()));
 
                 stats.setBornesDisponibles(
-                                stationsByStatus.getOrDefault(ChargingStation.Etat.DISPONIBLE, 0L).intValue());
-                stats.setBornesOccupees(stationsByStatus.getOrDefault(ChargingStation.Etat.OCCUPEE, 0L).intValue());
+                                bornesByStatus.getOrDefault(Borne.Etat.DISPONIBLE, 0L).intValue());
+                stats.setBornesOccupees(bornesByStatus.getOrDefault(Borne.Etat.OCCUPEE, 0L).intValue());
                 stats.setBornesMaintenance(
-                                stationsByStatus.getOrDefault(ChargingStation.Etat.EN_MAINTENANCE, 0L).intValue());
-                stats.setBornesHorsService(stationsByStatus.getOrDefault(ChargingStation.Etat.EN_PANNE, 0L).intValue());
+                                bornesByStatus.getOrDefault(Borne.Etat.EN_MAINTENANCE, 0L).intValue());
+                stats.setBornesHorsService(bornesByStatus.getOrDefault(Borne.Etat.EN_PANNE, 0L).intValue());
 
                 // Récupérer toutes les réservations pour les bornes du propriétaire
-                List<Long> stationIds = stations.stream()
-                                .map(ChargingStation::getIdBorne)
+                List<Long> borneIds = bornes.stream()
+                                .map(Borne::getIdBorne)
                                 .collect(Collectors.toList());
 
-                List<Reservation> allReservations = stationIds.stream()
-                                .flatMap(id -> reservationRepository.findByChargingStation_IdBorne(id).stream())
+                List<Reservation> allReservations = borneIds.stream()
+                                .flatMap(id -> reservationRepository.findByBorneIdBorne(id).stream())
                                 .collect(Collectors.toList());
 
                 stats.setTotalReservations(allReservations.size());
@@ -208,18 +207,18 @@ public class DashboardServiceImpl implements DashboardService {
                 stats.setRevenusTotaux(revenusTotaux);
 
                 // Borne la plus réservée
-                Map<Long, Long> reservationsByStation = allReservations.stream()
-                                .collect(Collectors.groupingBy(r -> r.getChargingStation().getIdBorne(),
+                Map<Long, Long> reservationsByBorne = allReservations.stream()
+                                .collect(Collectors.groupingBy(r -> r.getBorne().getIdBorne(),
                                                 Collectors.counting()));
 
-                if (!reservationsByStation.isEmpty()) {
-                        Optional<Map.Entry<Long, Long>> mostReserved = reservationsByStation.entrySet().stream()
+                if (!reservationsByBorne.isEmpty()) {
+                        Optional<Map.Entry<Long, Long>> mostReserved = reservationsByBorne.entrySet().stream()
                                         .max(Map.Entry.comparingByValue());
 
                         mostReserved.ifPresent(entry -> {
                                 try {
-                                        ChargingStationDto stationDto = chargingStationService.getById(entry.getKey());
-                                        BorneDto borneDto = convertChargingStationDtoToBorneDto(stationDto);
+                                        Borne borne = borneService.getBorneById(entry.getKey());
+                                        BorneDto borneDto = convertBorneToBorneDto(borne);
                                         stats.setBorneLaPlusReservee(borneDto);
                                 } catch (Exception e) {
                                         logger.warn("Could not load most reserved station details", e);
@@ -228,29 +227,29 @@ public class DashboardServiceImpl implements DashboardService {
                 }
 
                 // Taux d'occupation moyen (simplifié)
-                if (!stations.isEmpty()) {
-                        double tauxOccupation = (double) stats.getBornesOccupees() / stations.size() * 100;
+                if (!bornes.isEmpty()) {
+                        double tauxOccupation = (double) stats.getBornesOccupees() / bornes.size() * 100;
                         stats.setTauxOccupationMoyen(Math.round(tauxOccupation * 100.0) / 100.0);
                 }
 
                 return stats;
         }
 
-        private BorneDto convertChargingStationDtoToBorneDto(ChargingStationDto csDto) {
+        private BorneDto convertBorneToBorneDto(Borne borne) {
                 BorneDto borneDto = new BorneDto();
-                borneDto.setId(csDto.getId());
-                borneDto.setNumero(csDto.getNumero());
-                borneDto.setNom(csDto.getNom());
-                borneDto.setLocalisation(csDto.getLocalisation());
-                borneDto.setLatitude(csDto.getLatitude());
-                borneDto.setLongitude(csDto.getLongitude());
-                borneDto.setPrixALaMinute(csDto.getPrixALaMinute());
-                borneDto.setPuissance(csDto.getPuissance());
-                borneDto.setInstructionSurPied(csDto.getInstructionSurPied());
-                borneDto.setDescription(csDto.getDescription());
-                borneDto.setEtat(csDto.getEtat());
-                borneDto.setOccupee(csDto.getOccupee());
-                borneDto.setOwnerId(csDto.getOwnerId());
+                borneDto.setId(borne.getIdBorne());
+                borneDto.setNumero(borne.getNumero());
+                borneDto.setNom(borne.getNom());
+                borneDto.setLocalisation(borne.getLocalisation());
+                borneDto.setLatitude(borne.getLatitude());
+                borneDto.setLongitude(borne.getLongitude());
+                borneDto.setPrixALaMinute(borne.getPrixALaMinute());
+                borneDto.setPuissance(borne.getPuissance());
+                borneDto.setInstructionSurPied(borne.getInstructionSurPied());
+                borneDto.setDescription(borne.getDescription());
+                borneDto.setEtat(borne.getEtat().name());
+                borneDto.setOccupee(borne.getOccupee());
+                borneDto.setOwnerId(borne.getOwner() != null ? borne.getOwner().getIdUtilisateur() : null);
                 return borneDto;
         }
 }

@@ -1,7 +1,7 @@
 // =====================================================
 // CONFIGURATION DE L'API
 // =====================================================
-// URL de base de l'API (à adapter selon votre environnement)
+// URL de base de l'API
 const API_URL = 'http://localhost:8080/api/auth';
 
 // =====================================================
@@ -286,7 +286,7 @@ form.addEventListener('submit', function (event) {
 });
 
 // =====================================================
-// VALIDATION EN TEMPS RÉEL (OPTIONNEL)
+// VALIDATION EN TEMPS RÉEL
 // =====================================================
 // Masquer les erreurs quand l'utilisateur modifie un champ
 nomInput.addEventListener('input', () => hideFieldError('nom'));

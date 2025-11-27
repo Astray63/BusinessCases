@@ -22,7 +22,7 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = { "chargingStationsProprietaire", "reservations", "avis", "signalements",
+@ToString(exclude = { "bornesProprietaire", "reservations", "avis", "signalements",
         "utilisateurLieux" })
 public class Utilisateur implements UserDetails {
 
@@ -117,7 +117,7 @@ public class Utilisateur implements UserDetails {
 
     // Relations
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<ChargingStation> chargingStationsProprietaire = new HashSet<>();
+    private Set<Borne> bornesProprietaire = new HashSet<>();
 
     @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Reservation> reservations = new HashSet<>();

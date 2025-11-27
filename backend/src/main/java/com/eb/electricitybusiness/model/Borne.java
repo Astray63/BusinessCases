@@ -13,16 +13,14 @@ import org.locationtech.jts.geom.Point;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
-@Table(name = "charging_stations")
+@Table(name = "borne")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChargingStation {
+public class Borne {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -78,14 +76,14 @@ public class ChargingStation {
     @Column(name = "media_url")
     private List<String> medias = new ArrayList<>();
 
-    @OneToMany(mappedBy = "chargingStation", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("chargingStation")
+    @OneToMany(mappedBy = "borne", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("borne")
     private List<Reservation> reservations = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(name = "charging_station_lieu", joinColumns = @JoinColumn(name = "borne_id"), inverseJoinColumns = @JoinColumn(name = "lieu_id"))
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lieu_id", nullable = false)
     @JsonIgnoreProperties("bornes")
-    private Set<Lieu> lieux = new HashSet<>();
+    private Lieu lieu;
 
     @Column(name = "created_at", updatable = false)
     @CreationTimestamp

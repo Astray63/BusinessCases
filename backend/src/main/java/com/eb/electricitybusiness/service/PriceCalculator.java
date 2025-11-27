@@ -1,6 +1,6 @@
 package com.eb.electricitybusiness.service;
 
-import com.eb.electricitybusiness.model.ChargingStation;
+import com.eb.electricitybusiness.model.Borne;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -21,15 +21,16 @@ public class PriceCalculator {
     private static final RoundingMode PRICE_ROUNDING = RoundingMode.HALF_UP;
 
     /**
-     * Calculates the total price for a reservation based on duration and charging station rate
+     * Calculates the total price for a reservation based on duration and charging
+     * station rate
      *
      * @param station   The charging station
      * @param dateDebut Start date and time
      * @param dateFin   End date and time
      * @return Total price rounded to 2 decimal places
      */
-    public BigDecimal calculateTotalPrice(ChargingStation station, LocalDateTime dateDebut, LocalDateTime dateFin) {
-        if (station == null || station.getPrixALaMinute() == null) {
+    public BigDecimal calculateTotalPrice(Borne borne, LocalDateTime dateDebut, LocalDateTime dateFin) {
+        if (borne == null || borne.getPrixALaMinute() == null) {
             logger.warn("Cannot calculate price: station or price per minute is null");
             return BigDecimal.ZERO;
         }
@@ -45,12 +46,12 @@ public class PriceCalculator {
         }
 
         long minutes = ChronoUnit.MINUTES.between(dateDebut, dateFin);
-        BigDecimal totalPrice = station.getPrixALaMinute()
+        BigDecimal totalPrice = borne.getPrixALaMinute()
                 .multiply(BigDecimal.valueOf(minutes))
                 .setScale(PRICE_SCALE, PRICE_ROUNDING);
 
-        logger.debug("Calculated price for {} minutes at {} per minute: {}", 
-                minutes, station.getPrixALaMinute(), totalPrice);
+        logger.debug("Calculated price for {} minutes at {} per minute: {}",
+                minutes, borne.getPrixALaMinute(), totalPrice);
 
         return totalPrice;
     }
@@ -99,7 +100,7 @@ public class PriceCalculator {
     /**
      * Calculates price with a discount percentage
      *
-     * @param originalPrice  The original price
+     * @param originalPrice   The original price
      * @param discountPercent Discount percentage (e.g., 10 for 10%)
      * @return Discounted price
      */
@@ -109,8 +110,7 @@ public class PriceCalculator {
         }
 
         BigDecimal discountMultiplier = BigDecimal.ONE.subtract(
-                BigDecimal.valueOf(discountPercent).divide(BigDecimal.valueOf(100), PRICE_SCALE, PRICE_ROUNDING)
-        );
+                BigDecimal.valueOf(discountPercent).divide(BigDecimal.valueOf(100), PRICE_SCALE, PRICE_ROUNDING));
 
         return originalPrice.multiply(discountMultiplier).setScale(PRICE_SCALE, PRICE_ROUNDING);
     }

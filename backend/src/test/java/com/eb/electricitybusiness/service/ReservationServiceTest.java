@@ -1,10 +1,10 @@
 package com.eb.electricitybusiness.service;
 
 import com.eb.electricitybusiness.dto.ReservationDto;
-import com.eb.electricitybusiness.model.ChargingStation;
+import com.eb.electricitybusiness.model.Borne;
 import com.eb.electricitybusiness.model.Reservation;
 import com.eb.electricitybusiness.model.Utilisateur;
-import com.eb.electricitybusiness.repository.ChargingStationRepository;
+import com.eb.electricitybusiness.repository.BorneRepository;
 import com.eb.electricitybusiness.repository.ReservationRepository;
 import com.eb.electricitybusiness.repository.UtilisateurRepository;
 import com.eb.electricitybusiness.service.impl.ReservationServiceImpl;
@@ -33,7 +33,7 @@ class ReservationServiceTest {
     private ReservationRepository reservationRepository;
 
     @Mock
-    private ChargingStationRepository chargingStationRepository;
+    private BorneRepository borneRepository;
 
     @Mock
     private UtilisateurRepository utilisateurRepository;
@@ -54,7 +54,7 @@ class ReservationServiceTest {
     private ReservationServiceImpl reservationService;
 
     private Utilisateur utilisateur;
-    private ChargingStation station;
+    private Borne borne;
 
     @BeforeEach
     void setUp() {
@@ -62,9 +62,9 @@ class ReservationServiceTest {
         utilisateur = new Utilisateur();
         utilisateur.setIdUtilisateur(1L);
 
-        station = new ChargingStation();
-        station.setIdBorne(1L);
-        station.setPrixALaMinute(new BigDecimal("0.50"));
+        borne = new Borne();
+        borne.setIdBorne(1L);
+        borne.setPrixALaMinute(new BigDecimal("0.50"));
 
         // Setup default mocks
         when(validator.validateReservationCreation(any(), any())).thenReturn(ValidationResult.success());
@@ -74,7 +74,7 @@ class ReservationServiceTest {
             ReservationDto dto = new ReservationDto();
             dto.setId(r.getNumeroReservation());
             dto.setUtilisateurId(r.getUtilisateur().getIdUtilisateur());
-            dto.setChargingStationId(r.getChargingStation().getIdBorne());
+            dto.setBorneId(r.getBorne().getIdBorne());
             return dto;
         });
     }
@@ -83,11 +83,11 @@ class ReservationServiceTest {
     void create_ValidReservation_ReturnsDto() {
         ReservationDto dto = new ReservationDto();
         dto.setUtilisateurId(1L);
-        dto.setChargingStationId(1L);
+        dto.setBorneId(1L);
         dto.setDateDebut(LocalDateTime.now().plusHours(1));
         dto.setDateFin(LocalDateTime.now().plusHours(2));
 
-        when(chargingStationRepository.findById(1L)).thenReturn(Optional.of(station));
+        when(borneRepository.findById(1L)).thenReturn(Optional.of(borne));
         when(utilisateurRepository.findById(1L)).thenReturn(Optional.of(utilisateur));
         // when(reservationRepository.findConflictingReservations(any(), any(),
         // any())).thenReturn(Collections.emptyList()); // Removed as it's handled by
@@ -103,7 +103,7 @@ class ReservationServiceTest {
             Reservation r = new Reservation();
             r.setNumeroReservation(1L);
             r.setUtilisateur(utilisateur);
-            r.setChargingStation(station);
+            r.setBorne(borne);
             return Optional.of(r);
         });
 
@@ -118,11 +118,11 @@ class ReservationServiceTest {
     void create_ConflictingReservation_ThrowsException() {
         ReservationDto dto = new ReservationDto();
         dto.setUtilisateurId(1L);
-        dto.setChargingStationId(1L);
+        dto.setBorneId(1L);
         dto.setDateDebut(LocalDateTime.now().plusHours(1));
         dto.setDateFin(LocalDateTime.now().plusHours(2));
 
-        when(chargingStationRepository.findById(1L)).thenReturn(Optional.of(station));
+        when(borneRepository.findById(1L)).thenReturn(Optional.of(borne));
         when(utilisateurRepository.findById(1L)).thenReturn(Optional.of(utilisateur));
 
         // Mock validator to return error

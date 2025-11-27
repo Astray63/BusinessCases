@@ -13,8 +13,8 @@ import { ToastService } from '../../services/toast.service';
   templateUrl: './avis-list.component.html'
 })
 export class AvisListComponent implements OnInit {
-  @Input() chargingStationId!: number;
-  @Input() chargingStationNom!: string;
+  @Input() borneId!: number;
+  @Input() borneNom!: string;
 
   avis: Avis[] = [];
   averageNote: number | undefined = 0;
@@ -26,7 +26,7 @@ export class AvisListComponent implements OnInit {
   newAvis: CreateAvisRequest = {
     note: 5,
     commentaire: '',
-    chargingStationId: 0
+    borneId: 0
   };
 
   currentUserId: number | null = null;
@@ -46,7 +46,7 @@ export class AvisListComponent implements OnInit {
 
   loadAvis(): void {
     this.loading = true;
-    this.avisService.getAvisByChargingStation(this.chargingStationId).subscribe({
+    this.avisService.getAvisByChargingStation(this.borneId).subscribe({
       next: (response) => {
         if (response.result === 'SUCCESS') {
           this.avis = response.data || [];
@@ -62,7 +62,7 @@ export class AvisListComponent implements OnInit {
   }
 
   loadAverageNote(): void {
-    this.avisService.getAverageNote(this.chargingStationId).subscribe({
+    this.avisService.getAverageNote(this.borneId).subscribe({
       next: (response) => {
         if (response.result === 'SUCCESS' && response.data !== null) {
           this.averageNote = response.data;
@@ -80,7 +80,7 @@ export class AvisListComponent implements OnInit {
       this.newAvis = {
         note: 5,
         commentaire: '',
-        chargingStationId: this.chargingStationId
+        borneId: this.borneId
       };
     }
   }
@@ -91,7 +91,7 @@ export class AvisListComponent implements OnInit {
       return;
     }
 
-    this.newAvis.chargingStationId = this.chargingStationId;
+    this.newAvis.borneId = this.borneId;
     this.loading = true;
 
     this.avisService.createAvis(this.newAvis).subscribe({

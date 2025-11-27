@@ -1,7 +1,7 @@
 package com.eb.electricitybusiness.validator;
 
 import com.eb.electricitybusiness.dto.ReservationDto;
-import com.eb.electricitybusiness.model.ChargingStation;
+import com.eb.electricitybusiness.model.Borne;
 import com.eb.electricitybusiness.model.Reservation;
 import com.eb.electricitybusiness.repository.ReservationRepository;
 import org.slf4j.Logger;
@@ -50,19 +50,22 @@ public class ReservationValidator {
     }
 
     /**
-     * Validates that there are no conflicting reservations for the given station and time range
+     * Validates that there are no conflicting reservations for the given station
+     * and time range
      */
     public ValidationResult validateNoConflicts(Long stationId, LocalDateTime dateDebut, LocalDateTime dateFin) {
         return validateNoConflicts(stationId, dateDebut, dateFin, null);
     }
 
     /**
-     * Validates that there are no conflicting reservations for the given station and time range,
+     * Validates that there are no conflicting reservations for the given station
+     * and time range,
      * excluding a specific reservation (useful for updates)
      */
-    public ValidationResult validateNoConflicts(Long stationId, LocalDateTime dateDebut, LocalDateTime dateFin, Long excludeReservationId) {
+    public ValidationResult validateNoConflicts(Long stationId, LocalDateTime dateDebut, LocalDateTime dateFin,
+            Long excludeReservationId) {
         var conflicts = reservationRepository.findConflictingReservations(stationId, dateDebut, dateFin);
-        
+
         // Filter out the reservation being updated if applicable
         if (excludeReservationId != null) {
             conflicts = conflicts.stream()
@@ -71,7 +74,7 @@ public class ReservationValidator {
         }
 
         if (!conflicts.isEmpty()) {
-            logger.debug("Found {} conflicting reservations for station {} between {} and {}", 
+            logger.debug("Found {} conflicting reservations for station {} between {} and {}",
                     conflicts.size(), stationId, dateDebut, dateFin);
             return ValidationResult.failure("Conflit de réservation : la plage horaire est déjà réservée");
         }
@@ -82,19 +85,19 @@ public class ReservationValidator {
     /**
      * Validates that a charging station is available for reservation
      */
-    public ValidationResult validateStationAvailability(ChargingStation station) {
+    public ValidationResult validateStationAvailability(Borne borne) {
         List<String> errors = new ArrayList<>();
 
-        if (station == null) {
+        if (borne == null) {
             errors.add("La borne de recharge n'existe pas");
             return ValidationResult.failure(errors);
         }
 
-        if (station.getEtat() == ChargingStation.Etat.EN_PANNE) {
+        if (borne.getEtat() == Borne.Etat.EN_PANNE) {
             errors.add("La borne est hors service");
         }
 
-        if (station.getEtat() == ChargingStation.Etat.EN_MAINTENANCE) {
+        if (borne.getEtat() == Borne.Etat.EN_MAINTENANCE) {
             errors.add("La borne est en maintenance");
         }
 
@@ -120,11 +123,11 @@ public class ReservationValidator {
      * Validates that an owner is authorized to perform an action on a reservation
      */
     public ValidationResult validateOwnerAuthorization(Reservation reservation, Long ownerId, String action) {
-        if (reservation.getChargingStation() == null || reservation.getChargingStation().getOwner() == null) {
+        if (reservation.getBorne() == null || reservation.getBorne().getOwner() == null) {
             return ValidationResult.failure("La réservation n'a pas de propriétaire de borne associé");
         }
 
-        if (!reservation.getChargingStation().getOwner().getIdUtilisateur().equals(ownerId)) {
+        if (!reservation.getBorne().getOwner().getIdUtilisateur().equals(ownerId)) {
             return ValidationResult.failure("Vous n'êtes pas autorisé à " + action + " cette réservation");
         }
 
@@ -167,7 +170,7 @@ public class ReservationValidator {
     /**
      * Validates a complete reservation creation request
      */
-    public ValidationResult validateReservationCreation(ReservationDto dto, ChargingStation station) {
+    public ValidationResult validateReservationCreation(ReservationDto dto, Borne borne) {
         List<String> allErrors = new ArrayList<>();
 
         // Validate dates
@@ -177,18 +180,17 @@ public class ReservationValidator {
         }
 
         // Validate station availability
-        ValidationResult stationValidation = validateStationAvailability(station);
+        ValidationResult stationValidation = validateStationAvailability(borne);
         if (!stationValidation.isValid()) {
             allErrors.addAll(stationValidation.getErrors());
         }
 
         // Validate no conflicts (only if dates are valid)
-        if (dateValidation.isValid() && dto.getChargingStationId() != null) {
+        if (dateValidation.isValid() && dto.getBorneId() != null) {
             ValidationResult conflictValidation = validateNoConflicts(
-                    dto.getChargingStationId(), 
-                    dto.getDateDebut(), 
-                    dto.getDateFin()
-            );
+                    dto.getBorneId(),
+                    dto.getDateDebut(),
+                    dto.getDateFin());
             if (!conflictValidation.isValid()) {
                 allErrors.addAll(conflictValidation.getErrors());
             }

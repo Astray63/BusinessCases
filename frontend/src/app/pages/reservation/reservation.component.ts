@@ -199,7 +199,7 @@ export class ReservationComponent implements OnInit {
 
       const reservationPayload: any = {
         utilisateurId: currentUser.idUtilisateur,
-        chargingStationId: formValues.borneId,
+        borneId: formValues.borneId,
         dateDebut: dateDebut.toISOString(),
         dateFin: dateFin.toISOString()
       };

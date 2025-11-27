@@ -3,7 +3,7 @@ package com.eb.electricitybusiness.mapper;
 import com.eb.electricitybusiness.dto.BorneDto;
 import com.eb.electricitybusiness.dto.ReservationDto;
 import com.eb.electricitybusiness.dto.UtilisateurSimpleDto;
-import com.eb.electricitybusiness.model.ChargingStation;
+import com.eb.electricitybusiness.model.Borne;
 import com.eb.electricitybusiness.model.Reservation;
 import com.eb.electricitybusiness.model.Utilisateur;
 import org.slf4j.Logger;
@@ -34,8 +34,8 @@ public class ReservationMapper {
         dto.setId(reservation.getNumeroReservation());
         dto.setUtilisateurId(
                 reservation.getUtilisateur() != null ? reservation.getUtilisateur().getIdUtilisateur() : null);
-        dto.setChargingStationId(
-                reservation.getChargingStation() != null ? reservation.getChargingStation().getIdBorne() : null);
+        dto.setBorneId(
+                reservation.getBorne() != null ? reservation.getBorne().getIdBorne() : null);
         dto.setDateDebut(reservation.getDateDebut());
         dto.setDateFin(reservation.getDateFin());
         dto.setEtat(reservation.getEtat() != null ? reservation.getEtat().name() : null);
@@ -44,8 +44,9 @@ public class ReservationMapper {
         dto.setReceiptPath(reservation.getReceiptPath());
 
         // Populate nested objects
-        if (reservation.getChargingStation() != null) {
-            dto.setBorne(toBorneDto(reservation.getChargingStation()));
+        if (reservation.getBorne() != null) {
+            dto.setBorneId(reservation.getBorne().getIdBorne());
+            dto.setBorne(toBorneDto(reservation.getBorne()));
         }
 
         if (reservation.getUtilisateur() != null) {
@@ -68,9 +69,9 @@ public class ReservationMapper {
     }
 
     /**
-     * Converts a ChargingStation entity to a BorneDto
+     * Converts a Borne entity to a BorneDto
      */
-    public BorneDto toBorneDto(ChargingStation station) {
+    public BorneDto toBorneDto(Borne station) {
         if (station == null) {
             return null;
         }

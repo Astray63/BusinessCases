@@ -10,14 +10,6 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 -- DROP ROBUST DES VUES / TABLES / MVIEW QUI PORTENT LES NOMS
 -- ========================================
 
--- Drop tables first (in case these objects are tables)
--- DROP TABLE IF EXISTS v_borne_complete CASCADE;
--- DROP TABLE IF EXISTS v_reservation_complete CASCADE;
-
--- Drop materialized views if they exist
--- DROP MATERIALIZED VIEW IF EXISTS v_borne_complete CASCADE;
--- DROP MATERIALIZED VIEW IF EXISTS v_reservation_complete CASCADE;
-
 -- Drop standard views
 DROP VIEW IF EXISTS v_borne_complete CASCADE;
 DROP VIEW IF EXISTS v_reservation_complete CASCADE;
@@ -31,7 +23,8 @@ DROP TABLE IF EXISTS reservation CASCADE;
 DROP TABLE IF EXISTS charging_station_lieu CASCADE;
 DROP TABLE IF EXISTS utilisateur_lieu CASCADE;
 DROP TABLE IF EXISTS borne_medias CASCADE;
-DROP TABLE IF EXISTS charging_stations CASCADE;
+DROP TABLE IF EXISTS borne CASCADE;
+DROP TABLE IF EXISTS charging_stations CASCADE; -- Ensure old table is dropped
 DROP TABLE IF EXISTS utilisateur CASCADE;
 DROP TABLE IF EXISTS lieu CASCADE;
 
@@ -84,9 +77,9 @@ CREATE TABLE utilisateur (
 
 
 -- ========================================
--- Table: charging_stations
+-- Table: borne (formerly charging_stations)
 -- ========================================
-CREATE TABLE charging_stations (
+CREATE TABLE borne (
     id_borne BIGSERIAL PRIMARY KEY,
     numero VARCHAR(50) NOT NULL,
     nom VARCHAR(100) NOT NULL,
@@ -100,24 +93,26 @@ CREATE TABLE charging_stations (
     instruction_sur_pied TEXT,
     description TEXT,
     owner_id BIGINT NOT NULL,
+    lieu_id BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT chk_etat CHECK (etat IN ('DISPONIBLE','OCCUPEE','EN_PANNE','EN_MAINTENANCE')),
     CONSTRAINT chk_puissance CHECK (puissance > 0),
-    CONSTRAINT fk_owner FOREIGN KEY (owner_id) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE
+    CONSTRAINT fk_owner FOREIGN KEY (owner_id) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE,
+    CONSTRAINT fk_lieu FOREIGN KEY (lieu_id) REFERENCES lieu(id_lieu) ON DELETE CASCADE
 );
 
 CREATE TABLE borne_medias (
     borne_id BIGINT NOT NULL,
     media_url TEXT NOT NULL,
     CONSTRAINT fk_borne_medias
-        FOREIGN KEY (borne_id) REFERENCES charging_stations(id_borne) ON DELETE CASCADE
+        FOREIGN KEY (borne_id) REFERENCES borne(id_borne) ON DELETE CASCADE
 );
 
--- SELECT AddGeometryColumn('charging_stations', 'geom', 4326, 'POINT', 2);
-ALTER TABLE charging_stations ADD COLUMN geom GEOMETRY(Point, 4326);
-CREATE INDEX idx_charging_stations_geom ON charging_stations USING GIST (geom);
+-- SELECT AddGeometryColumn('borne', 'geom', 4326, 'POINT', 2);
+ALTER TABLE borne ADD COLUMN geom GEOMETRY(Point, 4326);
+CREATE INDEX idx_borne_geom ON borne USING GIST (geom);
 
 
 -- ========================================
@@ -126,7 +121,7 @@ CREATE INDEX idx_charging_stations_geom ON charging_stations USING GIST (geom);
 CREATE TABLE reservation (
     numero_reservation BIGSERIAL PRIMARY KEY,
     id_utilisateur BIGINT NOT NULL,
-    charging_station_id BIGINT NOT NULL,
+    borne_id BIGINT NOT NULL,
     date_debut TIMESTAMP NOT NULL,
     date_fin TIMESTAMP NOT NULL,
     prix_a_la_minute DECIMAL(10,4) NOT NULL,
@@ -139,7 +134,7 @@ CREATE TABLE reservation (
     CONSTRAINT chk_dates CHECK (date_fin > date_debut),
     CONSTRAINT chk_etat_res CHECK (etat IN ('EN_ATTENTE','CONFIRMEE','ACTIVE','TERMINEE','ANNULEE','REFUSEE')),
     CONSTRAINT fk_res_user FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE,
-    CONSTRAINT fk_res_borne FOREIGN KEY (charging_station_id) REFERENCES charging_stations(id_borne) ON DELETE CASCADE
+    CONSTRAINT fk_res_borne FOREIGN KEY (borne_id) REFERENCES borne(id_borne) ON DELETE CASCADE
 );
 
 -- ========================================
@@ -148,7 +143,7 @@ CREATE TABLE reservation (
 CREATE TABLE avis (
     id_avis BIGSERIAL PRIMARY KEY,
     utilisateur_id BIGINT NOT NULL,
-    charging_station_id BIGINT,
+    borne_id BIGINT,
     note INTEGER NOT NULL,
     commentaire TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -156,7 +151,7 @@ CREATE TABLE avis (
 
     CONSTRAINT chk_note CHECK (note BETWEEN 1 AND 5),
     CONSTRAINT fk_avis_user FOREIGN KEY (utilisateur_id) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE,
-    CONSTRAINT fk_avis_borne FOREIGN KEY (charging_station_id) REFERENCES charging_stations(id_borne) ON DELETE SET NULL
+    CONSTRAINT fk_avis_borne FOREIGN KEY (borne_id) REFERENCES borne(id_borne) ON DELETE SET NULL
 );
 
 -- ========================================
@@ -169,14 +164,14 @@ CREATE TABLE signalement (
     statut VARCHAR(20) DEFAULT 'OUVERT',
     date_resolution TIMESTAMP,
     user_id BIGINT NOT NULL,
-    charging_station_id BIGINT,
+    borne_id BIGINT,
     reservation_id BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT chk_statut CHECK (statut IN ('OUVERT','EN_COURS','RESOLU','FERME')),
     CONSTRAINT fk_sig_user FOREIGN KEY (user_id) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE,
-    CONSTRAINT fk_sig_borne FOREIGN KEY (charging_station_id) REFERENCES charging_stations(id_borne) ON DELETE SET NULL,
+    CONSTRAINT fk_sig_borne FOREIGN KEY (borne_id) REFERENCES borne(id_borne) ON DELETE SET NULL,
     CONSTRAINT fk_sig_res FOREIGN KEY (reservation_id) REFERENCES reservation(numero_reservation) ON DELETE SET NULL
 );
 
@@ -195,68 +190,21 @@ CREATE TABLE utilisateur_lieu (
 );
 
 -- ========================================
--- Table: charging_station_lieu
--- ========================================
-CREATE TABLE charging_station_lieu (
-    borne_id BIGINT NOT NULL PRIMARY KEY,
-    lieu_id BIGINT NOT NULL,
-
-    CONSTRAINT fk_bl_borne FOREIGN KEY (borne_id) REFERENCES charging_stations(id_borne) ON DELETE CASCADE,
-    CONSTRAINT fk_bl_lieu FOREIGN KEY (lieu_id) REFERENCES lieu(id_lieu) ON DELETE CASCADE
-);
-
--- ========================================
 -- Indexes
 -- ========================================
 CREATE INDEX idx_utilisateur_email ON utilisateur(email);
 CREATE INDEX idx_utilisateur_pseudo ON utilisateur(pseudo);
-CREATE INDEX idx_charging_station_owner ON charging_stations(owner_id);
-CREATE INDEX idx_charging_station_etat ON charging_stations(etat);
-CREATE INDEX idx_charging_station_occupee ON charging_stations(occupee);
+CREATE INDEX idx_borne_owner ON borne(owner_id);
+CREATE INDEX idx_borne_etat ON borne(etat);
+CREATE INDEX idx_borne_occupee ON borne(occupee);
 CREATE INDEX idx_reservation_user ON reservation(id_utilisateur);
-CREATE INDEX idx_reservation_borne ON reservation(charging_station_id);
+CREATE INDEX idx_reservation_borne ON reservation(borne_id);
 CREATE INDEX idx_reservation_dates ON reservation(date_debut, date_fin);
 CREATE INDEX idx_avis_user ON avis(utilisateur_id);
-CREATE INDEX idx_avis_borne ON avis(charging_station_id);
+CREATE INDEX idx_avis_borne ON avis(borne_id);
 CREATE INDEX idx_signalement_user ON signalement(user_id);
-CREATE INDEX idx_signalement_borne ON signalement(charging_station_id);
+CREATE INDEX idx_signalement_borne ON signalement(borne_id);
 CREATE INDEX idx_signalement_statut ON signalement(statut);
-
--- ========================================
--- TRIGGER updated_at
--- ========================================
--- CREATE OR REPLACE FUNCTION update_modified_column()
--- RETURNS TRIGGER AS $$
--- BEGIN
---     NEW.updated_at = CURRENT_TIMESTAMP;
---     RETURN NEW;
--- END;
--- $$ LANGUAGE plpgsql;
-
--- CREATE TRIGGER update_lieu_modtime BEFORE UPDATE ON lieu FOR EACH ROW EXECUTE FUNCTION update_modified_column();
--- CREATE TRIGGER update_utilisateur_modtime BEFORE UPDATE ON utilisateur FOR EACH ROW EXECUTE FUNCTION update_modified_column();
--- CREATE TRIGGER update_charging_modtime BEFORE UPDATE ON charging_stations FOR EACH ROW EXECUTE FUNCTION update_modified_column();
--- CREATE TRIGGER update_reservation_modtime BEFORE UPDATE ON reservation FOR EACH ROW EXECUTE FUNCTION update_modified_column();
--- CREATE TRIGGER update_avis_modtime BEFORE UPDATE ON avis FOR EACH ROW EXECUTE FUNCTION update_modified_column();
--- CREATE TRIGGER update_signalement_modtime BEFORE UPDATE ON signalement FOR EACH ROW EXECUTE FUNCTION update_modified_column();
-
--- ========================================
--- Trigger: Mise à jour auto état d'occupation
--- ========================================
--- CREATE OR REPLACE FUNCTION update_borne_occupation()
--- RETURNS TRIGGER AS $$
--- BEGIN
---     IF NEW.etat = 'ACTIVE' AND (OLD.etat IS DISTINCT FROM 'ACTIVE') THEN
---         UPDATE charging_stations SET occupee = TRUE WHERE id_borne = NEW.charging_station_id;
---     END IF;
-
---     IF NEW.etat IN ('TERMINEE','ANNULEE') AND OLD.etat = 'ACTIVE' THEN
---         UPDATE charging_stations SET occupee = FALSE WHERE id_borne = NEW.charging_station_id;
---     END IF;
-
---     RETURN NEW;
--- END;
--- $$ LANGUAGE plpgsql;
 
 -- ========================================
 -- Vues finales
@@ -270,16 +218,15 @@ SELECT
     l.pays,
     u.nom AS proprietaire_nom,
     u.prenom AS proprietaire_prenom
-FROM charging_stations b
-LEFT JOIN charging_station_lieu bl ON b.id_borne = bl.borne_id
-LEFT JOIN lieu l ON bl.lieu_id = l.id_lieu
+FROM borne b
+LEFT JOIN lieu l ON b.lieu_id = l.id_lieu
 LEFT JOIN utilisateur u ON b.owner_id = u.id_utilisateur;
 
 CREATE OR REPLACE VIEW v_reservation_complete AS
 SELECT
     r.numero_reservation,
     r.id_utilisateur,
-    r.charging_station_id AS id_borne,
+    r.borne_id AS id_borne,
     r.date_debut,
     r.date_fin,
     r.prix_a_la_minute,
@@ -297,6 +244,5 @@ SELECT
     l.ville AS borne_ville
 FROM reservation r
 JOIN utilisateur u ON r.id_utilisateur = u.id_utilisateur
-JOIN charging_stations b ON r.charging_station_id = b.id_borne
-LEFT JOIN charging_station_lieu bl ON b.id_borne = bl.borne_id
-LEFT JOIN lieu l ON bl.lieu_id = l.id_lieu;
+JOIN borne b ON r.borne_id = b.id_borne
+LEFT JOIN lieu l ON b.lieu_id = l.id_lieu;

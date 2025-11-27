@@ -1,6 +1,7 @@
 package com.eb.electricitybusiness.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -65,8 +66,9 @@ public class Lieu {
     @EqualsAndHashCode.Exclude
     private Set<UtilisateurLieu> utilisateurLieux;
 
-    @OneToMany(mappedBy = "lieu")
+    @OneToMany(mappedBy = "lieu", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Set<ChargingStationLieu> chargingStationLieux;
+    @JsonIgnoreProperties("lieu")
+    private Set<Borne> bornes;
 }

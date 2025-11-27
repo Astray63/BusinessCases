@@ -3,10 +3,10 @@ package com.eb.electricitybusiness.service.impl;
 import com.eb.electricitybusiness.dto.ReservationDto;
 import com.eb.electricitybusiness.exception.ResourceNotFoundException;
 import com.eb.electricitybusiness.mapper.ReservationMapper;
-import com.eb.electricitybusiness.model.ChargingStation;
+import com.eb.electricitybusiness.model.Borne;
 import com.eb.electricitybusiness.model.Reservation;
 import com.eb.electricitybusiness.model.Utilisateur;
-import com.eb.electricitybusiness.repository.ChargingStationRepository;
+import com.eb.electricitybusiness.repository.BorneRepository;
 import com.eb.electricitybusiness.repository.ReservationRepository;
 import com.eb.electricitybusiness.repository.UtilisateurRepository;
 import com.eb.electricitybusiness.service.PdfReceiptService;
@@ -24,6 +24,7 @@ import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 
 @Service
@@ -33,7 +34,7 @@ public class ReservationServiceImpl implements ReservationService {
     private static final Logger logger = LoggerFactory.getLogger(ReservationServiceImpl.class);
 
     private final ReservationRepository reservationRepository;
-    private final ChargingStationRepository chargingStationRepository;
+    private final BorneRepository borneRepository;
     private final UtilisateurRepository utilisateurRepository;
     private final PdfReceiptService pdfReceiptService;
     private final ReservationValidator validator;
@@ -42,14 +43,14 @@ public class ReservationServiceImpl implements ReservationService {
 
     public ReservationServiceImpl(
             ReservationRepository reservationRepository,
-            ChargingStationRepository chargingStationRepository,
+            BorneRepository borneRepository,
             UtilisateurRepository utilisateurRepository,
             PdfReceiptService pdfReceiptService,
             ReservationValidator validator,
             PriceCalculator priceCalculator,
             ReservationMapper mapper) {
         this.reservationRepository = reservationRepository;
-        this.chargingStationRepository = chargingStationRepository;
+        this.borneRepository = borneRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.pdfReceiptService = pdfReceiptService;
         this.validator = validator;
@@ -61,15 +62,15 @@ public class ReservationServiceImpl implements ReservationService {
     @SuppressWarnings("null")
     public ReservationDto create(ReservationDto dto) {
         logger.debug("Creating reservation for user {} on station {}", dto.getUtilisateurId(),
-                dto.getChargingStationId());
+                dto.getBorneId());
 
-        ChargingStation station = chargingStationRepository.findById(dto.getChargingStationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Borne", "id", dto.getChargingStationId()));
+        Borne borne = borneRepository.findById(dto.getBorneId())
+                .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + dto.getBorneId()));
         Utilisateur utilisateur = utilisateurRepository.findById(dto.getUtilisateurId())
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "id", dto.getUtilisateurId()));
 
         // Validate using ReservationValidator
-        ValidationResult validationResult = validator.validateReservationCreation(dto, station);
+        ValidationResult validationResult = validator.validateReservationCreation(dto, borne);
         if (!validationResult.isValid()) {
             throw new IllegalArgumentException(validationResult.getAllErrors());
         }
@@ -77,12 +78,12 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = new Reservation();
         reservation.setDateDebut(dto.getDateDebut());
         reservation.setDateFin(dto.getDateFin());
-        reservation.setChargingStation(station);
+        reservation.setBorne(borne);
         reservation.setUtilisateur(utilisateur);
-        reservation.setPrixALaMinute(station.getPrixALaMinute());
+        reservation.setPrixALaMinute(borne.getPrixALaMinute());
 
         // Calculate price using PriceCalculator
-        reservation.setTotalPrice(priceCalculator.calculateTotalPrice(station, dto.getDateDebut(), dto.getDateFin()));
+        reservation.setTotalPrice(priceCalculator.calculateTotalPrice(borne, dto.getDateDebut(), dto.getDateFin()));
 
         Reservation saved = reservationRepository.save(reservation);
 
@@ -152,7 +153,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         // Validate no conflicts before accepting
         ValidationResult noConflictResult = validator.validateNoConflicts(
-                reservation.getChargingStation().getIdBorne(),
+                reservation.getBorne().getIdBorne(),
                 reservation.getDateDebut(),
                 reservation.getDateFin(),
                 reservationId);
@@ -224,13 +225,13 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     @Transactional(readOnly = true)
     public List<ReservationDto> getByChargingStation(Long stationId) {
-        return mapper.toDtoList(reservationRepository.findByChargingStation_IdBorne(stationId));
+        return mapper.toDtoList(reservationRepository.findByBorneIdBorne(stationId));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ReservationDto> getByOwner(Long ownerId) {
-        return mapper.toDtoList(reservationRepository.findByChargingStation_Owner_IdUtilisateur(ownerId));
+        return mapper.toDtoList(reservationRepository.findByBorneOwnerIdUtilisateur(ownerId));
     }
 
     @Override
@@ -243,9 +244,9 @@ public class ReservationServiceImpl implements ReservationService {
             // Fetch relations to avoid N+1
             if (query.getResultType() != Long.class) {
                 root.fetch("utilisateur", JoinType.INNER);
-                var stationFetch = root.fetch("chargingStation", JoinType.INNER);
-                stationFetch.fetch("owner", JoinType.LEFT);
-                stationFetch.fetch("medias", JoinType.LEFT);
+                var borneFetch = root.fetch("borne", JoinType.INNER);
+                borneFetch.fetch("owner", JoinType.LEFT);
+                borneFetch.fetch("medias", JoinType.LEFT);
             }
 
             if (statut != null && !statut.isEmpty()) {
@@ -266,7 +267,7 @@ public class ReservationServiceImpl implements ReservationService {
             }
 
             if (borneId != null) {
-                predicates.add(cb.equal(root.get("chargingStation").get("idBorne"), borneId));
+                predicates.add(cb.equal(root.get("borne").get("idBorne"), borneId));
             }
 
             if (utilisateurId != null) {

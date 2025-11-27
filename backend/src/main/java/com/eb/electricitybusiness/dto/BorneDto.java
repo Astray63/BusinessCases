@@ -9,6 +9,7 @@ import java.util.List;
 
 public class BorneDto {
     private Long id;
+    private Long idBorne; // Alias pour compatibilité frontend
 
     @NotBlank(message = "Le numéro est obligatoire")
     private String numero;
@@ -37,6 +38,8 @@ public class BorneDto {
     private String instructionSurPied;
     // private String connectorType = "2S"; // Valeur fixe, non modifiable
     private String description;
+    private String type; // NORMALE ou RAPIDE (calculé côté serveur)
+    private BigDecimal prix; // Alias de hourlyRate pour frontend
 
     @NotBlank(message = "L'état est obligatoire")
     private String etat;
@@ -45,6 +48,11 @@ public class BorneDto {
 
     @NotNull(message = "L'owner id est obligatoire")
     private Long ownerId;
+
+    @NotNull(message = "Le lieu id est obligatoire")
+    private Long lieuId;
+
+    private BigDecimal hourlyRate;
 
     public Long getId() {
         return id;
@@ -126,15 +134,6 @@ public class BorneDto {
         this.instructionSurPied = instructionSurPied;
     }
 
-    public String getConnectorType() {
-        return "2S"; // Toujours retourner "2S"
-    }
-
-    public void setConnectorType(String connectorType) {
-        // Ignorer toute valeur passée, toujours forcer à "2S"
-        // this.connectorType = "2S";
-    }
-
     public String getDescription() {
         return description;
     }
@@ -165,5 +164,49 @@ public class BorneDto {
 
     public void setOwnerId(Long ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public Long getLieuId() {
+        return lieuId;
+    }
+
+    public void setLieuId(Long lieuId) {
+        this.lieuId = lieuId;
+    }
+
+    public BigDecimal getHourlyRate() {
+        return hourlyRate;
+    }
+
+    public void setHourlyRate(BigDecimal hourlyRate) {
+        this.hourlyRate = hourlyRate;
+    }
+
+    // Getters/Setters pour compatibilité frontend
+    public Long getIdBorne() {
+        return idBorne != null ? idBorne : id;
+    }
+
+    public void setIdBorne(Long idBorne) {
+        this.idBorne = idBorne;
+        if (this.id == null) {
+            this.id = idBorne;
+        }
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public BigDecimal getPrix() {
+        return prix != null ? prix : hourlyRate;
+    }
+
+    public void setPrix(BigDecimal prix) {
+        this.prix = prix;
     }
 }

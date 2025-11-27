@@ -20,10 +20,10 @@ export class MesBornesComponent implements OnInit {
   isLoading = false;
   showModal = false;
   isEditMode = false;
-  
+
   borneForm: FormGroup;
   selectedBorne: Borne | null = null;
-  
+
   // Gestion des photos
   selectedFiles: File[] = [];
   previewUrls: string[] = [];
@@ -57,28 +57,28 @@ export class MesBornesComponent implements OnInit {
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      
+
       // Plus besoin de vérifier le rôle - le ProprietaireGuard s'en occupe
       if (!user) {
         this.router.navigate(['/auth/login']);
         return;
       }
-      
+
       this.chargerDonnees();
     });
   }
 
   chargerDonnees(): void {
     if (!this.currentUser || !this.currentUser.idUtilisateur) return;
-    
+
     this.isLoading = true;
-    
+
     // Charger uniquement les bornes du propriétaire connecté
     this.borneService.getBornesByProprietaire(this.currentUser.idUtilisateur).subscribe({
       next: (response: any) => {
         if (response.result === 'SUCCESS' && response.data) {
           this.mesBornes = response.data;
-          
+
           // Vérifier s'il y a une demande d'édition via les query params
           this.route.queryParams.subscribe(params => {
             if (params['edit']) {
@@ -158,31 +158,31 @@ export class MesBornesComponent implements OnInit {
       // Limiter à 5 photos maximum
       const maxPhotos = 5;
       const remainingSlots = maxPhotos - (this.existingPhotos.length + this.selectedFiles.length);
-      
+
       if (remainingSlots <= 0) {
         this.toastService.showWarning(`Vous pouvez ajouter maximum ${maxPhotos} photos au total.`);
         return;
       }
 
       const filesToAdd = Math.min(files.length, remainingSlots);
-      
+
       for (let i = 0; i < filesToAdd; i++) {
         const file = files[i];
-        
+
         // Vérifier le type de fichier
         if (!file.type.startsWith('image/')) {
           this.toastService.showError('Seules les images sont autorisées');
           continue;
         }
-        
+
         // Vérifier la taille (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
           this.toastService.showError('La taille maximale par image est de 5MB');
           continue;
         }
-        
+
         this.selectedFiles.push(file);
-        
+
         // Créer une preview
         const reader = new FileReader();
         reader.onload = (e: any) => {
@@ -190,7 +190,7 @@ export class MesBornesComponent implements OnInit {
         };
         reader.readAsDataURL(file);
       }
-      
+
       if (filesToAdd < files.length) {
         this.toastService.showWarning(`Seulement ${filesToAdd} photo(s) ont été ajoutée(s) (limite de ${maxPhotos} photos atteinte).`);
       }
@@ -211,14 +211,14 @@ export class MesBornesComponent implements OnInit {
   // Simulation de l'upload de photos (à remplacer par un vrai upload vers le backend)
   private async uploadPhotos(): Promise<string[]> {
     const uploadedUrls: string[] = [];
-    
+
     // Pour l'instant, on simule l'upload en convertissant les fichiers en base64
     // Dans une vraie implémentation, il faudrait envoyer les fichiers au backend
     for (const file of this.selectedFiles) {
       const base64 = await this.fileToBase64(file);
       uploadedUrls.push(base64 as string);
     }
-    
+
     return uploadedUrls;
   }
 
@@ -265,11 +265,11 @@ export class MesBornesComponent implements OnInit {
       this.isLoading = false;
       return;
     }
-    
+
     // Calculer le prix à la minute à partir du tarif horaire
     const prixHoraire = parseFloat(formData.prix);
     const prixMinute = (prixHoraire / 60).toFixed(4);
-    
+
     const borneData: any = {
       numero: `BORNE-${Date.now()}`, // Générer un numéro unique
       nom: formData.nom || `${lieuSelectionne.nom} - Type 2S`,
@@ -285,6 +285,7 @@ export class MesBornesComponent implements OnInit {
       prixALaMinute: parseFloat(prixMinute),
       etat: formData.etat,
       ownerId: this.currentUser.idUtilisateur,
+      lieuId: lieuId,
       lieu: { idLieu: lieuId },
       instruction: formData.instruction || '',
       surPied: formData.surPied || false,
@@ -324,7 +325,7 @@ export class MesBornesComponent implements OnInit {
         next: async (response) => {
           if (response.result === 'SUCCESS' && response.data) {
             const borneId = response.data.idBorne || response.data.id;
-            
+
             // Upload des photos après la création de la borne
             if (this.selectedFiles.length > 0 && borneId) {
               try {
@@ -352,7 +353,7 @@ export class MesBornesComponent implements OnInit {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cette borne ?')) {
       return;
     }
-    
+
     this.isLoading = true;
     this.borneService.deleteBorne(idBorne).subscribe({
       next: (response) => {
@@ -371,10 +372,10 @@ export class MesBornesComponent implements OnInit {
   changerEtat(idBorne: number, nouvelEtat: string): void {
     const borne = this.mesBornes.find(b => b.idBorne === idBorne);
     if (!borne) return;
-    
+
     this.isLoading = true;
     const borneData: any = { ...borne, etat: nouvelEtat };
-    
+
     this.borneService.updateBorne(idBorne, borneData).subscribe({
       next: (response) => {
         if (response.result === 'SUCCESS') {

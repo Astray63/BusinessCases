@@ -3,9 +3,9 @@ package com.eb.electricitybusiness.controller;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import com.eb.electricitybusiness.dto.ReservationDto;
-import com.eb.electricitybusiness.model.ChargingStation;
+import com.eb.electricitybusiness.model.Borne;
 import com.eb.electricitybusiness.model.Utilisateur;
-import com.eb.electricitybusiness.repository.ChargingStationRepository;
+import com.eb.electricitybusiness.repository.BorneRepository;
 import com.eb.electricitybusiness.repository.ReservationRepository;
 import com.eb.electricitybusiness.repository.UtilisateurRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,22 +42,27 @@ class ReservationControllerIntegrationTest {
     private ReservationRepository reservationRepository;
 
     @Autowired
-    private ChargingStationRepository chargingStationRepository;
+    private BorneRepository borneRepository;
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
 
     @Autowired
+    private com.eb.electricitybusiness.repository.LieuRepository lieuRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private Utilisateur testUser;
-    private ChargingStation testStation;
+    private Borne testStation;
+    private com.eb.electricitybusiness.model.Lieu testLieu;
 
     @BeforeEach
     void setup() {
         reservationRepository.deleteAll();
-        chargingStationRepository.deleteAll();
+        borneRepository.deleteAll();
         utilisateurRepository.deleteAll();
+        lieuRepository.deleteAll();
 
         testUser = new Utilisateur();
         testUser.setNom("Test");
@@ -68,7 +73,14 @@ class ReservationControllerIntegrationTest {
         testUser.setRole(Utilisateur.Role.client);
         testUser = utilisateurRepository.save(testUser);
 
-        testStation = new ChargingStation();
+        testLieu = new com.eb.electricitybusiness.model.Lieu();
+        testLieu.setAdresse("123 Test St");
+        testLieu.setVille("Test City");
+        testLieu.setCodePostal("12345");
+        testLieu.setNom("Test Lieu");
+        testLieu = lieuRepository.save(testLieu);
+
+        testStation = new Borne();
         testStation.setNumero("ST001");
         testStation.setNom("Station 1");
         testStation.setLocalisation("Grenoble");
@@ -76,9 +88,10 @@ class ReservationControllerIntegrationTest {
         testStation.setLongitude(5.72);
         testStation.setPuissance(22);
         testStation.setPrixALaMinute(new BigDecimal("0.45"));
-        testStation.setEtat(ChargingStation.Etat.DISPONIBLE);
+        testStation.setEtat(Borne.Etat.DISPONIBLE);
         testStation.setOwner(testUser);
-        testStation = chargingStationRepository.save(testStation);
+        testStation.setLieu(testLieu);
+        testStation = borneRepository.save(testStation);
     }
 
     @Test
@@ -86,7 +99,7 @@ class ReservationControllerIntegrationTest {
     void whenCreateReservation_thenSuccess() throws Exception {
         ReservationDto dto = new ReservationDto();
         dto.setUtilisateurId(testUser.getIdUtilisateur());
-        dto.setChargingStationId(testStation.getIdBorne());
+        dto.setBorneId(testStation.getIdBorne());
         dto.setDateDebut(LocalDateTime.now().plusHours(1));
         dto.setDateFin(LocalDateTime.now().plusHours(2));
 
@@ -104,7 +117,7 @@ class ReservationControllerIntegrationTest {
         // create one reservation first
         ReservationDto dto = new ReservationDto();
         dto.setUtilisateurId(testUser.getIdUtilisateur());
-        dto.setChargingStationId(testStation.getIdBorne());
+        dto.setBorneId(testStation.getIdBorne());
         dto.setDateDebut(LocalDateTime.now().plusHours(1));
         dto.setDateFin(LocalDateTime.now().plusHours(2));
 

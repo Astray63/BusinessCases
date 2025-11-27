@@ -4,22 +4,22 @@ export interface Avis {
   commentaire?: string;
   createdAt: Date;
   updatedAt: Date;
-  
+
   // Informations sur l'utilisateur
   utilisateurId: number;
   utilisateurPseudo: string;
   utilisateurNom: string;
   utilisateurPrenom: string;
-  
+
   // Informations sur la borne
-  chargingStationId: number;
-  chargingStationNom: string;
+  borneId: number;
+  borneNom: string;
 }
 
 export interface CreateAvisRequest {
   note: number;
   commentaire?: string;
-  chargingStationId: number;
+  borneId: number;
 }
 
 export interface AvisMoyenne {

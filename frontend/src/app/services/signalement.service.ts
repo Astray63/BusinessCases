@@ -11,13 +11,13 @@ import { Signalement, CreateSignalementRequest, StatutSignalement } from '../mod
 export class SignalementService {
   private apiUrl = `${environment.apiUrl}/signalements`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Récupère tous les signalements pour une borne
    */
-  getSignalementsByChargingStation(chargingStationId: number): Observable<ApiResponse<Signalement[]>> {
-    return this.http.get<ApiResponse<Signalement[]>>(`${this.apiUrl}/borne/${chargingStationId}`);
+  getSignalementsByChargingStation(borneId: number): Observable<ApiResponse<Signalement[]>> {
+    return this.http.get<ApiResponse<Signalement[]>>(`${this.apiUrl}/borne/${borneId}`);
   }
 
   /**
@@ -37,8 +37,8 @@ export class SignalementService {
   /**
    * Compte le nombre de signalements ouverts pour une borne
    */
-  countOpenSignalements(chargingStationId: number): Observable<ApiResponse<number>> {
-    return this.http.get<ApiResponse<number>>(`${this.apiUrl}/borne/${chargingStationId}/count`);
+  countOpenSignalements(borneId: number): Observable<ApiResponse<number>> {
+    return this.http.get<ApiResponse<number>>(`${this.apiUrl}/borne/${borneId}/count`);
   }
 
   /**

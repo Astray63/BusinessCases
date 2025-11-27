@@ -1,7 +1,7 @@
 package com.eb.electricitybusiness.controller;
 
-import com.eb.electricitybusiness.dto.ChargingStationDto;
-import com.eb.electricitybusiness.service.ChargingStationService;
+import com.eb.electricitybusiness.dto.BorneDto;
+import com.eb.electricitybusiness.service.BorneService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class BorneControllerTest {
         private MockMvc mockMvc;
 
         @MockBean
-        private ChargingStationService chargingStationService;
+        private BorneService borneService;
 
         @Autowired
         private ObjectMapper objectMapper;
@@ -44,8 +44,8 @@ public class BorneControllerTest {
         @WithMockUser(roles = "ADMIN")
         public void testCreateBorne() throws Exception {
                 // Arrange
-                ChargingStationDto inputDto = new ChargingStationDto();
-                inputDto.setNom("Test Borne"); // This maps to the name column
+                BorneDto inputDto = new BorneDto();
+                inputDto.setNom("Test Borne");
                 inputDto.setNumero("B001");
                 inputDto.setLocalisation("Test Location");
                 inputDto.setLatitude(45.0);
@@ -54,16 +54,15 @@ public class BorneControllerTest {
                 inputDto.setEtat("DISPONIBLE");
                 inputDto.setOccupee(false);
                 inputDto.setPrixALaMinute(new BigDecimal("2.50"));
-                // inputDto.setConnectorType("2S"); // Toujours Type 2S
-                inputDto.setHourlyRate(new BigDecimal("15.00")); // Added required field
                 inputDto.setOwnerId(1L);
+                inputDto.setLieuId(1L);
 
-                ChargingStationDto outputDto = new ChargingStationDto();
+                BorneDto outputDto = new BorneDto();
                 outputDto.setId(1L);
                 outputDto.setNom(inputDto.getNom());
                 // ... other properties
 
-                when(chargingStationService.create(any(ChargingStationDto.class))).thenReturn(outputDto);
+                when(borneService.create(any(BorneDto.class))).thenReturn(outputDto);
 
                 // Act & Assert
                 mockMvc.perform(post("/bornes")
@@ -80,27 +79,28 @@ public class BorneControllerTest {
         public void testGetBorneById() throws Exception {
                 // Arrange
                 Long borneId = 1L;
-                ChargingStationDto dto = new ChargingStationDto();
-                dto.setId(borneId);
-                dto.setNom("Test Borne");
+                BorneDto borneDto = new BorneDto();
+                borneDto.setId(borneId);
+                borneDto.setNom("Test Borne");
+                borneDto.setIdBorne(borneId);
 
-                when(chargingStationService.getById(borneId)).thenReturn(dto);
+                when(borneService.getBorneDtoById(borneId)).thenReturn(borneDto);
 
                 // Act & Assert
                 mockMvc.perform(get("/bornes/{id}", borneId))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.result").value("SUCCESS"))
-                                .andExpect(jsonPath("$.data.id").value(borneId));
+                                .andExpect(jsonPath("$.data.idBorne").value(borneId));
         }
 
         @Test
         @WithMockUser
         public void testGetAllBornes() throws Exception {
                 // Arrange
-                List<ChargingStationDto> bornes = Arrays.asList(
-                                new ChargingStationDto(),
-                                new ChargingStationDto());
-                when(chargingStationService.getAll()).thenReturn(bornes);
+                List<BorneDto> bornes = Arrays.asList(
+                                new BorneDto(),
+                                new BorneDto());
+                when(borneService.getAllBornesDto()).thenReturn(bornes);
 
                 // Act & Assert
                 mockMvc.perform(get("/bornes"))
@@ -112,7 +112,7 @@ public class BorneControllerTest {
         @Test
         @WithMockUser(roles = "PROPRIETAIRE")
         void updateBorne_AsOwner_ReturnsUpdated() throws Exception {
-                ChargingStationDto dto = new ChargingStationDto();
+                BorneDto dto = new BorneDto();
                 dto.setNom("Updated Borne");
                 dto.setNumero("B001");
                 dto.setLocalisation("Test Location");
@@ -121,12 +121,12 @@ public class BorneControllerTest {
                 dto.setPuissance(22);
                 dto.setEtat("DISPONIBLE");
                 dto.setPrixALaMinute(new BigDecimal("2.50"));
-                dto.setHourlyRate(new BigDecimal("15.00"));
                 dto.setOwnerId(1L);
+                dto.setLieuId(1L);
                 dto.setDescription("Test description");
                 dto.setInstructionSurPied("Test instructions");
 
-                when(chargingStationService.update(eq(1L), any(ChargingStationDto.class))).thenReturn(dto);
+                when(borneService.update(eq(1L), any(BorneDto.class))).thenReturn(dto);
 
                 mockMvc.perform(put("/bornes/1")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -138,7 +138,7 @@ public class BorneControllerTest {
         @Test
         @WithMockUser(roles = "PROPRIETAIRE")
         void createBorne_AsOwner_ReturnsCreated() throws Exception {
-                ChargingStationDto dto = new ChargingStationDto();
+                BorneDto dto = new BorneDto();
                 dto.setNom("New Borne");
                 dto.setNumero("B002");
                 dto.setLocalisation("Owner Location");
@@ -148,12 +148,12 @@ public class BorneControllerTest {
                 dto.setEtat("DISPONIBLE");
                 dto.setOccupee(false);
                 dto.setPrixALaMinute(new BigDecimal("3.00"));
-                dto.setHourlyRate(new BigDecimal("20.00"));
                 dto.setOwnerId(1L);
+                dto.setLieuId(1L);
                 dto.setDescription("Owner created description");
                 dto.setInstructionSurPied("Owner created instructions");
 
-                when(chargingStationService.create(any(ChargingStationDto.class))).thenReturn(dto);
+                when(borneService.create(any(BorneDto.class))).thenReturn(dto);
 
                 mockMvc.perform(post("/bornes")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -163,11 +163,11 @@ public class BorneControllerTest {
         }
 
         @Test
-        @WithMockUser(roles = "PROPRIETAIRE") // Changed from ADMIN to PROPRIETAIRE
+        @WithMockUser(roles = "PROPRIETAIRE")
         public void testUpdateBorne() throws Exception {
                 // Arrange
                 Long borneId = 1L;
-                ChargingStationDto inputDto = new ChargingStationDto();
+                BorneDto inputDto = new BorneDto();
                 inputDto.setNom("Updated Borne");
                 inputDto.setNumero("B001");
                 inputDto.setLocalisation("Test Location");
@@ -176,25 +176,12 @@ public class BorneControllerTest {
                 inputDto.setPuissance(22);
                 inputDto.setEtat("DISPONIBLE");
                 inputDto.setPrixALaMinute(new BigDecimal("2.50"));
-                // inputDto.setConnectorType("2S"); // Removed
-                inputDto.setHourlyRate(new BigDecimal("15.00"));
                 inputDto.setOwnerId(1L);
+                inputDto.setLieuId(1L);
                 inputDto.setDescription("Test description");
                 inputDto.setInstructionSurPied("Test instructions");
-                inputDto.setNumero("B001");
-                inputDto.setLocalisation("Test Location");
-                inputDto.setLatitude(45.0);
-                inputDto.setLongitude(5.0);
-                inputDto.setPuissance(22);
-                inputDto.setEtat("DISPONIBLE");
-                inputDto.setPrixALaMinute(new BigDecimal("2.50"));
-                // inputDto.setConnectorType("2S"); // Removed
-                inputDto.setHourlyRate(new BigDecimal("15.00"));
-                inputDto.setOwnerId(1L);
-                inputDto.setDescription("Test description"); // Ajout du champ manquant
-                inputDto.setInstructionSurPied("Test instructions"); // Ajout du champ manquant
 
-                ChargingStationDto outputDto = new ChargingStationDto();
+                BorneDto outputDto = new BorneDto();
                 outputDto.setId(borneId);
                 outputDto.setNom(inputDto.getNom());
                 outputDto.setNumero(inputDto.getNumero());
@@ -204,11 +191,9 @@ public class BorneControllerTest {
                 outputDto.setPuissance(inputDto.getPuissance());
                 outputDto.setEtat(inputDto.getEtat());
                 outputDto.setPrixALaMinute(inputDto.getPrixALaMinute());
-                // outputDto.setConnectorType(inputDto.getConnectorType()); // Removed
-                outputDto.setHourlyRate(inputDto.getHourlyRate());
                 outputDto.setOwnerId(inputDto.getOwnerId());
 
-                when(chargingStationService.update(eq(borneId), any(ChargingStationDto.class)))
+                when(borneService.update(eq(borneId), any(BorneDto.class)))
                                 .thenReturn(outputDto);
 
                 // Act & Assert
@@ -227,11 +212,11 @@ public class BorneControllerTest {
                 Long borneId = 1L;
                 boolean newOccupationStatus = true;
 
-                ChargingStationDto outputDto = new ChargingStationDto();
+                BorneDto outputDto = new BorneDto();
                 outputDto.setId(borneId);
                 outputDto.setOccupee(newOccupationStatus);
 
-                when(chargingStationService.toggleOccupation(borneId, newOccupationStatus))
+                when(borneService.toggleOccupation(borneId, newOccupationStatus))
                                 .thenReturn(outputDto);
 
                 // Act & Assert
@@ -249,11 +234,11 @@ public class BorneControllerTest {
                 Long borneId = 1L;
                 String nouvelEtat = "HORS_SERVICE";
 
-                ChargingStationDto outputDto = new ChargingStationDto();
+                BorneDto outputDto = new BorneDto();
                 outputDto.setId(borneId);
                 outputDto.setEtat(nouvelEtat);
 
-                when(chargingStationService.changerEtat(borneId, nouvelEtat))
+                when(borneService.changerEtat(borneId, nouvelEtat))
                                 .thenReturn(outputDto);
 
                 // Act & Assert

@@ -1,14 +1,16 @@
 package com.eb.electricitybusiness.service.impl;
 
-import com.eb.electricitybusiness.dto.ChargingStationDto;
-import com.eb.electricitybusiness.model.ChargingStation;
+import com.eb.electricitybusiness.dto.BorneDto;
+import com.eb.electricitybusiness.model.Borne;
+import com.eb.electricitybusiness.model.Lieu;
 import com.eb.electricitybusiness.model.Utilisateur;
-import com.eb.electricitybusiness.repository.ChargingStationRepository;
+import com.eb.electricitybusiness.repository.BorneRepository;
+import com.eb.electricitybusiness.repository.LieuRepository;
 import com.eb.electricitybusiness.repository.ReservationRepository;
 import com.eb.electricitybusiness.repository.UtilisateurRepository;
-import com.eb.electricitybusiness.service.ChargingStationService;
+import com.eb.electricitybusiness.service.BorneService;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,16 +27,12 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class ChargingStationServiceImpl implements ChargingStationService {
+public class BorneServiceImpl implements BorneService {
 
-    @Autowired
-    private ChargingStationRepository chargingStationRepository;
-
-    @Autowired
-    private UtilisateurRepository utilisateurRepository;
-
-    @Autowired
-    private ReservationRepository reservationRepository;
+    private final BorneRepository borneRepository;
+    private final UtilisateurRepository utilisateurRepository;
+    private final ReservationRepository reservationRepository;
+    private final LieuRepository lieuRepository;
 
     @Value("${app.upload.dir:${user.home}/electriccharge/uploads/bornes}")
     private String uploadDir;
@@ -42,43 +40,127 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Value("${app.upload.base-url:http://localhost:8080/uploads/bornes}")
     private String uploadBaseUrl;
 
-    @Override
-    @Transactional
-    public ChargingStationDto create(ChargingStationDto dto) {
-        ChargingStation station = new ChargingStation();
-        updateStationFromDto(station, dto);
-        ChargingStation savedStation = chargingStationRepository.save(station);
-        return convertToDto(savedStation);
+    public BorneServiceImpl(BorneRepository borneRepository,
+            UtilisateurRepository utilisateurRepository,
+            ReservationRepository reservationRepository,
+            LieuRepository lieuRepository) {
+        this.borneRepository = borneRepository;
+        this.utilisateurRepository = utilisateurRepository;
+        this.reservationRepository = reservationRepository;
+        this.lieuRepository = lieuRepository;
     }
 
     @Override
     @Transactional
-    public ChargingStationDto update(Long id, ChargingStationDto dto) {
+    public BorneDto create(BorneDto dto) {
+        Borne borne = new Borne();
+        updateBorneFromDto(borne, dto);
+        Borne savedBorne = borneRepository.save(borne);
+        return convertToDto(savedBorne);
+    }
+
+    @Override
+    public Borne createBorne(Borne borne, Long userId, Long lieuId) {
+        Utilisateur owner = utilisateurRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+        Lieu lieu = lieuRepository.findById(lieuId)
+                .orElseThrow(() -> new RuntimeException("Lieu non trouvé"));
+
+        borne.setOwner(owner);
+        borne.setLieu(lieu);
+        return borneRepository.save(borne);
+    }
+
+    @Override
+    @Transactional
+    public BorneDto update(Long id, BorneDto dto) {
         java.util.Objects.requireNonNull(id, "L'id ne peut pas être null");
-        if (!chargingStationRepository.existsById(id)) {
+        if (!borneRepository.existsById(id)) {
             throw new EntityNotFoundException("Borne non trouvée avec l'id " + id);
         }
-        ChargingStation station = chargingStationRepository.findById(id)
+        Borne borne = borneRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
-        updateStationFromDto(station, dto);
+        updateBorneFromDto(borne, dto);
         @SuppressWarnings("null")
-        ChargingStation updatedStation = chargingStationRepository.save(station);
-        return convertToDto(updatedStation);
+        Borne updatedBorne = borneRepository.save(borne);
+        return convertToDto(updatedBorne);
     }
 
-    private void updateStationFromDto(ChargingStation station, ChargingStationDto dto) {
-        station.setNumero(dto.getNumero());
-        station.setNom(dto.getNom());
-        station.setLocalisation(dto.getLocalisation());
-        station.setLatitude(dto.getLatitude());
-        station.setLongitude(dto.getLongitude());
-        station.setPuissance(dto.getPuissance());
-        station.setMedias(dto.getMedias());
-        station.setInstructionSurPied(dto.getInstructionSurPied());
-        station.setEtat(parseEtat(dto.getEtat()));
-        station.setOccupee(dto.getOccupee());
-        station.setPrixALaMinute(dto.getPrixALaMinute());
-        station.setDescription(dto.getDescription());
+    @Override
+    public Borne updateBorne(Long id, Borne borneDetails) {
+        Borne borne = getBorneById(id);
+
+        borne.setNom(borneDetails.getNom());
+        borne.setNumero(borneDetails.getNumero());
+        borne.setLocalisation(borneDetails.getLocalisation());
+        borne.setLatitude(borneDetails.getLatitude());
+        borne.setLongitude(borneDetails.getLongitude());
+        borne.setPuissance(borneDetails.getPuissance());
+        borne.setPrixALaMinute(borneDetails.getPrixALaMinute());
+        borne.setInstructionSurPied(borneDetails.getInstructionSurPied());
+        borne.setDescription(borneDetails.getDescription());
+        borne.setEtat(borneDetails.getEtat());
+
+        return borneRepository.save(borne);
+    }
+
+    @Override
+    public Borne getBorneById(Long id) {
+        return borneRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
+    }
+
+    @Override
+    public BorneDto getBorneDtoById(Long id) {
+        Borne borne = getBorneById(id);
+        return convertToDto(borne);
+    }
+
+    @Override
+    public List<Borne> getAllBornes() {
+        return borneRepository.findAll();
+    }
+
+    @Override
+    public List<BorneDto> getAllBornesDto() {
+        return getAllBornes().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Borne> getBornesByOwner(Long ownerId) {
+        return borneRepository.findByOwnerIdUtilisateur(ownerId);
+    }
+
+    @Override
+    public List<BorneDto> getBornesByOwnerDto(Long ownerId) {
+        return getBornesByOwner(ownerId).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BorneDto> getByLieu(Long idLieu) {
+        List<Borne> stations = borneRepository.findByLieuxId(idLieu);
+        return stations.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    private void updateBorneFromDto(Borne borne, BorneDto dto) {
+        borne.setNumero(dto.getNumero());
+        borne.setNom(dto.getNom());
+        borne.setLocalisation(dto.getLocalisation());
+        borne.setLatitude(dto.getLatitude());
+        borne.setLongitude(dto.getLongitude());
+        borne.setPuissance(dto.getPuissance());
+        borne.setMedias(dto.getMedias());
+        borne.setInstructionSurPied(dto.getInstructionSurPied());
+        borne.setEtat(parseEtat(dto.getEtat()));
+        borne.setOccupee(dto.getOccupee());
+        borne.setPrixALaMinute(dto.getPrixALaMinute());
+        borne.setDescription(dto.getDescription());
 
         Long ownerId = dto.getOwnerId();
         if (ownerId == null) {
@@ -86,73 +168,43 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         }
         Utilisateur owner = utilisateurRepository.findById(ownerId)
                 .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé avec l'id " + ownerId));
-        station.setOwner(owner);
+        borne.setOwner(owner);
+
+        Long lieuId = dto.getLieuId();
+        if (lieuId == null) {
+            throw new IllegalArgumentException("L'ID du lieu ne peut pas être null");
+        }
+        Lieu lieu = lieuRepository.findById(lieuId)
+                .orElseThrow(() -> new EntityNotFoundException("Lieu non trouvé avec l'id " + lieuId));
+        borne.setLieu(lieu);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ChargingStationDto> getAll() {
-        List<ChargingStation> stations = chargingStationRepository.findAll();
-        return stations.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    @SuppressWarnings("null")
-    public ChargingStationDto getById(Long id) {
-        ChargingStation station = chargingStationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
-        return convertToDto(station);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ChargingStationDto> getByOwner(Long ownerId) {
-        List<ChargingStation> stations = chargingStationRepository.findByOwner_IdUtilisateur(ownerId);
-        return stations.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ChargingStationDto> getByLieu(Long idLieu) {
-        List<ChargingStation> stations = chargingStationRepository.findByLieuxId(idLieu);
-        return stations.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<ChargingStationDto> getByDisponibilite(Boolean disponible) {
+    public List<BorneDto> getByDisponibilite(Boolean disponible) {
         try {
-            ChargingStation.Etat etat = disponible ? ChargingStation.Etat.DISPONIBLE : ChargingStation.Etat.OCCUPEE;
-            List<ChargingStation> stations = chargingStationRepository.findByEtat(etat);
+            Borne.Etat etat = disponible ? Borne.Etat.DISPONIBLE : Borne.Etat.OCCUPEE;
+            List<Borne> stations = borneRepository.findByEtat(etat);
             return stations.stream()
                     .map(station -> {
                         try {
                             return convertToDto(station);
                         } catch (Exception e) {
-
                             return null;
                         }
                     })
                     .filter(dto -> dto != null)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-
             throw new RuntimeException("Error retrieving available charging stations: " + e.getMessage(), e);
         }
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ChargingStationDto> getByEtat(String etat) {
-        ChargingStation.Etat etatEnum = parseEtat(etat);
-        List<ChargingStation> stations = chargingStationRepository.findByEtat(etatEnum);
+    public List<BorneDto> getByEtat(String etat) {
+        Borne.Etat etatEnum = parseEtat(etat);
+        List<Borne> stations = borneRepository.findByEtat(etatEnum);
         return stations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -163,7 +215,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @SuppressWarnings("null")
     public void delete(Long id) {
         // Vérifier si la borne existe
-        if (!chargingStationRepository.existsById(id)) {
+        if (!borneRepository.existsById(id)) {
             throw new EntityNotFoundException("Borne non trouvée avec l'id " + id);
         }
 
@@ -173,14 +225,13 @@ public class ChargingStationServiceImpl implements ChargingStationService {
                     "Impossible de supprimer la borne : des réservations actives existent pour cette borne");
         }
 
-        Long idToDelete = id;
-        chargingStationRepository.deleteById(idToDelete);
+        borneRepository.deleteById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ChargingStationDto> getProches(Double latitude, Double longitude, Double distance) {
-        List<ChargingStation> stations = chargingStationRepository.findByDistance(latitude, longitude, distance);
+    public List<BorneDto> getProches(Double latitude, Double longitude, Double distance) {
+        List<Borne> stations = borneRepository.findByDistance(latitude, longitude, distance);
         return stations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -189,20 +240,20 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Override
     @Transactional
     @SuppressWarnings("null")
-    public ChargingStationDto toggleOccupation(Long id, Boolean occupee) {
-        ChargingStation station = chargingStationRepository.findById(id)
+    public BorneDto toggleOccupation(Long id, Boolean occupee) {
+        Borne station = borneRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
         station.setOccupee(occupee);
-        station.setEtat(occupee ? ChargingStation.Etat.OCCUPEE : ChargingStation.Etat.DISPONIBLE);
-        ChargingStation updatedStation = chargingStationRepository.save(station);
+        station.setEtat(occupee ? Borne.Etat.OCCUPEE : Borne.Etat.DISPONIBLE);
+        Borne updatedStation = borneRepository.save(station);
         return convertToDto(updatedStation);
     }
 
     @Override
     @Transactional
     @SuppressWarnings("null")
-    public ChargingStationDto changerEtat(Long id, String nouvelEtat) {
-        ChargingStation station = chargingStationRepository.findById(id)
+    public BorneDto changerEtat(Long id, String nouvelEtat) {
+        Borne station = borneRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
         station.setEtat(parseEtat(nouvelEtat));
         if (nouvelEtat.equals("OCCUPEE")) {
@@ -210,26 +261,26 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         } else if (nouvelEtat.equals("DISPONIBLE")) {
             station.setOccupee(false);
         }
-        ChargingStation updatedStation = chargingStationRepository.save(station);
+        Borne updatedStation = borneRepository.save(station);
         return convertToDto(updatedStation);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ChargingStationDto> searchAdvanced(Double latitude, Double longitude, Double distance,
+    public List<BorneDto> searchAdvanced(Double latitude, Double longitude, Double distance,
             java.math.BigDecimal prixMin, java.math.BigDecimal prixMax,
             Integer puissanceMin, String etat, Boolean disponible) {
 
         // D'abord filtrer par distance si coordonnées fournies
-        List<ChargingStation> stations;
+        List<Borne> stations;
         if (latitude != null && longitude != null && distance != null) {
-            stations = chargingStationRepository.findByDistance(latitude, longitude, distance);
+            stations = borneRepository.findByDistance(latitude, longitude, distance);
         } else {
-            stations = chargingStationRepository.findAll();
+            stations = borneRepository.findAll();
         }
 
         // Appliquer les filtres supplémentaires
-        List<ChargingStationDto> results = stations.stream()
+        List<BorneDto> results = stations.stream()
                 .filter(station -> matchesPriceMin(station, prixMin))
                 .filter(station -> matchesPriceMax(station, prixMax))
                 .filter(station -> matchesPowerMin(station, puissanceMin))
@@ -241,7 +292,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         return results;
     }
 
-    private boolean matchesPriceMin(ChargingStation station, java.math.BigDecimal prixMin) {
+    private boolean matchesPriceMin(Borne station, java.math.BigDecimal prixMin) {
         if (prixMin != null && station.getPrixALaMinute() != null) {
             java.math.BigDecimal hourlyRate = station.getPrixALaMinute()
                     .multiply(java.math.BigDecimal.valueOf(60));
@@ -250,7 +301,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         return true;
     }
 
-    private boolean matchesPriceMax(ChargingStation station, java.math.BigDecimal prixMax) {
+    private boolean matchesPriceMax(Borne station, java.math.BigDecimal prixMax) {
         if (prixMax != null && station.getPrixALaMinute() != null) {
             java.math.BigDecimal hourlyRate = station.getPrixALaMinute()
                     .multiply(java.math.BigDecimal.valueOf(60));
@@ -259,44 +310,44 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         return true;
     }
 
-    private boolean matchesPowerMin(ChargingStation station, Integer puissanceMin) {
+    private boolean matchesPowerMin(Borne station, Integer puissanceMin) {
         if (puissanceMin != null && station.getPuissance() != null) {
             return station.getPuissance() >= puissanceMin;
         }
         return true;
     }
 
-    private boolean matchesState(ChargingStation station, String etat) {
+    private boolean matchesState(Borne station, String etat) {
         if (etat != null && station.getEtat() != null) {
             return station.getEtat().name().equalsIgnoreCase(etat);
         }
         return true;
     }
 
-    private boolean matchesAvailability(ChargingStation station, Boolean disponible) {
+    private boolean matchesAvailability(Borne station, Boolean disponible) {
         if (disponible != null && disponible) {
             return !Boolean.TRUE.equals(station.getOccupee());
         }
         return true;
     }
 
-    private ChargingStation.Etat parseEtat(String etatStr) {
+    private Borne.Etat parseEtat(String etatStr) {
         if (etatStr == null) {
-            return ChargingStation.Etat.DISPONIBLE;
+            return Borne.Etat.DISPONIBLE;
         }
         try {
-            return ChargingStation.Etat.valueOf(etatStr.toUpperCase());
+            return Borne.Etat.valueOf(etatStr.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("État invalide: " + etatStr);
         }
     }
 
-    private String convertEtatToString(ChargingStation.Etat etat) {
+    private String convertEtatToString(Borne.Etat etat) {
         return etat != null ? etat.name() : null;
     }
 
-    private ChargingStationDto convertToDto(ChargingStation station) {
-        ChargingStationDto dto = new ChargingStationDto();
+    private BorneDto convertToDto(Borne station) {
+        BorneDto dto = new BorneDto();
         dto.setId(station.getIdBorne());
         dto.setIdBorne(station.getIdBorne()); // Ajouter pour compatibilité frontend
         dto.setNumero(station.getNumero());
@@ -311,7 +362,6 @@ public class ChargingStationServiceImpl implements ChargingStationService {
             List<String> medias = station.getMedias();
             dto.setMedias(medias != null ? new ArrayList<>(medias) : List.of());
         } catch (Exception e) {
-
             dto.setMedias(List.of());
         }
 
@@ -337,9 +387,11 @@ public class ChargingStationServiceImpl implements ChargingStationService {
             if (station.getOwner() != null) {
                 dto.setOwnerId(station.getOwner().getIdUtilisateur());
             }
+            if (station.getLieu() != null) {
+                dto.setLieuId(station.getLieu().getIdLieu());
+            }
         } catch (Exception e) {
             // Handle LazyInitializationException or other issues
-
         }
         return dto;
     }
@@ -349,7 +401,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @SuppressWarnings("null")
     public List<String> uploadPhotos(Long borneId, MultipartFile[] photos) throws Exception {
 
-        ChargingStation station = chargingStationRepository.findById(borneId)
+        Borne station = borneRepository.findById(borneId)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + borneId));
 
         List<String> photoUrls = new ArrayList<>();
@@ -415,7 +467,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
         }
         station.getMedias().addAll(photoUrls);
 
-        chargingStationRepository.save(station);
+        borneRepository.save(station);
 
         return photoUrls;
     }
@@ -424,7 +476,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
     @Transactional
     @SuppressWarnings("null")
     public void deletePhoto(Long borneId, String photoUrl) throws Exception {
-        ChargingStation station = chargingStationRepository.findById(borneId)
+        Borne station = borneRepository.findById(borneId)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + borneId));
 
         if (station.getMedias() == null || !station.getMedias().contains(photoUrl)) {
@@ -433,7 +485,7 @@ public class ChargingStationServiceImpl implements ChargingStationService {
 
         // Supprimer l'URL de la liste
         station.getMedias().remove(photoUrl);
-        chargingStationRepository.save(station);
+        borneRepository.save(station);
 
         // Essayer de supprimer le fichier physique
         try {
@@ -442,7 +494,6 @@ public class ChargingStationServiceImpl implements ChargingStationService {
             Path filePath = Paths.get(uploadDir).resolve(borneFolder).resolve(filename);
             Files.deleteIfExists(filePath);
         } catch (Exception e) {
-
             // On continue même si la suppression du fichier échoue
         }
     }

@@ -10,30 +10,30 @@ import java.util.List;
 
 @Repository
 public interface AvisRepository extends JpaRepository<Avis, Long> {
-    
+
     /**
      * Récupère tous les avis pour une borne spécifique
      */
-    List<Avis> findByChargingStationIdBorneOrderByCreatedAtDesc(Long chargingStationId);
-    
+    List<Avis> findByBorneIdBorneOrderByCreatedAtDesc(Long chargingStationId);
+
     /**
      * Récupère tous les avis d'un utilisateur
      */
     List<Avis> findByUtilisateurIdUtilisateurOrderByCreatedAtDesc(Long utilisateurId);
-    
+
     /**
      * Vérifie si un utilisateur a déjà laissé un avis sur une borne
      */
-    boolean existsByUtilisateurIdUtilisateurAndChargingStationIdBorne(Long utilisateurId, Long chargingStationId);
-    
+    boolean existsByUtilisateurIdUtilisateurAndBorneIdBorne(Long utilisateurId, Long chargingStationId);
+
     /**
      * Calcule la note moyenne d'une borne
      */
-    @Query("SELECT AVG(a.note) FROM Avis a WHERE a.chargingStation.idBorne = :chargingStationId")
-    Double getAverageNoteByChargingStation(@Param("chargingStationId") Long chargingStationId);
-    
+    @Query("SELECT AVG(a.note) FROM Avis a WHERE a.borne.idBorne = :chargingStationId")
+    Double getAverageNoteByBorne(@Param("chargingStationId") Long chargingStationId);
+
     /**
      * Compte le nombre d'avis pour une borne
      */
-    long countByChargingStationIdBorne(Long chargingStationId);
+    long countByBorneIdBorne(Long chargingStationId);
 }

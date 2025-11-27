@@ -12,7 +12,7 @@ public class ReservationDto {
     private Long utilisateurId;
 
     @NotNull(message = "L'identifiant de la borne est obligatoire")
-    private Long chargingStationId;
+    private Long borneId;
 
     @NotNull(message = "La date de début est obligatoire")
     private LocalDateTime dateDebut;
@@ -24,7 +24,7 @@ public class ReservationDto {
     private BigDecimal prixALaMinute;
     private BigDecimal totalPrice;
     private String receiptPath;
-    
+
     // Nested objects for frontend consumption
     private BorneDto borne;
     private UtilisateurSimpleDto utilisateur;
@@ -45,12 +45,12 @@ public class ReservationDto {
         this.utilisateurId = utilisateurId;
     }
 
-    public Long getChargingStationId() {
-        return chargingStationId;
+    public Long getBorneId() {
+        return borneId;
     }
 
-    public void setChargingStationId(Long chargingStationId) {
-        this.chargingStationId = chargingStationId;
+    public void setBorneId(Long borneId) {
+        this.borneId = borneId;
     }
 
     public LocalDateTime getDateDebut() {
@@ -116,4 +116,4 @@ public class ReservationDto {
     public void setReceiptPath(String receiptPath) {
         this.receiptPath = receiptPath;
     }
-} 
+}

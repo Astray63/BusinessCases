@@ -7,7 +7,7 @@ export type ReservationStatus = 'EN_ATTENTE' | 'CONFIRMEE' | 'ANNULEE' | 'TERMIN
 export interface ReservationBackend {
   id: number;
   utilisateurId: number;
-  chargingStationId: number;
+  borneId: number;
   dateDebut: string;
   dateFin: string;
   etat: string;

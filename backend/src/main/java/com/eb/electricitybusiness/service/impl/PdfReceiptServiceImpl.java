@@ -150,10 +150,10 @@ public class PdfReceiptServiceImpl implements PdfReceiptService {
         table.setWidthPercentage(100);
         table.setSpacingAfter(15);
 
-        addTableRow(table, "Nom", reservation.getChargingStation().getNom(), font);
-        addTableRow(table, "Localisation", reservation.getChargingStation().getLocalisation(), font);
-        addTableRow(table, "Numéro", reservation.getChargingStation().getNumero(), font);
-        addTableRow(table, "Puissance", reservation.getChargingStation().getPuissance() + " kW", font);
+        addTableRow(table, "Nom", reservation.getBorne().getNom(), font);
+        addTableRow(table, "Localisation", reservation.getBorne().getLocalisation(), font);
+        addTableRow(table, "Numéro", reservation.getBorne().getNumero(), font);
+        addTableRow(table, "Puissance", reservation.getBorne().getPuissance() + " kW", font);
         addTableRow(table, "Type de connecteur", "Type 2S", font);
 
         document.add(table);

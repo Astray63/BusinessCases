@@ -18,7 +18,7 @@ export class HeaderComponent implements OnInit {
   isDropdownOpen = false;
   isProprietaire = false;
   nombreBornes = 0;
-  
+
   // Sous-menus desktop
   isClientMenuOpen = false;
   isProprietaireMenuOpen = false;
@@ -45,7 +45,8 @@ export class HeaderComponent implements OnInit {
     });
   }
 
-  toggleMenu(): void {
+  toggleMenu(event: Event): void {
+    event.stopPropagation();
     this.isMenuOpen = !this.isMenuOpen;
   }
 

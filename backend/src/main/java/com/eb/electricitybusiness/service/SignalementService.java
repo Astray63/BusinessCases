@@ -2,12 +2,12 @@ package com.eb.electricitybusiness.service;
 
 import com.eb.electricitybusiness.dto.CreateSignalementDto;
 import com.eb.electricitybusiness.dto.SignalementDto;
-import com.eb.electricitybusiness.model.ChargingStation;
+import com.eb.electricitybusiness.model.Borne;
 import com.eb.electricitybusiness.model.Reservation;
 import com.eb.electricitybusiness.model.Signalement;
 import com.eb.electricitybusiness.model.Signalement.StatutSignalement;
 import com.eb.electricitybusiness.model.Utilisateur;
-import com.eb.electricitybusiness.repository.ChargingStationRepository;
+import com.eb.electricitybusiness.repository.BorneRepository;
 import com.eb.electricitybusiness.repository.ReservationRepository;
 import com.eb.electricitybusiness.repository.SignalementRepository;
 import com.eb.electricitybusiness.repository.UtilisateurRepository;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class SignalementService {
 
         private final SignalementRepository signalementRepository;
-        private final ChargingStationRepository chargingStationRepository;
+        private final BorneRepository borneRepository;
         private final UtilisateurRepository utilisateurRepository;
         private final ReservationRepository reservationRepository;
 
@@ -40,7 +40,7 @@ public class SignalementService {
                 log.info("Récupération des signalements pour la borne {}", chargingStationId);
 
                 List<Signalement> signalements = signalementRepository
-                                .findByChargingStationIdBorneOrderByDateSignalementDesc(chargingStationId);
+                                .findByBorneIdBorneOrderByDateSignalementDesc(chargingStationId);
 
                 return signalements.stream()
                                 .map(this::convertToDto)
@@ -97,14 +97,14 @@ public class SignalementService {
                 Utilisateur utilisateur = utilisateurRepository.findByPseudo(pseudo)
                                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-                ChargingStation chargingStation = chargingStationRepository
+                Borne borne = borneRepository
                                 .findById(createSignalementDto.getChargingStationId())
                                 .orElseThrow(() -> new RuntimeException("Borne non trouvée"));
 
                 Signalement signalement = new Signalement();
                 signalement.setDescription(createSignalementDto.getDescription());
                 signalement.setUser(utilisateur);
-                signalement.setChargingStation(chargingStation);
+                signalement.setBorne(borne);
                 signalement.setStatut(StatutSignalement.OUVERT);
 
                 // Lier à une réservation si spécifié
@@ -117,7 +117,7 @@ public class SignalementService {
 
                 Signalement savedSignalement = signalementRepository.save(signalement);
                 log.info("Signalement créé avec succès pour la borne {} par l'utilisateur {}",
-                                chargingStation.getNumero(), utilisateur.getPseudo());
+                                borne.getNumero(), utilisateur.getPseudo());
 
                 return convertToDto(savedSignalement);
         }
@@ -173,7 +173,7 @@ public class SignalementService {
          */
         @Transactional(readOnly = true)
         public long countOpenSignalements(Long chargingStationId) {
-                return signalementRepository.countByChargingStationIdBorneAndStatut(
+                return signalementRepository.countByBorneIdBorneAndStatut(
                                 chargingStationId, StatutSignalement.OUVERT);
         }
 
@@ -193,8 +193,8 @@ public class SignalementService {
                                 .userPseudo(signalement.getUser().getPseudo())
                                 .userNom(signalement.getUser().getNom())
                                 .userPrenom(signalement.getUser().getPrenom())
-                                .chargingStationId(signalement.getChargingStation().getIdBorne())
-                                .chargingStationNom(signalement.getChargingStation().getNom());
+                                .chargingStationId(signalement.getBorne().getIdBorne())
+                                .chargingStationNom(signalement.getBorne().getNom());
 
                 if (signalement.getReservation() != null) {
                         builder.reservationId(signalement.getReservation().getNumeroReservation());

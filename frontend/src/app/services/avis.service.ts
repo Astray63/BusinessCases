@@ -11,20 +11,20 @@ import { Avis, CreateAvisRequest } from '../models/avis.model';
 export class AvisService {
   private apiUrl = `${environment.apiUrl}/avis`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Récupère tous les avis pour une borne
    */
-  getAvisByChargingStation(chargingStationId: number): Observable<ApiResponse<Avis[]>> {
-    return this.http.get<ApiResponse<Avis[]>>(`${this.apiUrl}/borne/${chargingStationId}`);
+  getAvisByChargingStation(borneId: number): Observable<ApiResponse<Avis[]>> {
+    return this.http.get<ApiResponse<Avis[]>>(`${this.apiUrl}/borne/${borneId}`);
   }
 
   /**
    * Récupère la note moyenne d'une borne
    */
-  getAverageNote(chargingStationId: number): Observable<ApiResponse<number>> {
-    return this.http.get<ApiResponse<number>>(`${this.apiUrl}/borne/${chargingStationId}/moyenne`);
+  getAverageNote(borneId: number): Observable<ApiResponse<number>> {
+    return this.http.get<ApiResponse<number>>(`${this.apiUrl}/borne/${borneId}/moyenne`);
   }
 
   /**

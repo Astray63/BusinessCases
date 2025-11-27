@@ -6,24 +6,24 @@ export interface Signalement {
   dateResolution?: Date;
   createdAt: Date;
   updatedAt: Date;
-  
+
   // Informations sur l'utilisateur
   userId: number;
   userPseudo: string;
   userNom: string;
   userPrenom: string;
-  
+
   // Informations sur la borne
-  chargingStationId: number;
-  chargingStationNom: string;
-  
+  borneId: number;
+  borneNom: string;
+
   // Informations sur la réservation (optionnel)
   reservationId?: number;
 }
 
 export interface CreateSignalementRequest {
   description: string;
-  chargingStationId: number;
+  borneId: number;
   reservationId?: number;
 }
 
