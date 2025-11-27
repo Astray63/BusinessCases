@@ -54,5 +54,17 @@ app:
     expiration-ms: 3600000  # 1 hour
     refresh-expiration-ms: 86400000 # 24 hours
 
+brevo:
+  api:
+    key: test-api-key
+  sender:
+    email: test@example.com
+    name: Test Sender
+
+email:
+  verification:
+    code:
+      expiry-minutes: 15
+
 server:
   port: 8081
