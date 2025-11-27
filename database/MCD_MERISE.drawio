@@ -9,8 +9,8 @@
         <mxCell id="utilisateur" value="UTILISATEUR" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry x="120" y="350" width="200" height="260" as="geometry" />
         </mxCell>
-        <mxCell id="utilisateur-attr" value="&lt;u&gt;id_utilisateur (PK)&lt;/u&gt;&#xa;nom&#xa;prenom&#xa;pseudo&#xa;mot_de_passe&#xa;role&#xa;email&#xa;adresse_physique&#xa;date_naissance&#xa;telephone&#xa;code_postal&#xa;ville&#xa;email_verified&#xa;verification_code" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="utilisateur">
-          <mxGeometry y="26" width="200" height="234" as="geometry" />
+        <mxCell id="utilisateur-attr" value="&lt;u&gt;id_utilisateur (PK)&lt;/u&gt;&#xa;nom&#xa;prenom&#xa;pseudo&#xa;mot_de_passe&#xa;role&#xa;email&#xa;adresse_physique&#xa;date_naissance&#xa;telephone&#xa;code_postal&#xa;ville&#xa;email_verified&#xa;verification_code&#xa;verification_code_expiry" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="utilisateur">
+          <mxGeometry y="26" width="200" height="254" as="geometry" />
         </mxCell>
 
         <!-- Entité LIEU -->
@@ -21,11 +21,11 @@
           <mxGeometry y="26" width="200" height="154" as="geometry" />
         </mxCell>
 
-        <!-- Entité CHARGING_STATIONS -->
-        <mxCell id="borne" value="CHARGING_STATIONS" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+        <!-- Entité BORNE -->
+        <mxCell id="borne" value="BORNE" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry x="680" y="340" width="200" height="280" as="geometry" />
         </mxCell>
-        <mxCell id="borne-attr" value="&lt;u&gt;id_borne (PK)&lt;/u&gt;&#xa;numero&#xa;nom&#xa;localisation&#xa;latitude&#xa;longitude&#xa;geom (POINT)&#xa;etat&#xa;occupee&#xa;puissance&#xa;prix_a_la_minute&#xa;instruction_sur_pied&#xa;description&#xa;owner_id (FK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="borne">
+        <mxCell id="borne-attr" value="&lt;u&gt;borne_id (PK)&lt;/u&gt;&#xa;numero&#xa;nom&#xa;localisation&#xa;latitude&#xa;longitude&#xa;geom (POINT)&#xa;etat&#xa;occupee&#xa;puissance&#xa;prix_a_la_minute&#xa;instruction_sur_pied&#xa;description" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="borne">
           <mxGeometry y="26" width="200" height="254" as="geometry" />
         </mxCell>
 
@@ -33,7 +33,7 @@
         <mxCell id="reservation" value="RESERVATION" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry x="400" y="680" width="200" height="220" as="geometry" />
         </mxCell>
-        <mxCell id="reservation-attr" value="&lt;u&gt;numero_reservation (PK)&lt;/u&gt;&#xa;id_utilisateur (FK)&#xa;charging_station_id (FK)&#xa;date_debut&#xa;date_fin&#xa;prix_a_la_minute&#xa;etat&#xa;total_price&#xa;receipt_path" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="reservation">
+        <mxCell id="reservation-attr" value="&lt;u&gt;numero_reservation (PK)&lt;/u&gt;&#xa;date_debut&#xa;date_fin&#xa;prix_a_la_minute&#xa;etat&#xa;total_price&#xa;receipt_path" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="reservation">
           <mxGeometry y="26" width="200" height="194" as="geometry" />
         </mxCell>
 
@@ -41,7 +41,7 @@
         <mxCell id="avis" value="AVIS" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry x="960" y="680" width="220" height="160" as="geometry" />
         </mxCell>
-        <mxCell id="avis-attr" value="&lt;u&gt;id_avis (PK)&lt;/u&gt;&#xa;utilisateur_id (FK)&#xa;charging_station_id (FK)&#xa;note&#xa;commentaire" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="avis">
+        <mxCell id="avis-attr" value="&lt;u&gt;id_avis (PK)&lt;/u&gt;&#xa;note&#xa;commentaire" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="avis">
           <mxGeometry y="26" width="220" height="134" as="geometry" />
         </mxCell>
 
@@ -49,7 +49,7 @@
         <mxCell id="signalement" value="SIGNALEMENT" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry x="960" y="40" width="220" height="220" as="geometry" />
         </mxCell>
-        <mxCell id="signalement-attr" value="&lt;u&gt;id_signalement (PK)&lt;/u&gt;&#xa;date_signalement&#xa;description&#xa;statut&#xa;date_resolution&#xa;user_id (FK)&#xa;charging_station_id (FK)&#xa;reservation_id (FK)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="signalement">
+        <mxCell id="signalement-attr" value="&lt;u&gt;id_signalement (PK)&lt;/u&gt;&#xa;date_signalement&#xa;description&#xa;statut&#xa;date_resolution" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="signalement">
           <mxGeometry y="26" width="220" height="194" as="geometry" />
         </mxCell>
 
@@ -57,12 +57,12 @@
         <mxCell id="borne-medias" value="BORNE_MEDIAS" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
           <mxGeometry x="1240" y="420" width="200" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="borne-medias-attr" value="&lt;u&gt;borne_id (FK)&lt;/u&gt;&#xa;media_url" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="borne-medias">
+        <mxCell id="borne-medias-attr" value="&lt;u&gt;&lt;b&gt;borne_id (PK, FK)&lt;/b&gt;&lt;/u&gt;&#xa;media_url" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="borne-medias">
           <mxGeometry y="26" width="200" height="74" as="geometry" />
         </mxCell>
 
         <!-- Relation POSSEDE (UTILISATEUR -> CHARGING_STATIONS) -->
-        <mxCell id="rel-possede" value="POSSEDE" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
+        <mxCell id="rel-possede" value="POSSEDER" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="420" y="440" width="120" height="80" as="geometry" />
         </mxCell>
         <mxCell id="edge-util-possede" value="0,n" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;entryX=0;entryY=0.5;exitX=1;exitY=0.5;" edge="1" parent="1" source="utilisateur-attr" target="rel-possede">
@@ -79,7 +79,7 @@
         </mxCell>
 
         <!-- Relation HABITE (UTILISATEUR <-> LIEU) avec attribut type_adresse -->
-        <mxCell id="rel-habite" value="HABITE&#xa;type_adresse" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
+        <mxCell id="rel-habite" value="HABITER&#xa;type_adresse" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="160" y="230" width="120" height="80" as="geometry" />
         </mxCell>
         <mxCell id="edge-lieu-habite" value="0,n" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="lieu" target="rel-habite">
@@ -90,7 +90,7 @@
         </mxCell>
 
         <!-- Relation SITUE (CHARGING_STATIONS -> LIEU) -->
-        <mxCell id="rel-situe" value="SITUE" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
+        <mxCell id="rel-situe" value="SITUER" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="440" y="90" width="120" height="80" as="geometry" />
         </mxCell>
         <mxCell id="edge-lieu-situe" value="0,n" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="lieu-attr" target="rel-situe">
@@ -101,7 +101,7 @@
         </mxCell>
 
         <!-- Relation RESERVE (UTILISATEUR -> RESERVATION <- CHARGING_STATIONS) -->
-        <mxCell id="rel-effectue" value="EFFECTUE" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
+        <mxCell id="rel-effectue" value="EFFECTUER" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="160" y="750" width="120" height="80" as="geometry" />
         </mxCell>
         <mxCell id="edge-util-effectue" value="0,n" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="utilisateur" target="rel-effectue">
@@ -111,7 +111,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <mxCell id="rel-concerne" value="CONCERNE" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
+        <mxCell id="rel-concerne" value="CONCERNER" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="720" y="750" width="120" height="80" as="geometry" />
         </mxCell>
         <mxCell id="edge-res-concerne" value="1,1" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="reservation-attr" target="rel-concerne">
@@ -122,7 +122,7 @@
         </mxCell>
 
         <!-- Relation EVALUE (UTILISATEUR -> AVIS <- CHARGING_STATIONS) -->
-        <mxCell id="rel-redige" value="REDIGE" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
+        <mxCell id="rel-redige" value="REDIGER" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="640" y="920" width="120" height="80" as="geometry" />
         </mxCell>
         <mxCell id="edge-util-redige" value="0,n" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" edge="1" parent="1" source="utilisateur" target="rel-redige">
@@ -132,7 +132,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <mxCell id="rel-evalue" value="EVALUE" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
+        <mxCell id="rel-evalue" value="EVALUER" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="1010" y="440" width="120" height="80" as="geometry" />
         </mxCell>
         <mxCell id="edge-borne-evalue" value="0,n" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="borne-attr" target="rel-evalue">
@@ -143,7 +143,7 @@
         </mxCell>
 
         <!-- Relation EMET (UTILISATEUR -> SIGNALEMENT) -->
-        <mxCell id="rel-emet" value="EMET" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
+        <mxCell id="rel-emet" value="EMETTRE" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="620" y="100" width="120" height="80" as="geometry" />
         </mxCell>
         <mxCell id="edge-util-emet" value="0,n" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="utilisateur" target="rel-emet">
@@ -154,35 +154,35 @@
         </mxCell>
 
         <!-- Relation CONCERNE_BORNE (SIGNALEMENT -> CHARGING_STATIONS) -->
-        <mxCell id="rel-concerne-borne" value="CONCERNE_BORNE" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
+        <mxCell id="rel-concerne-borne" value="CONCERNER_BORNE" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="1000" y="300" width="140" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="edge-signal-concborne" value="0,n" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="signalement" target="rel-concerne-borne">
+        <mxCell id="edge-signal-concborne" value="0,1" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="signalement" target="rel-concerne-borne">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="edge-concborne-borne" value="0,1" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="rel-concerne-borne" target="borne">
+        <mxCell id="edge-concborne-borne" value="0,n" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="rel-concerne-borne" target="borne">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Relation CONCERNE_RESERVATION (SIGNALEMENT -> RESERVATION) -->
-        <mxCell id="rel-concerne-res" value="CONCERNE_RESERVATION" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
+        <mxCell id="rel-concerne-res" value="CONCERNER_RESERVATION" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="700" y="560" width="160" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="edge-signal-concres" value="0,n" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="signalement" target="rel-concerne-res">
+        <mxCell id="edge-signal-concres" value="0,1" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="signalement" target="rel-concerne-res">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="edge-concres-res" value="0,1" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="reservation" target="rel-concerne-res">
+        <mxCell id="edge-concres-res" value="0,n" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="reservation" target="rel-concerne-res">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
         <!-- Relation A_MEDIAS (CHARGING_STATIONS -> BORNE_MEDIAS) -->
-        <mxCell id="rel-a-medias" value="A_MEDIAS" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
+        <mxCell id="rel-a-medias" value="AVOIR_MEDIAS" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;aspect=fixed;" vertex="1" parent="1">
           <mxGeometry x="1000" y="430" width="120" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="edge-borne-medias" value="1,1" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="borne-attr" target="rel-a-medias">
+        <mxCell id="edge-borne-medias" value="0,n" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="borne-attr" target="rel-a-medias">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="edge-medias-tabla" value="0,n" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="rel-a-medias" target="borne-medias-attr">
+        <mxCell id="edge-medias-tabla" value="1,1" style="endArrow=none;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="rel-a-medias" target="borne-medias-attr">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 

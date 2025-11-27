@@ -24,7 +24,7 @@ public class Borne {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_borne")
+    @Column(name = "borne_id")
     private Long idBorne;
 
     @Column(name = "numero", nullable = false, length = 50)

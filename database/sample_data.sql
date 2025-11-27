@@ -65,19 +65,19 @@ VALUES
 -- Insert medias pour bornes
 INSERT INTO borne_medias (borne_id, media_url)
 VALUES
-((SELECT id_borne FROM borne WHERE numero = 'B001'), 'borne1_1.jpg'),
-((SELECT id_borne FROM borne WHERE numero = 'B001'), 'borne1_2.jpg'),
-((SELECT id_borne FROM borne WHERE numero = 'B002'), 'borne2_1.jpg'),
-((SELECT id_borne FROM borne WHERE numero = 'B003'), 'borne3_1.jpg'),
-((SELECT id_borne FROM borne WHERE numero = 'B003'), 'borne3_2.jpg'),
-((SELECT id_borne FROM borne WHERE numero = 'B003'), 'borne3_3.jpg'),
-((SELECT id_borne FROM borne WHERE numero = 'B004'), 'borne4_1.jpg'),
-((SELECT id_borne FROM borne WHERE numero = 'B005'), 'borne5_1.jpg'),
-((SELECT id_borne FROM borne WHERE numero = 'B006'), 'borne6_1.jpg'),
-((SELECT id_borne FROM borne WHERE numero = 'B007'), 'borne7_1.jpg'),
-((SELECT id_borne FROM borne WHERE numero = 'B008'), 'borne8_1.jpg'),
-((SELECT id_borne FROM borne WHERE numero = 'B009'), 'borne9_1.jpg'),
-((SELECT id_borne FROM borne WHERE numero = 'B010'), 'borne10_1.jpg');
+((SELECT borne_id FROM borne WHERE numero = 'B001'), 'https://images.unsplash.com/photo-1663579747756-00ec34034feb?auto=format&fit=crop&w=1000&q=80'),
+((SELECT borne_id FROM borne WHERE numero = 'B001'), 'https://images.unsplash.com/photo-1663579748123-00d6a035947e?auto=format&fit=crop&w=1000&q=80'),
+((SELECT borne_id FROM borne WHERE numero = 'B002'), 'https://images.unsplash.com/photo-1663579747751-8b0fc65cf4ee?auto=format&fit=crop&w=1000&q=80'),
+((SELECT borne_id FROM borne WHERE numero = 'B003'), 'https://images.unsplash.com/photo-1660548901931-0aa0e6f0be8a?auto=format&fit=crop&w=1000&q=80'),
+((SELECT borne_id FROM borne WHERE numero = 'B003'), 'https://images.unsplash.com/photo-1672542128826-5f0d578713d2?auto=format&fit=crop&w=1000&q=80'),
+((SELECT borne_id FROM borne WHERE numero = 'B003'), 'https://images.unsplash.com/photo-1672542128827-ccbb7b8b8099?auto=format&fit=crop&w=1000&q=80'),
+((SELECT borne_id FROM borne WHERE numero = 'B004'), 'https://images.unsplash.com/photo-1663579748061-b53ee57b6974?auto=format&fit=crop&w=1000&q=80'),
+((SELECT borne_id FROM borne WHERE numero = 'B005'), 'https://images.unsplash.com/photo-1663579748035-8770b734c2a8?auto=format&fit=crop&w=1000&q=80'),
+((SELECT borne_id FROM borne WHERE numero = 'B006'), 'https://images.unsplash.com/photo-1663579748029-8043f1f4601f?auto=format&fit=crop&w=1000&q=80'),
+((SELECT borne_id FROM borne WHERE numero = 'B007'), 'https://images.unsplash.com/photo-1699253801373-dac49c05066f?auto=format&fit=crop&w=1000&q=80'),
+((SELECT borne_id FROM borne WHERE numero = 'B008'), 'https://images.unsplash.com/photo-1663579747228-d30eee006200?auto=format&fit=crop&w=1000&q=80'),
+((SELECT borne_id FROM borne WHERE numero = 'B009'), 'https://images.unsplash.com/photo-1663579747243-d639fc94e28d?auto=format&fit=crop&w=1000&q=80'),
+((SELECT borne_id FROM borne WHERE numero = 'B010'), 'https://images.unsplash.com/photo-1650452233063-8f308616b729?auto=format&fit=crop&w=1000&q=80');
 
 -- Update geometry for borne
 UPDATE borne SET geom = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326) WHERE longitude IS NOT NULL AND latitude IS NOT NULL;
@@ -88,23 +88,23 @@ UPDATE borne SET geom = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326) WHER
 -- ========================================
 INSERT INTO reservation (id_utilisateur, borne_id, date_debut, date_fin, prix_a_la_minute, etat, total_price)
 VALUES
-((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), (SELECT id_borne FROM borne WHERE numero = 'B004'), NOW() + INTERVAL '4 days', NOW() + INTERVAL '4 days' + INTERVAL '4 hours', 0.167, 'ACTIVE', 40.08),
-((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), (SELECT id_borne FROM borne WHERE numero = 'B009'), NOW() - INTERVAL '2 days', NOW() - INTERVAL '2 days' + INTERVAL '2 hours', 0.079, 'TERMINEE', 9.48);
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), (SELECT borne_id FROM borne WHERE numero = 'B004'), NOW() + INTERVAL '4 days', NOW() + INTERVAL '4 days' + INTERVAL '4 hours', 0.167, 'ACTIVE', 40.08),
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), (SELECT borne_id FROM borne WHERE numero = 'B009'), NOW() - INTERVAL '2 days', NOW() - INTERVAL '2 days' + INTERVAL '2 hours', 0.079, 'TERMINEE', 9.48);
 
 -- ========================================
 -- Insert sample avis
 -- ========================================
 INSERT INTO avis (utilisateur_id, borne_id, note, commentaire)
 VALUES
-((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), (SELECT id_borne FROM borne WHERE numero = 'B004'), 5, 'Service premium excellent, salon d''attente confortable'),
-((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), (SELECT id_borne FROM borne WHERE numero = 'B009'), 5, 'Quartier calme, idéal pour une charge tranquille');
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), (SELECT borne_id FROM borne WHERE numero = 'B004'), 5, 'Service premium excellent, salon d''attente confortable'),
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), (SELECT borne_id FROM borne WHERE numero = 'B009'), 5, 'Quartier calme, idéal pour une charge tranquille');
 
 -- ========================================
 -- Insert sample signalements
 -- ========================================
 INSERT INTO signalement (user_id, borne_id, reservation_id, description, statut, date_signalement)
 VALUES
-((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), (SELECT id_borne FROM borne WHERE numero = 'B004'), NULL, 'Salon d''attente fermé pendant les heures annoncées', 'OUVERT', NOW() - INTERVAL '2 days');
+((SELECT id_utilisateur FROM utilisateur WHERE email = 'astray63000@gmail.com'), (SELECT borne_id FROM borne WHERE numero = 'B004'), NULL, 'Salon d''attente fermé pendant les heures annoncées', 'OUVERT', NOW() - INTERVAL '2 days');
 
 -- ========================================
 -- Mise à jour des statistiques
@@ -114,7 +114,7 @@ VALUES
 
 -- Mettre à jour l'état d'occupation des bornes basé sur les réservations actives
 UPDATE borne SET occupee = true 
-WHERE id_borne IN (
+WHERE borne_id IN (
     SELECT DISTINCT borne_id 
     FROM reservation 
     WHERE etat = 'ACTIVE' 

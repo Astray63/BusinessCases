@@ -86,7 +86,7 @@ CREATE TABLE utilisateur (
 -- Table: borne
 -- ========================================
 CREATE TABLE borne (
-    id_borne BIGSERIAL PRIMARY KEY,
+    borne_id BIGSERIAL PRIMARY KEY,
     numero VARCHAR(50) NOT NULL,
     nom VARCHAR(100) NOT NULL,
     localisation VARCHAR(255) NOT NULL,
@@ -115,7 +115,7 @@ CREATE TABLE borne_medias (
     media_url TEXT NOT NULL,
     PRIMARY KEY (borne_id, media_url),
     CONSTRAINT fk_borne_medias
-        FOREIGN KEY (borne_id) REFERENCES borne(id_borne) ON DELETE CASCADE
+        FOREIGN KEY (borne_id) REFERENCES borne(borne_id) ON DELETE CASCADE
 );
 
 SELECT AddGeometryColumn('borne', 'geom', 4326, 'POINT', 2);
@@ -141,7 +141,7 @@ CREATE TABLE reservation (
     CONSTRAINT chk_dates CHECK (date_fin > date_debut),
     CONSTRAINT chk_etat_res CHECK (etat IN ('EN_ATTENTE','CONFIRMEE','ACTIVE','TERMINEE','ANNULEE','REFUSEE')),
     CONSTRAINT fk_res_user FOREIGN KEY (id_utilisateur) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE,
-    CONSTRAINT fk_res_borne FOREIGN KEY (borne_id) REFERENCES borne(id_borne) ON DELETE CASCADE
+    CONSTRAINT fk_res_borne FOREIGN KEY (borne_id) REFERENCES borne(borne_id) ON DELETE CASCADE
 );
 
 -- ========================================
@@ -158,7 +158,7 @@ CREATE TABLE avis (
 
     CONSTRAINT chk_note CHECK (note BETWEEN 1 AND 5),
     CONSTRAINT fk_avis_user FOREIGN KEY (utilisateur_id) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE,
-    CONSTRAINT fk_avis_borne FOREIGN KEY (borne_id) REFERENCES borne(id_borne) ON DELETE SET NULL
+    CONSTRAINT fk_avis_borne FOREIGN KEY (borne_id) REFERENCES borne(borne_id) ON DELETE SET NULL
 );
 
 -- ========================================
@@ -178,7 +178,7 @@ CREATE TABLE signalement (
 
     CONSTRAINT chk_statut CHECK (statut IN ('OUVERT','EN_COURS','RESOLU','FERME')),
     CONSTRAINT fk_sig_user FOREIGN KEY (user_id) REFERENCES utilisateur(id_utilisateur) ON DELETE CASCADE,
-    CONSTRAINT fk_sig_borne FOREIGN KEY (borne_id) REFERENCES borne(id_borne) ON DELETE SET NULL,
+    CONSTRAINT fk_sig_borne FOREIGN KEY (borne_id) REFERENCES borne(borne_id) ON DELETE SET NULL,
     CONSTRAINT fk_sig_res FOREIGN KEY (reservation_id) REFERENCES reservation(numero_reservation) ON DELETE SET NULL
 );
 
@@ -240,11 +240,11 @@ CREATE OR REPLACE FUNCTION update_borne_occupation()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.etat = 'ACTIVE' AND (OLD.etat IS DISTINCT FROM 'ACTIVE') THEN
-        UPDATE borne SET occupee = TRUE WHERE id_borne = NEW.borne_id;
+        UPDATE borne SET occupee = TRUE WHERE borne_id = NEW.borne_id;
     END IF;
 
     IF NEW.etat IN ('TERMINEE','ANNULEE') AND OLD.etat = 'ACTIVE' THEN
-        UPDATE borne SET occupee = FALSE WHERE id_borne = NEW.borne_id;
+        UPDATE borne SET occupee = FALSE WHERE borne_id = NEW.borne_id;
     END IF;
 
     RETURN NEW;
@@ -271,7 +271,7 @@ CREATE OR REPLACE VIEW v_reservation_complete AS
 SELECT
     r.numero_reservation,
     r.id_utilisateur,
-    r.borne_id AS id_borne,
+    r.borne_id,
     r.date_debut,
     r.date_fin,
     r.prix_a_la_minute,
@@ -289,5 +289,5 @@ SELECT
     l.ville AS borne_ville
 FROM reservation r
 JOIN utilisateur u ON r.id_utilisateur = u.id_utilisateur
-JOIN borne b ON r.borne_id = b.id_borne
+JOIN borne b ON r.borne_id = b.borne_id
 LEFT JOIN lieu l ON b.lieu_id = l.id_lieu;
