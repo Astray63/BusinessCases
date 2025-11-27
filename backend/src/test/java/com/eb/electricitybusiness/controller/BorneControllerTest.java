@@ -10,6 +10,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -24,6 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = com.eb.electricitybusiness.ElectricityBusinessApplication.class)
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
+@TestPropertySource(locations = "classpath:application-test.yml")
 @SuppressWarnings("null")
 public class BorneControllerTest {
 
