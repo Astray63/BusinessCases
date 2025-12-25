@@ -2,6 +2,7 @@ package com.eb.electricitybusiness.repository;
 
 import com.eb.electricitybusiness.model.Borne;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -30,4 +31,8 @@ public interface BorneRepository extends JpaRepository<Borne, Long> {
                         @Param("latitude") Double latitude,
                         @Param("longitude") Double longitude,
                         @Param("distance") Double distance);
+
+        @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+        @Query("SELECT b FROM Borne b WHERE b.idBorne = :id")
+        java.util.Optional<Borne> findByIdWithLock(@Param("id") Long id);
 }

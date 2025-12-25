@@ -64,7 +64,7 @@ public class ReservationServiceImpl implements ReservationService {
         logger.debug("Creating reservation for user {} on station {}", dto.getUtilisateurId(),
                 dto.getBorneId());
 
-        Borne borne = borneRepository.findById(dto.getBorneId())
+        Borne borne = borneRepository.findByIdWithLock(dto.getBorneId())
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + dto.getBorneId()));
         Utilisateur utilisateur = utilisateurRepository.findById(dto.getUtilisateurId())
                 .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "id", dto.getUtilisateurId()));

@@ -34,6 +34,9 @@ class UtilisateurServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private com.eb.electricitybusiness.service.EmailService emailService;
+
     @InjectMocks
     private UtilisateurServiceImpl utilisateurService;
 
@@ -200,5 +203,197 @@ class UtilisateurServiceTest {
 
         assertEquals("encodedNewPassword", utilisateur.getMotDePasse());
         verify(utilisateurRepository, times(1)).save(utilisateur);
+    }
+
+    @Test
+    void loadUserByUsername_FoundAndEnabled_ReturnsUser() {
+        Utilisateur user = new Utilisateur();
+        user.setPseudo("user");
+        user.setEmailVerified(true); // enabled
+
+        when(utilisateurRepository.findByPseudo("user")).thenReturn(Optional.of(user));
+
+        org.springframework.security.core.userdetails.UserDetails result = utilisateurService
+                .loadUserByUsername("user");
+        assertNotNull(result);
+        assertEquals("user", result.getUsername());
+    }
+
+    @Test
+    void loadUserByUsername_FoundButDisabled_ThrowsException() {
+        Utilisateur user = new Utilisateur();
+        user.setPseudo("user");
+        user.setEmailVerified(false);
+
+        when(utilisateurRepository.findByPseudo("user")).thenReturn(Optional.of(user));
+
+        assertThrows(org.springframework.security.core.userdetails.UsernameNotFoundException.class,
+                () -> utilisateurService.loadUserByUsername("user"));
+    }
+
+    @Test
+    void loadUserByUsername_NotFound_ThrowsException() {
+        when(utilisateurRepository.findByPseudo("user")).thenReturn(Optional.empty());
+        when(utilisateurRepository.findByEmail("user")).thenReturn(Optional.empty());
+
+        assertThrows(org.springframework.security.core.userdetails.UsernameNotFoundException.class,
+                () -> utilisateurService.loadUserByUsername("user"));
+    }
+
+    @Test
+    void creerUtilisateur_AutoGeneratePseudo_Success() {
+        String motDePasse = "password123";
+        UtilisateurDto dto = new UtilisateurDto(
+                null, "client", "Doe", "John", null, "john@test.com",
+                LocalDate.of(1990, 1, 1), "Address", "0123", "75000", "Paris",
+                null, true, null, null);
+
+        // First attempt "john.doe" exists, second "john.doe1" works
+        when(utilisateurRepository.existsByPseudo("john.doe")).thenReturn(true);
+        when(utilisateurRepository.existsByPseudo("john.doe1")).thenReturn(false);
+        when(utilisateurRepository.save(any(Utilisateur.class))).thenAnswer(i -> i.getArgument(0));
+        when(passwordEncoder.encode(motDePasse)).thenReturn("encoded");
+
+        UtilisateurDto result = utilisateurService.creerUtilisateur(dto, motDePasse);
+
+        assertEquals("john.doe1", result.pseudo());
+        verify(emailService).sendVerificationEmail(any(), any(), any());
+    }
+
+    @Test
+    void updateUtilisateur_ValidData_ReturnsUpdatedUser() {
+        Long id = 1L;
+        Utilisateur existingUser = new Utilisateur();
+        existingUser.setIdUtilisateur(id);
+        existingUser.setEmail("old@test.com");
+        existingUser.setPseudo("oldPseudo");
+
+        UtilisateurDto updateDto = new UtilisateurDto(
+                id, "client", "New", "Name", "newPseudo", "new@test.com",
+                LocalDate.now(), "New Addr", "0000", "00000", "City",
+                null, true, null, null);
+
+        when(utilisateurRepository.findById(id)).thenReturn(Optional.of(existingUser));
+        when(utilisateurRepository.existsByEmail("new@test.com")).thenReturn(false);
+        when(utilisateurRepository.existsByPseudo("newPseudo")).thenReturn(false);
+        when(utilisateurRepository.save(any(Utilisateur.class))).thenAnswer(i -> i.getArgument(0));
+
+        UtilisateurDto result = utilisateurService.updateUtilisateur(id, updateDto);
+
+        assertEquals("new@test.com", result.email());
+        assertEquals("newPseudo", result.pseudo());
+    }
+
+    @Test
+    void updateUtilisateur_DuplicateEmail_ThrowsException() {
+        Long id = 1L;
+        Utilisateur existingUser = new Utilisateur();
+        existingUser.setIdUtilisateur(id);
+        existingUser.setEmail("old@test.com");
+
+        UtilisateurDto updateDto = new UtilisateurDto(
+                id, "client", "New", "Name", "oldPseudo", "duplicate@test.com",
+                LocalDate.now(), "New Addr", "0000", "00000", "City",
+                null, true, null, null);
+
+        when(utilisateurRepository.findById(id)).thenReturn(Optional.of(existingUser));
+        when(utilisateurRepository.existsByEmail("duplicate@test.com")).thenReturn(true);
+
+        assertThrows(DuplicateResourceException.class, () -> utilisateurService.updateUtilisateur(id, updateDto));
+    }
+
+    @Test
+    void deleteUtilisateur_ValidId_DeletesUser() {
+        Utilisateur user = new Utilisateur();
+        when(utilisateurRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        utilisateurService.deleteUtilisateur(1L);
+
+        verify(utilisateurRepository).delete(user);
+    }
+
+    @Test
+    void verifyEmail_Success() {
+        String email = "test@test.com";
+        String code = "123456";
+        Utilisateur user = new Utilisateur();
+        user.setEmail(email);
+        user.setVerificationCode(code);
+        user.setVerificationCodeExpiry(LocalDateTime.now().plusMinutes(15));
+        user.setEmailVerified(false);
+
+        when(utilisateurRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+        assertTrue(utilisateurService.verifyEmail(email, code));
+        assertTrue(user.getEmailVerified());
+        assertNull(user.getVerificationCode());
+    }
+
+    @Test
+    void verifyEmail_ExpiredCode_ThrowsException() {
+        String email = "test@test.com";
+        String code = "123456";
+        Utilisateur user = new Utilisateur();
+        user.setEmail(email);
+        user.setVerificationCode(code);
+        user.setVerificationCodeExpiry(LocalDateTime.now().minusMinutes(1)); // Expired
+        user.setEmailVerified(false);
+
+        when(utilisateurRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+        assertThrows(IllegalStateException.class, () -> utilisateurService.verifyEmail(email, code));
+    }
+
+    @Test
+    void verifyEmail_IncorrectCode_ReturnsFalse() {
+        String email = "test@test.com";
+        String code = "123456";
+        Utilisateur user = new Utilisateur();
+        user.setEmail(email);
+        user.setVerificationCode(code);
+        user.setVerificationCodeExpiry(LocalDateTime.now().plusMinutes(15));
+        user.setEmailVerified(false);
+
+        when(utilisateurRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+        assertFalse(utilisateurService.verifyEmail(email, "WRONG"));
+    }
+
+    @Test
+    void resendVerificationCode_Success() {
+        String email = "test@test.com";
+        Utilisateur user = new Utilisateur();
+        user.setEmail(email);
+        user.setEmailVerified(false);
+
+        when(utilisateurRepository.findByEmail(email)).thenReturn(Optional.of(user));
+
+        utilisateurService.resendVerificationCode(email);
+
+        assertNotNull(user.getVerificationCode());
+        verify(emailService).sendVerificationEmail(eq(email), any(), any());
+    }
+
+    @Test
+    void changePassword_WrongOldPassword_ThrowsException() {
+        Long id = 1L;
+        Utilisateur user = new Utilisateur();
+        user.setMotDePasse("encoded");
+
+        ChangePasswordRequestDto req = new ChangePasswordRequestDto();
+        req.setAncienMotDePasse("wrong");
+
+        when(utilisateurRepository.findById(id)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrong", "encoded")).thenReturn(false);
+
+        assertThrows(IllegalArgumentException.class, () -> utilisateurService.changePassword(id, req));
+    }
+
+    @Test
+    void getUtilisateurByEmail_Found_ReturnsDto() {
+        Utilisateur user = new Utilisateur();
+        user.setEmail("test@test.com");
+        when(utilisateurRepository.findByEmail("test@test.com")).thenReturn(Optional.of(user));
+        assertNotNull(utilisateurService.getUtilisateurByEmail("test@test.com"));
     }
 }

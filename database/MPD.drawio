@@ -1,0 +1,130 @@
+<mxfile host="app.diagrams.net" modified="2025-11-28T10:45:00.000Z" agent="Antigravity" version="24.0.0" type="device">
+  <diagram name="MPD" id="mpd-diagram">
+    <mxGraphModel dx="1434" dy="844" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="2339" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Table UTILISATEUR -->
+        <mxCell id="table-utilisateur" value="UTILISATEUR" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="280" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="utilisateur-cols" value="&lt;u&gt;id_utilisateur : BIGSERIAL (PK)&lt;/u&gt;&#xa;nom : VARCHAR(50)&#xa;prenom : VARCHAR(50)&#xa;pseudo : VARCHAR(50)&#xa;mot_de_passe : VARCHAR(255)&#xa;role : VARCHAR(20)&#xa;email : VARCHAR(100)&#xa;adresse_physique : VARCHAR(255)&#xa;date_naissance : DATE&#xa;telephone : VARCHAR(20)&#xa;code_postal : VARCHAR(10)&#xa;ville : VARCHAR(100)&#xa;email_verified : BOOLEAN&#xa;verification_code : VARCHAR(64)&#xa;verification_code_expiry : TIMESTAMP&#xa;created_at : TIMESTAMP&#xa;updated_at : TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="table-utilisateur">
+          <mxGeometry y="26" width="280" height="314" as="geometry" />
+        </mxCell>
+
+        <!-- Table LIEU -->
+        <mxCell id="table-lieu" value="LIEU" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="360" y="40" width="260" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="lieu-cols" value="&lt;u&gt;id_lieu : BIGSERIAL (PK)&lt;/u&gt;&#xa;adresse : VARCHAR(255)&#xa;nom : VARCHAR(100)&#xa;code_postal : VARCHAR(20)&#xa;ville : VARCHAR(100)&#xa;pays : VARCHAR(100)&#xa;latitude : DOUBLE PRECISION&#xa;longitude : DOUBLE PRECISION&#xa;geom : GEOMETRY(POINT, 4326)&#xa;created_at : TIMESTAMP&#xa;updated_at : TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="table-lieu">
+          <mxGeometry y="26" width="260" height="194" as="geometry" />
+        </mxCell>
+
+        <!-- Table UTILISATEUR_LIEU (Association) -->
+        <mxCell id="table-utilisateur-lieu" value="UTILISATEUR_LIEU" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="200" y="420" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="utilisateur-lieu-cols" value="&lt;u&gt;utilisateur_id : BIGINT (PK, FK)&lt;/u&gt;&#xa;&lt;u&gt;lieu_id : BIGINT (PK, FK)&lt;/u&gt;&#xa;&lt;u&gt;type_adresse : VARCHAR(20) (PK)&lt;/u&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="table-utilisateur-lieu">
+          <mxGeometry y="26" width="260" height="74" as="geometry" />
+        </mxCell>
+
+        <!-- Table BORNE -->
+        <mxCell id="table-borne" value="BORNE" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="660" y="40" width="280" height="360" as="geometry" />
+        </mxCell>
+        <mxCell id="borne-cols" value="&lt;u&gt;borne_id : BIGSERIAL (PK)&lt;/u&gt;&#xa;numero : VARCHAR(50)&#xa;nom : VARCHAR(100)&#xa;localisation : VARCHAR(255)&#xa;latitude : DOUBLE PRECISION&#xa;longitude : DOUBLE PRECISION&#xa;etat : VARCHAR(20)&#xa;occupee : BOOLEAN&#xa;puissance : INTEGER&#xa;prix_a_la_minute : DECIMAL(10,4)&#xa;instruction_sur_pied : TEXT&#xa;description : TEXT&#xa;owner_id : BIGINT (FK)&#xa;lieu_id : BIGINT (FK)&#xa;geom : GEOMETRY(POINT, 4326)&#xa;created_at : TIMESTAMP&#xa;updated_at : TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="table-borne">
+          <mxGeometry y="26" width="280" height="334" as="geometry" />
+        </mxCell>
+
+        <!-- Table BORNE_MEDIAS -->
+        <mxCell id="table-borne-medias" value="BORNE_MEDIAS" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="980" y="40" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="borne-medias-cols" value="&lt;u&gt;borne_id : BIGINT (PK, FK)&lt;/u&gt;&#xa;&lt;u&gt;media_url : TEXT (PK)&lt;/u&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="table-borne-medias">
+          <mxGeometry y="26" width="240" height="54" as="geometry" />
+        </mxCell>
+
+        <!-- Table RESERVATION -->
+        <mxCell id="table-reservation" value="RESERVATION" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="400" y="560" width="260" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="reservation-cols" value="&lt;u&gt;numero_reservation : BIGSERIAL (PK)&lt;/u&gt;&#xa;id_utilisateur : BIGINT (FK)&#xa;borne_id : BIGINT (FK)&#xa;date_debut : TIMESTAMP&#xa;date_fin : TIMESTAMP&#xa;prix_a_la_minute : DECIMAL(10,4)&#xa;etat : VARCHAR(20)&#xa;total_price : DECIMAL(10,2)&#xa;receipt_path : VARCHAR(255)&#xa;created_at : TIMESTAMP&#xa;updated_at : TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="table-reservation">
+          <mxGeometry y="26" width="260" height="234" as="geometry" />
+        </mxCell>
+
+        <!-- Table AVIS -->
+        <mxCell id="table-avis" value="AVIS" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="700" y="560" width="240" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="avis-cols" value="&lt;u&gt;id_avis : BIGSERIAL (PK)&lt;/u&gt;&#xa;utilisateur_id : BIGINT (FK)&#xa;borne_id : BIGINT (FK)&#xa;note : INTEGER&#xa;commentaire : TEXT&#xa;created_at : TIMESTAMP&#xa;updated_at : TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="table-avis">
+          <mxGeometry y="26" width="240" height="154" as="geometry" />
+        </mxCell>
+
+        <!-- Table SIGNALEMENT -->
+        <mxCell id="table-signalement" value="SIGNALEMENT" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="980" y="560" width="280" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="signalement-cols" value="&lt;u&gt;id_signalement : BIGSERIAL (PK)&lt;/u&gt;&#xa;date_signalement : TIMESTAMP&#xa;description : TEXT&#xa;statut : VARCHAR(20)&#xa;date_resolution : TIMESTAMP&#xa;user_id : BIGINT (FK)&#xa;borne_id : BIGINT (FK, Nullable)&#xa;reservation_id : BIGINT (FK, Nullable)&#xa;created_at : TIMESTAMP&#xa;updated_at : TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;" vertex="1" parent="table-signalement">
+          <mxGeometry y="26" width="280" height="214" as="geometry" />
+        </mxCell>
+
+        <!-- Links (Foreign Keys) -->
+        <!-- UTILISATEUR_LIEU -> UTILISATEUR -->
+        <mxCell id="link-ul-user" value="" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;entryX=0.5;entryY=1;exitX=0;exitY=0.5;" edge="1" parent="1" source="utilisateur-lieu-cols" target="table-utilisateur">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <!-- UTILISATEUR_LIEU -> LIEU -->
+        <mxCell id="link-ul-lieu" value="" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;entryX=0.5;entryY=1;exitX=1;exitY=0.5;" edge="1" parent="1" source="utilisateur-lieu-cols" target="table-lieu">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- BORNE -> UTILISATEUR (Owner) -->
+        <mxCell id="link-borne-user" value="" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;entryX=1;entryY=0.25;exitX=0;exitY=0.25;" edge="1" parent="1" source="borne-cols" target="table-utilisateur">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <!-- BORNE -> LIEU -->
+        <mxCell id="link-borne-lieu" value="" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;entryX=1;entryY=0.5;exitX=0;exitY=0.5;" edge="1" parent="1" source="borne-cols" target="table-lieu">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- BORNE_MEDIAS -> BORNE -->
+        <mxCell id="link-medias-borne" value="" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;entryX=1;entryY=0.25;exitX=0;exitY=0.5;" edge="1" parent="1" source="borne-medias-cols" target="table-borne">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- RESERVATION -> UTILISATEUR -->
+        <mxCell id="link-res-user" value="" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;entryX=0.5;entryY=1;exitX=0;exitY=0.25;" edge="1" parent="1" source="reservation-cols" target="table-utilisateur">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <!-- RESERVATION -> BORNE -->
+        <mxCell id="link-res-borne" value="" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;entryX=0.25;entryY=1;exitX=1;exitY=0.25;" edge="1" parent="1" source="reservation-cols" target="table-borne">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- AVIS -> UTILISATEUR -->
+        <mxCell id="link-avis-user" value="" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;entryX=0.75;entryY=1;exitX=0;exitY=0.25;" edge="1" parent="1" source="avis-cols" target="table-utilisateur">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <!-- AVIS -> BORNE -->
+        <mxCell id="link-avis-borne" value="" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;entryX=0.5;entryY=1;exitX=0.5;exitY=0;" edge="1" parent="1" source="avis-cols" target="table-borne">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- SIGNALEMENT -> UTILISATEUR -->
+        <mxCell id="link-sig-user" value="" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;entryX=1;entryY=1;exitX=0;exitY=0.25;" edge="1" parent="1" source="signalement-cols" target="table-utilisateur">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <!-- SIGNALEMENT -> BORNE -->
+        <mxCell id="link-sig-borne" value="" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;entryX=0.75;entryY=1;exitX=0;exitY=0.5;" edge="1" parent="1" source="signalement-cols" target="table-borne">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+        <!-- SIGNALEMENT -> RESERVATION -->
+        <mxCell id="link-sig-res" value="" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;rounded=0;entryX=1;entryY=0.5;exitX=0;exitY=0.75;" edge="1" parent="1" source="signalement-cols" target="table-reservation">
+          <mxGeometry width="50" height="50" relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
