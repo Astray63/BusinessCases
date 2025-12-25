@@ -31,15 +31,17 @@ This project contains both a **Java Spring Boot Backend** and an **Angular Front
 #### Required Environment Variables (Backend)
 Based on your configuration, you **MUST** add these in the **Variables** tab of your Backend Service:
 
-| Variable | Value (Example) |
-| :--- | :--- |
-| `SPRING_DATASOURCE_URL`      | `jdbc:postgresql://postgis.railway.internal:5432/railway` | **Crucial:** Use the **Private URL** (internal) for better performance. It usually looks like `jdbc:postgresql://postgis.railway.internal:5432/railway`. Check the "Connect" -> "Private Net" tab in your Postgres service. |
-| `SPRING_DATASOURCE_USERNAME` | `postgres`                                    | Default user. |
-| `SPRING_DATASOURCE_PASSWORD` | (Check Variables)                             | The password from your Postgres service variables (`PGPASSWORD`). |
-| `APP_JWT_SECRET` | `your-very-long-secret-key-at-least-32-chars` |
-| `BREVO_API_KEY` | `xkeysib-...` |
-| `BREVO_SENDER_EMAIL` | `contact@yourdomain.com` |
-| `BREVO_SENDER_NAME` | `Electricity Business` |
+| Variable | Value (Example) | Description/Notes |
+| :--- | :--- | :--- |
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://postgis.railway.internal:5432/railway` | **Crucial:** Use the **Private URL** (internal) for better performance. It usually looks like `jdbc:postgresql://postgis.railway.internal:5432/railway`. Check the "Connect" -> "Private Net" tab in your Postgres service. |
+| `SPRING_DATASOURCE_USERNAME` | `postgres` | Default user. |
+| `SPRING_DATASOURCE_PASSWORD` | (Check Variables) | The password from your Postgres service variables (`PGPASSWORD`). |
+| `APP_JWT_SECRET` | `your-256-bit-secret-key-32-characters-minimum` | Secret key (min 32 chars) |
+| `APP_JWT_EXPIRATION_MS` | `86400000` | Access Token Validity (24h) |
+| `APP_JWT_REFRESH_EXPIRATION_MS` | `604800000` | Refresh Token Validity (7 days) |
+| `BREVO_API_KEY` | `xkeysib-...` | |
+| `BREVO_SENDER_EMAIL` | `contact@yourdomain.com` | |
+| `BREVO_SENDER_NAME` | `Electricity Business` | |
 
 > **Pro Tip:** In Railway, if you add a PostgreSQL database service, it provides a `DATABASE_URL` variable. You can often use `${DATABASE_URL}` but Spring Boot needs the `jdbc:` prefix.
 > So set `SPRING_DATASOURCE_URL` to `jdbc:${DATABASE_URL}` (Railway might require some tweaking if protocols mismatch, but usually `jdbc:postgresql://...` is safe).
