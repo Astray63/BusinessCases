@@ -53,4 +53,17 @@ else
     exit 1
 fi
 
+# 3. Verify Content
+echo ""
+echo "🔍 Verifying database content..."
+docker run --rm -i \
+  -e PGPASSWORD=$PGPASSWORD \
+  postgres:15-alpine \
+  psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "
+    SELECT 'Utilisateurs' as table_name, count(*) as count FROM utilisateur
+    UNION ALL SELECT 'Lieux', count(*) FROM lieu
+    UNION ALL SELECT 'Bornes', count(*) FROM borne
+    UNION ALL SELECT 'Réservations', count(*) FROM reservation;
+"
+
 echo "🎉 Database initialized! You can now restart your Backend service on Railway."
