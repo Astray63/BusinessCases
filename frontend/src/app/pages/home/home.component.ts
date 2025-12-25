@@ -13,7 +13,7 @@ import { ApiResponse } from '../../models/api-response.model';
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly MAP_ID = 'public-map';
-  
+
   isLoggedIn = false;
   bornesPubliques: Borne[] = [];
   isLoading = false;
@@ -27,7 +27,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private borneService: BorneService,
     private geolocationService: GeolocationService,
     private mapService: MapService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.isLoggedIn = this.authService.isLoggedIn();
@@ -40,14 +40,17 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private getUserLocation(): void {
+  getUserLocation(): void {
+    console.log('DEBUG: Starting getUserLocation');
     this.geolocationService.getCurrentPosition().subscribe({
       next: (position) => {
+        console.log('DEBUG: Geolocation success', position);
         this.userLocation = position;
         this.initMap();
         this.loadBornesPubliques();
       },
-      error: () => {
+      error: (err) => {
+        console.warn('DEBUG: Geolocation error', err);
         this.userLocation = { lat: 48.8566, lng: 2.3522 };
         this.initMap();
         this.loadBornesPubliques();
@@ -83,7 +86,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // Calculer la distance pour chaque borne
     const bornesAvecDistance = this.bornesPubliques.map(borne => ({
       ...borne,
-      distance: borne.latitude && borne.longitude 
+      distance: borne.latitude && borne.longitude
         ? this.calculateDistance(borne.latitude, borne.longitude)
         : undefined
     }));
@@ -96,14 +99,17 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadBornesPubliques(): void {
+    console.log('DEBUG: Starting loadBornesPubliques');
     this.isLoading = true;
     this.borneService.getBornesDisponibles().subscribe({
       next: (response: ApiResponse<Borne[]>) => {
+        console.log('DEBUG: API Success', response);
         this.bornesPubliques = response.data || [];
         this.isLoading = false;
         this.updateMapMarkers();
       },
       error: (error: any) => {
+        console.error('DEBUG: API Error', error);
         this.isLoading = false;
       }
     });
@@ -147,12 +153,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   navigateToReservation(borne: Borne): void {
     if (this.isLoggedIn) {
-      this.router.navigate(['/client/mes-reservations'], { 
-        queryParams: { borneId: borne.idBorne } 
+      this.router.navigate(['/client/mes-reservations'], {
+        queryParams: { borneId: borne.idBorne }
       });
     } else {
-      this.router.navigate(['/auth/login'], { 
-        queryParams: { returnUrl: '/client/mes-reservations', borneId: borne.idBorne } 
+      this.router.navigate(['/auth/login'], {
+        queryParams: { returnUrl: '/client/mes-reservations', borneId: borne.idBorne }
       });
     }
   }
