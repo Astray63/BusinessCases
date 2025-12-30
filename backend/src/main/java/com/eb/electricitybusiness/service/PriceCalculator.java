@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 /**
- * Service responsible for calculating prices for reservations
+ * Service responsable du calcul des prix pour les réservations
  */
 @Service
 public class PriceCalculator {
@@ -21,13 +21,13 @@ public class PriceCalculator {
     private static final RoundingMode PRICE_ROUNDING = RoundingMode.HALF_UP;
 
     /**
-     * Calculates the total price for a reservation based on duration and charging
-     * station rate
+     * Calcule le prix total d'une réservation basé sur la durée et le tarif de la
+     * borne
      *
-     * @param station   The charging station
-     * @param dateDebut Start date and time
-     * @param dateFin   End date and time
-     * @return Total price rounded to 2 decimal places
+     * @param station   La borne de recharge
+     * @param dateDebut Date et heure de début
+     * @param dateFin   Date et heure de fin
+     * @return Prix total arrondi à 2 décimales
      */
     public BigDecimal calculateTotalPrice(Borne borne, LocalDateTime dateDebut, LocalDateTime dateFin) {
         if (borne == null || borne.getPrixALaMinute() == null) {
@@ -57,11 +57,11 @@ public class PriceCalculator {
     }
 
     /**
-     * Calculates the duration in minutes between two dates
+     * Calcule la durée en minutes entre deux dates
      *
-     * @param dateDebut Start date and time
-     * @param dateFin   End date and time
-     * @return Duration in minutes
+     * @param dateDebut Date et heure de début
+     * @param dateFin   Date et heure de fin
+     * @return Durée en minutes
      */
     public long calculateDurationInMinutes(LocalDateTime dateDebut, LocalDateTime dateFin) {
         if (dateDebut == null || dateFin == null) {
@@ -71,11 +71,11 @@ public class PriceCalculator {
     }
 
     /**
-     * Calculates the duration in hours between two dates
+     * Calcule la durée en heures entre deux dates
      *
-     * @param dateDebut Start date and time
-     * @param dateFin   End date and time
-     * @return Duration in hours (rounded down)
+     * @param dateDebut Date et heure de début
+     * @param dateFin   Date et heure de fin
+     * @return Durée en heures (arrondie à l'inférieur)
      */
     public long calculateDurationInHours(LocalDateTime dateDebut, LocalDateTime dateFin) {
         if (dateDebut == null || dateFin == null) {
@@ -85,10 +85,10 @@ public class PriceCalculator {
     }
 
     /**
-     * Formats a price as a string with currency symbol
+     * Formate un prix en chaîne avec le symbole de devise
      *
-     * @param price The price to format
-     * @return Formatted price string (e.g., "12.50 €")
+     * @param price Le prix à formater
+     * @return Chaîne de prix formatée (ex: "12.50 €")
      */
     public String formatPrice(BigDecimal price) {
         if (price == null) {
@@ -98,11 +98,11 @@ public class PriceCalculator {
     }
 
     /**
-     * Calculates price with a discount percentage
+     * Calcule le prix avec un pourcentage de réduction
      *
-     * @param originalPrice   The original price
-     * @param discountPercent Discount percentage (e.g., 10 for 10%)
-     * @return Discounted price
+     * @param originalPrice   Le prix original
+     * @param discountPercent Pourcentage de réduction (ex: 10 pour 10%)
+     * @return Prix réduit
      */
     public BigDecimal applyDiscount(BigDecimal originalPrice, int discountPercent) {
         if (originalPrice == null || discountPercent <= 0 || discountPercent >= 100) {

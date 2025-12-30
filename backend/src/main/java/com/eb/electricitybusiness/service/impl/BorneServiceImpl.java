@@ -61,6 +61,9 @@ public class BorneServiceImpl implements BorneService {
 
     @Override
     public Borne createBorne(Borne borne, Long userId, Long lieuId) {
+        java.util.Objects.requireNonNull(userId, "userId ne peut pas être null");
+        java.util.Objects.requireNonNull(lieuId, "lieuId ne peut pas être null");
+
         Utilisateur owner = utilisateurRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         Lieu lieu = lieuRepository.findById(lieuId)
@@ -88,6 +91,7 @@ public class BorneServiceImpl implements BorneService {
 
     @Override
     public Borne updateBorne(Long id, Borne borneDetails) {
+        java.util.Objects.requireNonNull(id, "L'id ne peut pas être null");
         Borne borne = getBorneById(id);
 
         borne.setNom(borneDetails.getNom());
@@ -106,6 +110,7 @@ public class BorneServiceImpl implements BorneService {
 
     @Override
     public Borne getBorneById(Long id) {
+        java.util.Objects.requireNonNull(id, "L'id ne peut pas être null");
         return borneRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + id));
     }
@@ -371,10 +376,10 @@ public class BorneServiceImpl implements BorneService {
         dto.setPrixALaMinute(station.getPrixALaMinute());
         dto.setDescription(station.getDescription());
 
-        // Calculate hourly rate
+        // Calculer le taux horaire
         if (station.getPrixALaMinute() != null) {
             dto.setHourlyRate(station.getPrixALaMinute().multiply(java.math.BigDecimal.valueOf(60)));
-            dto.setPrix(dto.getHourlyRate()); // prix = hourlyRate
+            dto.setPrix(dto.getHourlyRate()); // prix = taux horaire
         }
 
         // Déterminer le type basé sur la puissance
@@ -382,7 +387,7 @@ public class BorneServiceImpl implements BorneService {
             dto.setType(station.getPuissance() >= 50 ? "RAPIDE" : "NORMALE");
         }
 
-        // Safely handle lazy-loaded owner relationship
+        // Gérer en toute sécurité la relation propriétaire chargée paresseusement
         try {
             if (station.getOwner() != null) {
                 dto.setOwnerId(station.getOwner().getIdUtilisateur());
@@ -391,7 +396,7 @@ public class BorneServiceImpl implements BorneService {
                 dto.setLieuId(station.getLieu().getIdLieu());
             }
         } catch (Exception e) {
-            // Handle LazyInitializationException or other issues
+            // Gérer LazyInitializationException ou autres problèmes
         }
         return dto;
     }

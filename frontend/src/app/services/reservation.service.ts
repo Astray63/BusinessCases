@@ -16,9 +16,9 @@ export class ReservationService {
   constructor(
     private http: HttpClient,
     private mapper: ReservationMapperService
-  ) {}
+  ) { }
 
-  // Admin methods
+  // Méthodes Admin
   getAllReservations(): Observable<ApiResponse<Reservation[]>> {
     return this.http.get<ApiResponse<ReservationBackend[]>>(this.apiUrl).pipe(
       map(response => ({
@@ -28,7 +28,7 @@ export class ReservationService {
     );
   }
 
-  // Common methods
+  // Méthodes communes
   getReservationById(id: number): Observable<ApiResponse<Reservation>> {
     return this.http.get<ApiResponse<ReservationBackend>>(`${this.apiUrl}/${id}`).pipe(
       map(response => ({
@@ -38,7 +38,7 @@ export class ReservationService {
     );
   }
 
-  // User methods - Client mode
+  // Méthodes Utilisateur - Mode Client
   getReservationsByUser(userId: number): Observable<ApiResponse<Reservation[]>> {
     return this.http.get<ApiResponse<ReservationBackend[]>>(`${this.apiUrl}/utilisateur/${userId}`).pipe(
       map(response => ({
@@ -77,7 +77,7 @@ export class ReservationService {
     return this.http.put<ApiResponse<void>>(`${this.apiUrl}/${id}/complete`, {});
   }
 
-  // Owner methods - Accept/Reject reservations
+  // Méthodes Propriétaire - Accepter/Refuser les réservations
   accepterReservation(id: number, proprietaireId: number): Observable<ApiResponse<Reservation>> {
     return this.http.put<ApiResponse<ReservationBackend>>(`${this.apiUrl}/${id}/accepter`, { proprietaireId }).pipe(
       map(response => ({
@@ -88,9 +88,9 @@ export class ReservationService {
   }
 
   refuserReservation(id: number, proprietaireId: number, motif?: string): Observable<ApiResponse<Reservation>> {
-    return this.http.put<ApiResponse<ReservationBackend>>(`${this.apiUrl}/${id}/refuser`, { 
+    return this.http.put<ApiResponse<ReservationBackend>>(`${this.apiUrl}/${id}/refuser`, {
       proprietaireId,
-      motif 
+      motif
     }).pipe(
       map(response => ({
         ...response,
@@ -99,10 +99,10 @@ export class ReservationService {
     );
   }
 
-  // Filter reservations
+  // Filtrer les réservations
   getReservationsFiltrees(filtres: ReservationFiltre): Observable<ApiResponse<Reservation[]>> {
     let params = new HttpParams();
-    
+
     if (filtres.statut) {
       params = params.set('statut', filtres.statut);
     }
@@ -118,11 +118,11 @@ export class ReservationService {
     if (filtres.utilisateurId) {
       params = params.set('utilisateurId', filtres.utilisateurId.toString());
     }
-    
+
     return this.http.get<ApiResponse<Reservation[]>>(`${this.apiUrl}/filtrer`, { params });
   }
 
-  // Owner methods - Reservations on my bornes
+  // Méthodes Propriétaire - Réservations sur mes bornes
   getReservationsProprietaire(proprietaireId: number): Observable<ApiResponse<Reservation[]>> {
     return this.http.get<ApiResponse<ReservationBackend[]>>(`${this.apiUrl}/proprietaire/${proprietaireId}`).pipe(
       map(response => ({
@@ -132,7 +132,7 @@ export class ReservationService {
     );
   }
 
-  // Export and invoices
+  // Export et factures
   getFacture(id: number): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/${id}/facture`, { responseType: 'blob' });
   }

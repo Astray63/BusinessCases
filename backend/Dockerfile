@@ -1,11 +1,11 @@
-### Stage 1: build the application
+### Étape 1 : construire l'application
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 RUN mvn -B -DskipTests clean package
 
-### Stage 2: run the application
+### Étape 2 : exécuter l'application
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar

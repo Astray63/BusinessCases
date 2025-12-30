@@ -27,7 +27,7 @@ public class UtilisateurController {
             return new ResponseEntity<>(ApiResponse.success("Utilisateur créé avec succès", nouveauUtilisateur),
                     HttpStatus.CREATED);
         } catch (Exception e) {
-            throw e; // Let GlobalExceptionHandler handle it
+            throw e; // Laisser le GlobalExceptionHandler gérer cela
         }
     }
 

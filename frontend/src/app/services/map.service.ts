@@ -24,7 +24,7 @@ export class MapService {
   private markers: Map<string, L.Marker[]> = new Map();
   private userMarkers: Map<string, L.Marker> = new Map();
 
-  constructor() {}
+  constructor() { }
 
   initializeMap(config: MapConfig): L.Map | null {
     try {
@@ -52,7 +52,7 @@ export class MapService {
     }
   }
 
-  addUserMarker(mapId: string, position: GeolocationPosition, label: string = 'Your position'): L.Marker | null {
+  addUserMarker(mapId: string, position: GeolocationPosition, label: string = 'Votre position'): L.Marker | null {
     const map = this.maps.get(mapId);
     if (!map) return null;
 
@@ -98,7 +98,7 @@ export class MapService {
 
           newMarkers.push(marker);
         } catch (error) {
-          // Silent fail for individual marker
+          // Échec silencieux pour le marqueur individuel
         }
       }
     });
@@ -165,9 +165,9 @@ export class MapService {
 
   private createBornePopup(borne: Borne & { distance?: number }): string {
     const etatLabels: { [key: string]: string } = {
-      'DISPONIBLE': 'Available',
-      'OCCUPE': 'Occupied',
-      'HORS_SERVICE': 'Out of service',
+      'DISPONIBLE': 'Disponible',
+      'OCCUPE': 'Occupé',
+      'HORS_SERVICE': 'Hors service',
       'MAINTENANCE': 'Maintenance'
     };
 
@@ -181,8 +181,8 @@ export class MapService {
     const etatLabel = etatLabels[borne.etat] || borne.etat;
     const etatClass = etatClasses[borne.etat] || 'badge-secondary';
     const prix = borne.prix ? `${borne.prix}€/h` : 'N/A';
-    const distanceHtml = borne.distance !== undefined 
-      ? `<p class="mb-1"><strong>Distance:</strong> ${borne.distance.toFixed(1)} km</p>` 
+    const distanceHtml = borne.distance !== undefined
+      ? `<p class="mb-1"><strong>Distance:</strong> ${borne.distance.toFixed(1)} km</p>`
       : '';
 
     return `
@@ -190,8 +190,8 @@ export class MapService {
         <h6 class="mb-2"><strong>${borne.localisation}</strong></h6>
         <span class="badge ${etatClass}">${etatLabel}</span>
         <p class="mb-1 mt-2"><strong>Type:</strong> ${borne.type}</p>
-        <p class="mb-1"><strong>Power:</strong> ${borne.puissance} kW</p>
-        <p class="mb-1"><strong>Price:</strong> ${prix}</p>
+        <p class="mb-1"><strong>Puissance:</strong> ${borne.puissance} kW</p>
+        <p class="mb-1"><strong>Prix:</strong> ${prix}</p>
         ${distanceHtml}
       </div>
     `;

@@ -3,7 +3,7 @@ import { Borne } from './borne.model';
 
 export type ReservationStatus = 'EN_ATTENTE' | 'CONFIRMEE' | 'ANNULEE' | 'TERMINEE' | 'REFUSEE' | 'ACTIVE';
 
-// Backend response format
+// Format de la réponse backend
 export interface ReservationBackend {
   id: number;
   utilisateurId: number;
@@ -18,7 +18,7 @@ export interface ReservationBackend {
   utilisateur?: Utilisateur;
 }
 
-// Frontend model
+// Modèle frontend
 export interface Reservation {
   idReservation: number;
   utilisateur: Utilisateur;

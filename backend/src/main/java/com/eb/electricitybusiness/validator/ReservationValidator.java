@@ -23,7 +23,7 @@ public class ReservationValidator {
     }
 
     /**
-     * Validates dates in a reservation DTO
+     * Valide les dates dans un DTO de réservation
      */
     public ValidationResult validateDates(ReservationDto dto) {
         List<String> errors = new ArrayList<>();
@@ -50,23 +50,23 @@ public class ReservationValidator {
     }
 
     /**
-     * Validates that there are no conflicting reservations for the given station
-     * and time range
+     * Valide qu'il n'y a pas de réservations conflictuelles pour la station et la
+     * plage horaire données
      */
     public ValidationResult validateNoConflicts(Long stationId, LocalDateTime dateDebut, LocalDateTime dateFin) {
         return validateNoConflicts(stationId, dateDebut, dateFin, null);
     }
 
     /**
-     * Validates that there are no conflicting reservations for the given station
-     * and time range,
-     * excluding a specific reservation (useful for updates)
+     * Valide qu'il n'y a pas de réservations conflictuelles pour la station et la
+     * plage horaire données,
+     * en excluant une réservation spécifique (utile pour les mises à jour)
      */
     public ValidationResult validateNoConflicts(Long stationId, LocalDateTime dateDebut, LocalDateTime dateFin,
             Long excludeReservationId) {
         var conflicts = reservationRepository.findConflictingReservations(stationId, dateDebut, dateFin);
 
-        // Filter out the reservation being updated if applicable
+        // Filtrer la réservation en cours de modification si applicable
         if (excludeReservationId != null) {
             conflicts = conflicts.stream()
                     .filter(r -> !r.getNumeroReservation().equals(excludeReservationId))
@@ -83,7 +83,7 @@ public class ReservationValidator {
     }
 
     /**
-     * Validates that a charging station is available for reservation
+     * Valide qu'une borne de recharge est disponible pour la réservation
      */
     public ValidationResult validateStationAvailability(Borne borne) {
         List<String> errors = new ArrayList<>();
@@ -105,7 +105,8 @@ public class ReservationValidator {
     }
 
     /**
-     * Validates that a user is authorized to perform an action on a reservation
+     * Valide qu'un utilisateur est autorisé à effectuer une action sur une
+     * réservation
      */
     public ValidationResult validateUserAuthorization(Reservation reservation, Long userId, String action) {
         if (reservation.getUtilisateur() == null) {
@@ -120,7 +121,8 @@ public class ReservationValidator {
     }
 
     /**
-     * Validates that an owner is authorized to perform an action on a reservation
+     * Valide qu'un propriétaire est autorisé à effectuer une action sur une
+     * réservation
      */
     public ValidationResult validateOwnerAuthorization(Reservation reservation, Long ownerId, String action) {
         if (reservation.getBorne() == null || reservation.getBorne().getOwner() == null) {
@@ -135,7 +137,7 @@ public class ReservationValidator {
     }
 
     /**
-     * Validates that a reservation can be accepted
+     * Valide qu'une réservation peut être acceptée
      */
     public ValidationResult validateCanBeAccepted(Reservation reservation) {
         if (reservation.getEtat() != Reservation.EtatReservation.EN_ATTENTE) {
@@ -145,7 +147,7 @@ public class ReservationValidator {
     }
 
     /**
-     * Validates that a reservation can be refused
+     * Valide qu'une réservation peut être refusée
      */
     public ValidationResult validateCanBeRefused(Reservation reservation) {
         if (reservation.getEtat() != Reservation.EtatReservation.EN_ATTENTE) {
@@ -155,7 +157,7 @@ public class ReservationValidator {
     }
 
     /**
-     * Validates that a reservation can be cancelled
+     * Valide qu'une réservation peut être annulée
      */
     public ValidationResult validateCanBeCancelled(Reservation reservation) {
         if (reservation.getEtat() == Reservation.EtatReservation.TERMINEE) {
@@ -168,24 +170,24 @@ public class ReservationValidator {
     }
 
     /**
-     * Validates a complete reservation creation request
+     * Valide une demande de création de réservation complète
      */
     public ValidationResult validateReservationCreation(ReservationDto dto, Borne borne) {
         List<String> allErrors = new ArrayList<>();
 
-        // Validate dates
+        // Valider les dates
         ValidationResult dateValidation = validateDates(dto);
         if (!dateValidation.isValid()) {
             allErrors.addAll(dateValidation.getErrors());
         }
 
-        // Validate station availability
+        // Valider la disponibilité de la borne
         ValidationResult stationValidation = validateStationAvailability(borne);
         if (!stationValidation.isValid()) {
             allErrors.addAll(stationValidation.getErrors());
         }
 
-        // Validate no conflicts (only if dates are valid)
+        // Valider l'absence de conflits (seulement si les dates sont valides)
         if (dateValidation.isValid() && dto.getBorneId() != null) {
             ValidationResult conflictValidation = validateNoConflicts(
                     dto.getBorneId(),

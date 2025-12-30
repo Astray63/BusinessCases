@@ -15,7 +15,7 @@ export class HistoriqueReservationsComponent implements OnInit {
   reservations: Reservation[] = [];
   reservationsFiltrees: Reservation[] = [];
   isLoading = false;
-  
+
   filtreForm: FormGroup;
   filtreActif = false;
 
@@ -36,20 +36,20 @@ export class HistoriqueReservationsComponent implements OnInit {
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      
+
       // Plus besoin de vérifier le rôle - le ProprietaireGuard s'en occupe
       if (!user) {
         this.router.navigate(['/auth/login']);
         return;
       }
-      
+
       this.chargerReservations();
     });
   }
 
   chargerReservations(): void {
     if (!this.currentUser) return;
-    
+
     this.isLoading = true;
     this.reservationService.getReservationsProprietaire(this.currentUser.idUtilisateur).subscribe({
       next: (response) => {
@@ -111,7 +111,7 @@ export class HistoriqueReservationsComponent implements OnInit {
     return heures.toFixed(1) + 'h';
   }
 
-  // Get unique bornes for filter
+  // Récupérer les bornes uniques pour le filtre
   getBornesUniques(): any[] {
     const bornesMap = new Map();
     this.reservations.forEach(r => {

@@ -43,22 +43,23 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<?>> login(@Valid @RequestBody AuthRequestDto authRequest) {
         try {
-            // Validate and clean input
+            // Valider et nettoyer l'entrée
             if (authRequest.pseudo() == null || authRequest.password() == null) {
                 return ResponseEntity.badRequest()
                         .body(new ApiResponse<>("ERROR", "Le pseudo et le mot de passe sont requis", null));
             }
             String pseudo = authRequest.pseudo().trim();
 
-            // Authenticate user
+            // Authentifier l'utilisateur
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(pseudo, authRequest.password()));
 
-            // Generate tokens
+            // Générer les tokens
             String accessToken = jwtUtils.generateJwtToken(authentication);
             String refreshToken = jwtUtils.generateRefreshToken(pseudo);
 
-            // Get user details - check if identifier is email or pseudo
+            // Récupérer les détails de l'utilisateur - vérifier si l'identifiant est un
+            // email ou un pseudo
             UtilisateurDto utilisateur;
             if (pseudo.contains("@")) {
                 utilisateur = utilisateurService.getUtilisateurByEmail(pseudo);
@@ -66,7 +67,7 @@ public class AuthController {
                 utilisateur = utilisateurService.getUtilisateurByPseudo(pseudo);
             }
 
-            // Return successful response with tokens
+            // Retourner la réponse réussie avec les tokens
             return ResponseEntity.ok()
                     .header("Authorization", "Bearer " + accessToken)
                     .body(new ApiResponse<>(

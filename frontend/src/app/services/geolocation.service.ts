@@ -19,7 +19,7 @@ export class GeolocationService {
   private readonly DEFAULT_LOCATION: GeolocationPosition = { lat: 48.8566, lng: 2.3522 }; // Paris
   private readonly GEOLOCATION_TIMEOUT = 10000;
 
-  constructor() {}
+  constructor() { }
 
   getCurrentPosition(): Observable<GeolocationPosition> {
     if (!this.isGeolocationSupported()) {
@@ -57,20 +57,20 @@ export class GeolocationService {
   }
 
   private mapGeolocationError(error: GeolocationPositionError): GeolocationError {
-    let message = 'Unable to retrieve your position';
-    
+    let message = 'Impossible de récupérer votre position';
+
     switch (error.code) {
       case error.PERMISSION_DENIED:
-        message = 'Location access denied. Using default location.';
+        message = 'Accès à la localisation refusé. Utilisation de la position par défaut.';
         break;
       case error.POSITION_UNAVAILABLE:
-        message = 'Position unavailable. Using default location.';
+        message = 'Position indisponible. Utilisation de la position par défaut.';
         break;
       case error.TIMEOUT:
-        message = 'Location request timeout. Using default location.';
+        message = 'Délai de demande de localisation dépassé. Utilisation de la position par défaut.';
         break;
     }
-    
+
     return {
       code: error.code,
       message
@@ -78,17 +78,17 @@ export class GeolocationService {
   }
 
   calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-    const R = 6371; // Earth radius in km
+    const R = 6371; // Rayon de la Terre en km
     const dLat = this.deg2rad(lat2 - lat1);
     const dLon = this.deg2rad(lng2 - lng1);
-    
+
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(this.deg2rad(lat1)) *
       Math.cos(this.deg2rad(lat2)) *
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
-    
+
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }

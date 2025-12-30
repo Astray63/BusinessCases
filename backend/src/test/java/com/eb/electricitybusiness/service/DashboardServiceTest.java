@@ -1,6 +1,5 @@
 package com.eb.electricitybusiness.service;
 
-import com.eb.electricitybusiness.dto.BorneDto;
 import com.eb.electricitybusiness.dto.DashboardStatsDto;
 import com.eb.electricitybusiness.dto.ReservationDto;
 import com.eb.electricitybusiness.model.Borne;
@@ -17,14 +16,10 @@ import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 class DashboardServiceTest {

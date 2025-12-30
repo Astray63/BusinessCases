@@ -6,10 +6,10 @@ import { Reservation, ReservationBackend, ReservationStatus } from '../models/re
 })
 export class ReservationMapperService {
 
-  constructor() {}
+  constructor() { }
 
   /**
-   * Maps backend reservation model to frontend model
+   * Mappe le modèle de réservation backend vers le modèle frontend
    */
   mapToFrontend(backend: ReservationBackend): Reservation {
     return {
@@ -25,14 +25,14 @@ export class ReservationMapperService {
   }
 
   /**
-   * Maps an array of backend reservations to frontend models
+   * Mappe un tableau de réservations backend vers les modèles frontend
    */
   mapArrayToFrontend(backendArray: ReservationBackend[]): Reservation[] {
     return backendArray.map(item => this.mapToFrontend(item));
   }
 
   /**
-   * Maps backend status (etat) to frontend status (statut)
+   * Mappe le statut backend (état) vers le statut frontend
    */
   private mapEtatToStatut(etat: string): ReservationStatus {
     const mapping: { [key: string]: ReservationStatus } = {
@@ -47,21 +47,21 @@ export class ReservationMapperService {
   }
 
   /**
-   * Filter reservations by status
+   * Filtre les réservations par statut
    */
   filterByStatus(reservations: Reservation[], status: string): Reservation[] {
     return reservations.filter(r => r.statut === status);
   }
 
   /**
-   * Filter pending reservations
+   * Filtre les réservations en attente
    */
   filterPending(reservations: Reservation[]): Reservation[] {
     return this.filterByStatus(reservations, 'EN_ATTENTE');
   }
 
   /**
-   * Filter non-pending reservations (history)
+   * Filtre les réservations non en attente (historique)
    */
   filterNonPending(reservations: Reservation[]): Reservation[] {
     return reservations.filter(r => r.statut !== 'EN_ATTENTE');

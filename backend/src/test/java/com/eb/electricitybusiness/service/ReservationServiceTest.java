@@ -325,6 +325,7 @@ class ReservationServiceTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void filtrer_CallsRepository() {
         when(reservationRepository.findAll(any(org.springframework.data.jpa.domain.Specification.class)))
                 .thenReturn(java.util.List.of(new Reservation()));

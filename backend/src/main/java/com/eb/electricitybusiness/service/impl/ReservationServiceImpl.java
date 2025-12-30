@@ -99,7 +99,7 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
 
-        // Validate using ReservationValidator
+        // Valider avec ReservationValidator
         ValidationResult authResult = validator.validateUserAuthorization(reservation, requesterId, "annuler");
         if (!authResult.isValid()) {
             throw new IllegalArgumentException(authResult.getFirstError());
@@ -113,7 +113,7 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setEtat(Reservation.EtatReservation.ANNULEE);
         Reservation saved = reservationRepository.save(reservation);
 
-        // Reload with details to avoid lazy loading issues
+        // Recharger avec les détails pour éviter les problèmes de chargement différé
         return mapper.toDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
                 .orElse(saved));
     }
@@ -127,7 +127,7 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setEtat(Reservation.EtatReservation.TERMINEE);
         Reservation saved = reservationRepository.save(reservation);
 
-        // Reload with details to avoid lazy loading issues
+        // Recharger avec les détails pour éviter les problèmes de chargement différé
         return mapper.toDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
                 .orElse(saved));
     }
@@ -139,7 +139,7 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = reservationRepository.findWithDetails(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
 
-        // Validate using ReservationValidator
+        // Valider avec ReservationValidator
         ValidationResult ownerAuthResult = validator.validateOwnerAuthorization(reservation, proprietaireId,
                 "accepter");
         if (!ownerAuthResult.isValid()) {
@@ -151,7 +151,7 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalArgumentException(canAcceptResult.getFirstError());
         }
 
-        // Validate no conflicts before accepting
+        // Valider l'absence de conflits avant d'accepter
         ValidationResult noConflictResult = validator.validateNoConflicts(
                 reservation.getBorne().getIdBorne(),
                 reservation.getDateDebut(),
@@ -161,22 +161,22 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalArgumentException(noConflictResult.getFirstError());
         }
 
-        // Change status
+        // Changer le statut
         reservation.setEtat(Reservation.EtatReservation.CONFIRMEE);
 
-        // Generate PDF receipt
+        // Générer le reçu PDF
         try {
             String receiptPath = pdfReceiptService.generateReceipt(reservation);
             reservation.setReceiptPath(receiptPath);
             logger.info("Reçu PDF généré pour la réservation #{}: {}", reservationId, receiptPath);
         } catch (Exception e) {
             logger.error("Erreur lors de la génération du reçu PDF pour la réservation #{}", reservationId, e);
-            // Continue even if PDF generation fails
+            // Continuer même si la génération du PDF échoue
         }
 
         Reservation saved = reservationRepository.save(reservation);
 
-        // Reload with details to avoid lazy loading issues
+        // Recharger avec les détails pour éviter les problèmes de chargement différé
         return mapper.toDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
                 .orElse(saved));
     }
@@ -188,7 +188,7 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = reservationRepository.findWithDetails(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", reservationId));
 
-        // Validate using ReservationValidator
+        // Valider avec ReservationValidator
         ValidationResult ownerAuthResult = validator.validateOwnerAuthorization(reservation, proprietaireId, "refuser");
         if (!ownerAuthResult.isValid()) {
             throw new IllegalArgumentException(ownerAuthResult.getFirstError());
@@ -199,12 +199,12 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalArgumentException(canRefuseResult.getFirstError());
         }
 
-        // Change status
+        // Changer le statut
         reservation.setEtat(Reservation.EtatReservation.REFUSEE);
 
         Reservation saved = reservationRepository.save(reservation);
 
-        // Reload with details to avoid lazy loading issues
+        // Recharger avec les détails pour éviter les problèmes de chargement différé
         return mapper.toDto(reservationRepository.findWithDetails(saved.getNumeroReservation())
                 .orElse(saved));
     }
@@ -241,7 +241,7 @@ public class ReservationServiceImpl implements ReservationService {
         Specification<Reservation> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Fetch relations to avoid N+1
+            // Récupérer les relations pour éviter N+1
             if (query.getResultType() != Long.class) {
                 root.fetch("utilisateur", JoinType.INNER);
                 var borneFetch = root.fetch("borne", JoinType.INNER);
