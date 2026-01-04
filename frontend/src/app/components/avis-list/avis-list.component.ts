@@ -26,7 +26,7 @@ export class AvisListComponent implements OnInit {
   newAvis: CreateAvisRequest = {
     note: 5,
     commentaire: '',
-    borneId: 0
+    chargingStationId: 0
   };
 
   currentUserId: number | null = null;
@@ -80,7 +80,7 @@ export class AvisListComponent implements OnInit {
       this.newAvis = {
         note: 5,
         commentaire: '',
-        borneId: this.borneId
+        chargingStationId: this.borneId
       };
     }
   }
@@ -91,7 +91,7 @@ export class AvisListComponent implements OnInit {
       return;
     }
 
-    this.newAvis.borneId = this.borneId;
+    this.newAvis.chargingStationId = this.borneId;
     this.loading = true;
 
     this.avisService.createAvis(this.newAvis).subscribe({

@@ -23,7 +23,7 @@ export class SignalementFormComponent implements OnInit {
   // Form data
   newSignalement: CreateSignalementRequest = {
     description: '',
-    borneId: 0
+    chargingStationId: 0
   };
 
   currentUserId: number | null = null;
@@ -62,7 +62,7 @@ export class SignalementFormComponent implements OnInit {
     if (this.showForm) {
       this.newSignalement = {
         description: '',
-        borneId: this.borneId
+        chargingStationId: this.borneId
       };
     }
   }
@@ -73,7 +73,7 @@ export class SignalementFormComponent implements OnInit {
       return;
     }
 
-    this.newSignalement.borneId = this.borneId;
+    this.newSignalement.chargingStationId = this.borneId;
     this.loading = true;
 
     this.signalementService.createSignalement(this.newSignalement).subscribe({

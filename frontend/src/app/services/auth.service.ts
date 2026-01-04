@@ -96,11 +96,11 @@ export class AuthService {
   }
 
   validateAccount(email: string, code: string): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/validate`, { email, code });
+    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/verify-email`, { email, code });
   }
 
   resendValidationCode(email: string): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/resend-code`, { email });
+    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/resend-verification`, { email });
   }
 
   logout(): void {

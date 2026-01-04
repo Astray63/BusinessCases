@@ -19,7 +19,7 @@ export interface Avis {
 export interface CreateAvisRequest {
   note: number;
   commentaire?: string;
-  borneId: number;
+  chargingStationId: number;
 }
 
 export interface AvisMoyenne {

@@ -23,7 +23,7 @@ export interface Signalement {
 
 export interface CreateSignalementRequest {
   description: string;
-  borneId: number;
+  chargingStationId: number;
   reservationId?: number;
 }
 
