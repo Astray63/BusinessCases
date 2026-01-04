@@ -13,27 +13,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DotenvConfig implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(DotenvConfig.class);
 
     @Override
     public void initialize(@NonNull ConfigurableApplicationContext applicationContext) {
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
-        
+
         try {
             Dotenv dotenv = Dotenv.configure()
                     .directory("../")
                     .ignoreIfMissing()
                     .load();
-            
+
             Map<String, Object> dotenvMap = new HashMap<>();
             dotenv.entries().forEach(entry -> {
                 dotenvMap.put(entry.getKey(), entry.getValue());
                 logger.debug("Loaded .env variable: {}", entry.getKey());
             });
-            
-            environment.getPropertySources().addFirst(new MapPropertySource("dotenvProperties", dotenvMap));
-            
+
+            environment.getPropertySources().addLast(new MapPropertySource("dotenvProperties", dotenvMap));
+
             logger.info(".env file loaded successfully with {} variables", dotenvMap.size());
         } catch (Exception e) {
             logger.warn("Could not load .env file: {}", e.getMessage());
