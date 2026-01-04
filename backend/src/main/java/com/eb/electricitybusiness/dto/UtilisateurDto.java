@@ -6,6 +6,9 @@ import jakarta.validation.constraints.Past;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record UtilisateurDto(
         Long idUtilisateur,
         String role,
@@ -24,6 +27,7 @@ public record UtilisateurDto(
         String telephone,
         String codePostal,
         String ville,
+        String iban,
         Long idAdresse,
         Boolean actif,
         LocalDateTime dateCreation,

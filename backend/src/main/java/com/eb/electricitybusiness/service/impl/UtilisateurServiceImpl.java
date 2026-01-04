@@ -93,7 +93,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
         utilisateur.setTelephone(utilisateurDto.telephone());
         utilisateur.setCodePostal(utilisateurDto.codePostal());
         utilisateur.setVille(utilisateurDto.ville());
-        utilisateur.setVille(utilisateurDto.ville());
+        utilisateur.setIban(utilisateurDto.iban()); // Ajout du IBAN
         // utilisateur.setEstBanni(false); // Removed
         utilisateur.setEmailVerified(false);
 
@@ -165,6 +165,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
         utilisateur.setTelephone(utilisateurDto.telephone());
         utilisateur.setCodePostal(utilisateurDto.codePostal());
         utilisateur.setVille(utilisateurDto.ville());
+        utilisateur.setIban(utilisateurDto.iban());
 
         Utilisateur updatedUtilisateur = utilisateurRepository.save(utilisateur);
         return mapToDto(updatedUtilisateur);
@@ -317,6 +318,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
                 utilisateur.getTelephone(),
                 utilisateur.getCodePostal(),
                 utilisateur.getVille(),
+                utilisateur.getIban(),
                 null, // idAdresse n'existe pas dans l'entité Utilisateur
                 true, // actif
                 utilisateur.getDateCreation(),

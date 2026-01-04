@@ -100,6 +100,9 @@ public class Utilisateur implements UserDetails {
     @Column(name = "ville", length = 100)
     private String ville;
 
+    @Column(name = "iban", length = 34)
+    private String iban;
+
     @Column(name = "email_verified")
     private Boolean emailVerified = false;
 

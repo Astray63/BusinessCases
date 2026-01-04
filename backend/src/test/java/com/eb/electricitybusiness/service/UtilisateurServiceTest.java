@@ -53,6 +53,7 @@ class UtilisateurServiceTest {
         UtilisateurDto dto = new UtilisateurDto(
                 null, "client", "Test", "User", "testuser", "test@test.com",
                 LocalDate.of(1990, 1, 1), "123 Rue Test", "0123456789", "75000", "Paris",
+                null, // IBAN
                 null, true, null, null);
 
         when(utilisateurRepository.existsByEmail(dto.email())).thenReturn(false);
@@ -80,6 +81,7 @@ class UtilisateurServiceTest {
         UtilisateurDto dto = new UtilisateurDto(
                 null, "client", "Test", "User", "testuser", "existing@example.com",
                 LocalDate.of(1990, 1, 1), "123 Rue Test", "0123456789", "75000", "Paris",
+                null,
                 null, true, null, null);
 
         when(utilisateurRepository.existsByEmail(dto.email())).thenReturn(true);
@@ -246,6 +248,7 @@ class UtilisateurServiceTest {
         UtilisateurDto dto = new UtilisateurDto(
                 null, "client", "Doe", "John", null, "john@test.com",
                 LocalDate.of(1990, 1, 1), "Address", "0123", "75000", "Paris",
+                null,
                 null, true, null, null);
 
         // First attempt "john.doe" exists, second "john.doe1" works
@@ -271,6 +274,7 @@ class UtilisateurServiceTest {
         UtilisateurDto updateDto = new UtilisateurDto(
                 id, "client", "New", "Name", "newPseudo", "new@test.com",
                 LocalDate.now(), "New Addr", "0000", "00000", "City",
+                null,
                 null, true, null, null);
 
         when(utilisateurRepository.findById(id)).thenReturn(Optional.of(existingUser));
@@ -294,6 +298,7 @@ class UtilisateurServiceTest {
         UtilisateurDto updateDto = new UtilisateurDto(
                 id, "client", "New", "Name", "oldPseudo", "duplicate@test.com",
                 LocalDate.now(), "New Addr", "0000", "00000", "City",
+                null,
                 null, true, null, null);
 
         when(utilisateurRepository.findById(id)).thenReturn(Optional.of(existingUser));

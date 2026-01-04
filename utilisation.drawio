@@ -1,0 +1,198 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Diagramme Cas Utilisation Complet">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <mxCell id="sys" value="Système de Gestion de Bornes de Recharge" style="swimlane;whiteSpace=wrap;html=1;startSize=23;" vertex="1" parent="1">
+          <mxGeometry x="160" y="40" width="600" height="920" as="geometry" />
+        </mxCell>
+
+        <mxCell id="visiteur" value="Visiteur" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="utilisateur" value="Utilisateur" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="450" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="proprietaire" value="Propriétaire" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="800" width="30" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="heritage1" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;" edge="1" parent="1" source="utilisateur" target="visiteur">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="55" y="440" as="sourcePoint" />
+            <mxPoint x="55" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="heritage2" value="" style="endArrow=block;endSize=16;endFill=0;html=1;rounded=0;" edge="1" parent="1" source="proprietaire" target="utilisateur">
+          <mxGeometry width="160" relative="1" as="geometry">
+            <mxPoint x="55" y="790" as="sourcePoint" />
+            <mxPoint x="55" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="uc_inscrire" value="S'inscrire" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="60" y="40" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_connecter" value="Se connecter" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="60" y="100" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_rechercher" value="Rechercher des bornes" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="270" y="60" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_details" value="Consulter détails borne" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="270" y="130" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_avis_consulter" value="Consulter avis" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="480" y="130" width="110" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_profil" value="Gérer son profil" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="60" y="260" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_mdp" value="Changer mot de passe" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="270" y="260" width="150" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="uc_reserver" value="Réserver une borne" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="60" y="370" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_annuler" value="Annuler réservation" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="270" y="350" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_terminer" value="Terminer réservation" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="270" y="410" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_historique" value="Consulter historique" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="60" y="480" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_recu" value="Télécharger reçu" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="270" y="480" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_laisser_avis" value="Laisser un avis" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="60" y="550" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_signaler" value="Signaler un problème" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="270" y="550" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_creer_lieu" value="Créer un lieu" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="60" y="620" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_dashboard" value="Consulter tableau de bord" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="270" y="620" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_ajout_borne" value="Ajouter une borne" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="60" y="730" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_gerer_bornes" value="Gérer ses bornes" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="270" y="730" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_photos" value="Gérer photos" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="480" y="730" width="110" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_demandes" value="Gérer les demandes" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="60" y="830" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_accepter" value="Accepter" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="270" y="800" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_refuser" value="Refuser" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="270" y="860" width="110" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc_signalements" value="Gérer signalements" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="sys">
+          <mxGeometry x="60" y="930" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l1" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="visiteur" target="uc_inscrire">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l2" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="visiteur" target="uc_connecter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l3" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="visiteur" target="uc_rechercher">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l4" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="utilisateur" target="uc_profil">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l5" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="utilisateur" target="uc_reserver">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l6" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="utilisateur" target="uc_historique">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l7" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="utilisateur" target="uc_laisser_avis">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l8" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="utilisateur" target="uc_signaler">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l9" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="utilisateur" target="uc_creer_lieu">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l10" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="utilisateur" target="uc_dashboard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="l_con_profil" value="«include»" style="endArrow=open;dashed=1;html=1;endFill=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="uc_profil" target="uc_connecter">
+            <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l11" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="proprietaire" target="uc_ajout_borne">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l12" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="proprietaire" target="uc_gerer_bornes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l13" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="proprietaire" target="uc_demandes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l14" style="endArrow=none;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="proprietaire" target="uc_signalements">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel1" value="«include»" style="endArrow=open;dashed=1;html=1;endFill=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="sys" source="uc_rechercher" target="uc_details">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel2" value="«include»" style="endArrow=open;dashed=1;html=1;endFill=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="sys" source="uc_details" target="uc_avis_consulter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel3" value="«extend»" style="endArrow=open;dashed=1;html=1;endFill=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="sys" source="uc_mdp" target="uc_profil">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel4" value="«extend»" style="endArrow=open;dashed=1;html=1;endFill=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="sys" source="uc_annuler" target="uc_reserver">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel5" value="«extend»" style="endArrow=open;dashed=1;html=1;endFill=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="sys" source="uc_terminer" target="uc_reserver">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel6" value="«extend»" style="endArrow=open;dashed=1;html=1;endFill=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="sys" source="uc_recu" target="uc_historique">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel7" value="«extend»" style="endArrow=open;dashed=1;html=1;endFill=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="sys" source="uc_photos" target="uc_gerer_bornes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rel8" value="«extend»" style="endArrow=open;dashed=1;html=1;endFill=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="sys" source="uc_accepter" target="uc_demandes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel9" value="«extend»" style="endArrow=open;dashed=1;html=1;endFill=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="sys" source="uc_refuser" target="uc_demandes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
