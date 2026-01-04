@@ -66,6 +66,7 @@ CREATE TABLE utilisateur (
     telephone VARCHAR(20),
     code_postal VARCHAR(10),
     ville VARCHAR(100),
+    iban VARCHAR(50),
     email_verified BOOLEAN DEFAULT FALSE,
     verification_code VARCHAR(64),
     verification_code_expiry TIMESTAMP,

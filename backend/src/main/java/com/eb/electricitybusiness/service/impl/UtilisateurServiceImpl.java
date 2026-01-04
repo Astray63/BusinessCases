@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 @Primary
 public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsService {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UtilisateurServiceImpl.class);
+
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
@@ -99,6 +101,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
 
         // Générer un code de vérification à 6 chiffres
         String verificationCode = generateVerificationCode();
+        logger.info(">>> CODE DE VALIDATION POUR {}: {} <<<", utilisateurDto.email(), verificationCode);
         utilisateur.setVerificationCode(verificationCode);
         utilisateur.setVerificationCodeExpiry(LocalDateTime.now().plusMinutes(verificationCodeExpiryMinutes));
         utilisateur.setEmailVerified(false);
@@ -113,6 +116,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
                     verificationCode);
         } catch (Exception e) {
             // Log l'erreur mais ne bloque pas l'inscription
+            logger.error("Erreur lors de l'envoi de l'email de vérification", e);
 
         }
 
