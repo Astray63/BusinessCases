@@ -10,16 +10,13 @@ import com.eb.electricitybusiness.service.impl.BorneServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -393,7 +390,7 @@ class BorneServiceTest {
     }
 
     @Test
-    void uploadPhotos_ValidPhotos_ReturnsUrls(@TempDir Path tempDir) throws Exception {
+    void uploadPhotos_ValidPhotos_ReturnsDataUrls() throws Exception {
         Long id = 1L;
         Borne borne = new Borne();
         borne.setIdBorne(id);
@@ -401,42 +398,35 @@ class BorneServiceTest {
 
         when(borneRepository.findById(id)).thenReturn(Optional.of(borne));
 
-        ReflectionTestUtils.setField(borneService, "uploadDir", tempDir.toString());
-        ReflectionTestUtils.setField(borneService, "uploadBaseUrl", "http://localhost:8080/uploads/bornes");
+        // Créer un fichier image simulé
+        byte[] imageContent = "fake image content".getBytes();
+        MockMultipartFile file = new MockMultipartFile("photos", "test.jpg", "image/jpeg", imageContent);
 
-        MockMultipartFile file = new MockMultipartFile("photos", "test.jpg", "image/jpeg", "test data".getBytes());
+        List<String> dataUrls = borneService.uploadPhotos(id, new MultipartFile[] { file });
 
-        List<String> urls = borneService.uploadPhotos(id, new MultipartFile[] { file });
-
-        assertFalse(urls.isEmpty());
-        assertTrue(urls.get(0).contains("http://localhost:8080/uploads/bornes/borne-1/"));
+        assertFalse(dataUrls.isEmpty());
+        // Vérifier que c'est une data URL Base64
+        assertTrue(dataUrls.get(0).startsWith("data:image/jpeg;base64,"));
+        // Vérifier que le contenu a été ajouté aux medias de la borne
+        assertEquals(1, borne.getMedias().size());
         verify(borneRepository).save(borne);
     }
 
     @Test
-    void deletePhoto_ValidUrl_RemovesPhoto(@TempDir Path tempDir) throws Exception {
+    void deletePhoto_ValidUrl_RemovesPhoto() throws Exception {
         Long id = 1L;
-        String filename = "test.jpg";
-        String url = "http://localhost:8080/uploads/bornes/borne-1/" + filename;
+        String dataUrl = "data:image/jpeg;base64,SGVsbG8gV29ybGQ=";
 
         Borne borne = new Borne();
         borne.setIdBorne(id);
-        borne.setMedias(new java.util.ArrayList<>(List.of(url)));
+        borne.setMedias(new java.util.ArrayList<>(List.of(dataUrl)));
 
         when(borneRepository.findById(id)).thenReturn(Optional.of(borne));
 
-        // Setup file
-        Path borneDir = tempDir.resolve("borne-1");
-        java.nio.file.Files.createDirectories(borneDir);
-        Path file = borneDir.resolve(filename);
-        java.nio.file.Files.createFile(file);
+        borneService.deletePhoto(id, dataUrl);
 
-        ReflectionTestUtils.setField(borneService, "uploadDir", tempDir.toString());
-
-        borneService.deletePhoto(id, url);
-
-        assertFalse(borne.getMedias().contains(url));
-        assertFalse(java.nio.file.Files.exists(file));
+        assertFalse(borne.getMedias().contains(dataUrl));
+        assertTrue(borne.getMedias().isEmpty());
         verify(borneRepository).save(borne);
     }
 }
