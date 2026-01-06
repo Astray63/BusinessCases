@@ -73,7 +73,7 @@ public class Borne {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "borne_medias", joinColumns = @JoinColumn(name = "borne_id"))
-    @Column(name = "media_url")
+    @Column(name = "media_url", columnDefinition = "TEXT")
     private List<String> medias = new ArrayList<>();
 
     @OneToMany(mappedBy = "borne", cascade = CascadeType.ALL, orphanRemoval = true)

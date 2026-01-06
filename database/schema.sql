@@ -112,9 +112,9 @@ CREATE TABLE borne (
 );
 
 CREATE TABLE borne_medias (
+    id BIGSERIAL PRIMARY KEY,
     borne_id BIGINT NOT NULL,
     media_url TEXT NOT NULL,
-    PRIMARY KEY (borne_id, media_url),
     CONSTRAINT fk_borne_medias
         FOREIGN KEY (borne_id) REFERENCES borne(borne_id) ON DELETE CASCADE
 );
