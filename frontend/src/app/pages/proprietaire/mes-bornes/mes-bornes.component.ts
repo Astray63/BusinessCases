@@ -175,9 +175,9 @@ export class MesBornesComponent implements OnInit {
           continue;
         }
 
-        // Vérifier la taille (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          this.toastService.showError('La taille maximale par image est de 5MB');
+        // Vérifier la taille (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+          this.toastService.showError('La taille maximale par image est de 2MB');
           continue;
         }
 

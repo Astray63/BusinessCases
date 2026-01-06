@@ -16,13 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -429,20 +424,7 @@ public class BorneServiceImpl implements BorneService {
         Borne station = borneRepository.findById(borneId)
                 .orElseThrow(() -> new EntityNotFoundException("Borne non trouvée avec l'id " + borneId));
 
-        List<String> photoUrls = new ArrayList<>();
-
-        // Créer le répertoire d'upload s'il n'existe pas
-        Path uploadPath = Paths.get(uploadDir);
-
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
-
-        // Créer un sous-dossier pour cette borne
-        Path borneUploadPath = uploadPath.resolve("borne-" + borneId);
-        if (!Files.exists(borneUploadPath)) {
-            Files.createDirectories(borneUploadPath);
-        }
+        List<String> photoDataUrls = new ArrayList<>();
 
         // Limiter à 5 photos au total
         int currentPhotoCount = station.getMedias() != null ? station.getMedias().size() : 0;
@@ -464,37 +446,28 @@ public class BorneServiceImpl implements BorneService {
                 throw new Exception("Le fichier doit être une image");
             }
 
-            // Valider la taille (max 5MB)
-            if (photo.getSize() > 5 * 1024 * 1024) {
-                throw new Exception("La taille maximale par image est de 5MB");
+            // Valider la taille (max 2MB pour Base64 - plus petit car stocké en BDD)
+            if (photo.getSize() > 2 * 1024 * 1024) {
+                throw new Exception("La taille maximale par image est de 2MB");
             }
 
-            // Générer un nom de fichier unique
-            String originalFilename = photo.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            String uniqueFilename = UUID.randomUUID().toString() + extension;
+            // Convertir l'image en Base64 Data URL
+            byte[] imageBytes = photo.getBytes();
+            String base64Image = java.util.Base64.getEncoder().encodeToString(imageBytes);
+            String dataUrl = "data:" + contentType + ";base64," + base64Image;
 
-            // Sauvegarder le fichier
-            Path filePath = borneUploadPath.resolve(uniqueFilename);
-            Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            // Générer l'URL accessible
-            String photoUrl = uploadBaseUrl + "/borne-" + borneId + "/" + uniqueFilename;
-            photoUrls.add(photoUrl);
+            photoDataUrls.add(dataUrl);
         }
 
-        // Ajouter les nouvelles URLs à la liste existante
+        // Ajouter les nouvelles Data URLs à la liste existante
         if (station.getMedias() == null) {
             station.setMedias(new ArrayList<>());
         }
-        station.getMedias().addAll(photoUrls);
+        station.getMedias().addAll(photoDataUrls);
 
         borneRepository.save(station);
 
-        return photoUrls;
+        return photoDataUrls;
     }
 
     @Override
@@ -508,18 +481,8 @@ public class BorneServiceImpl implements BorneService {
             throw new EntityNotFoundException("Photo non trouvée");
         }
 
-        // Supprimer l'URL de la liste
+        // Supprimer l'URL/Data URL de la liste
         station.getMedias().remove(photoUrl);
         borneRepository.save(station);
-
-        // Essayer de supprimer le fichier physique
-        try {
-            String filename = photoUrl.substring(photoUrl.lastIndexOf("/") + 1);
-            String borneFolder = "borne-" + borneId;
-            Path filePath = Paths.get(uploadDir).resolve(borneFolder).resolve(filename);
-            Files.deleteIfExists(filePath);
-        } catch (Exception e) {
-            // On continue même si la suppression du fichier échoue
-        }
     }
 }
