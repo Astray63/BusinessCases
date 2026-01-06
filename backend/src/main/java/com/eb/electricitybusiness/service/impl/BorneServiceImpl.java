@@ -346,6 +346,8 @@ public class BorneServiceImpl implements BorneService {
                 return Borne.Etat.EN_MAINTENANCE;
             case "PANNE":
             case "EN_PANNE":
+            case "HORS_SERVICE":
+            case "OUT_OF_SERVICE":
                 return Borne.Etat.EN_PANNE;
             case "DISPONIBLE":
                 return Borne.Etat.DISPONIBLE;
