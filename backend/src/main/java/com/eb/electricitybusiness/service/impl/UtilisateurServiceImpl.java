@@ -89,7 +89,7 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
         utilisateur.setPseudo(pseudo);
         utilisateur.setEmail(utilisateurDto.email());
         utilisateur.setMotDePasse(passwordEncoder.encode(motDePasse));
-        utilisateur.setRole(Utilisateur.Role.valueOf(utilisateurDto.role() != null ? utilisateurDto.role() : "client"));
+        utilisateur.setRole(parseRole(utilisateurDto.role()));
         utilisateur.setDateNaissance(utilisateurDto.dateNaissance());
         utilisateur.setAdressePhysique(utilisateurDto.adressePhysique());
         utilisateur.setTelephone(utilisateurDto.telephone());
@@ -327,5 +327,35 @@ public class UtilisateurServiceImpl implements UtilisateurService, UserDetailsSe
                 true, // actif
                 utilisateur.getDateCreation(),
                 utilisateur.getDateModification());
+    }
+
+    /**
+     * Parse le rôle de manière tolérante (gère les variations de noms)
+     */
+    private Utilisateur.Role parseRole(String roleStr) {
+        if (roleStr == null || roleStr.isEmpty()) {
+            return Utilisateur.Role.client; // Valeur par défaut
+        }
+
+        // Normaliser : minuscules, trim
+        String normalized = roleStr.toLowerCase().trim();
+
+        switch (normalized) {
+            case "client":
+            case "user":
+            case "utilisateur":
+                return Utilisateur.Role.client;
+            case "proprietaire":
+            case "propriétaire":
+            case "owner":
+            case "pro":
+                return Utilisateur.Role.proprietaire;
+            default:
+                try {
+                    return Utilisateur.Role.valueOf(normalized);
+                } catch (IllegalArgumentException e) {
+                    return Utilisateur.Role.client; // Valeur par défaut en cas d'erreur
+                }
+        }
     }
 }

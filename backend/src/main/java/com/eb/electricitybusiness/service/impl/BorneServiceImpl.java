@@ -340,10 +340,30 @@ public class BorneServiceImpl implements BorneService {
         if (etatStr == null) {
             return Borne.Etat.DISPONIBLE;
         }
-        try {
-            return Borne.Etat.valueOf(etatStr.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("État invalide: " + etatStr);
+
+        // Normaliser la chaîne : supprimer les espaces et convertir en majuscules
+        String normalizedEtat = etatStr.toUpperCase().trim().replace(" ", "_");
+
+        // Gérer les alias courants du frontend
+        switch (normalizedEtat) {
+            case "MAINTENANCE":
+            case "EN_MAINTENANCE":
+                return Borne.Etat.EN_MAINTENANCE;
+            case "PANNE":
+            case "EN_PANNE":
+                return Borne.Etat.EN_PANNE;
+            case "DISPONIBLE":
+                return Borne.Etat.DISPONIBLE;
+            case "OCCUPEE":
+            case "OCCUPÉE":
+                return Borne.Etat.OCCUPEE;
+            default:
+                try {
+                    return Borne.Etat.valueOf(normalizedEtat);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("État invalide: " + etatStr +
+                            ". États valides: DISPONIBLE, OCCUPEE, EN_PANNE, EN_MAINTENANCE");
+                }
         }
     }
 

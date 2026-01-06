@@ -21,9 +21,9 @@ import java.util.List;
 @Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class SignalementController {
-    
+
     private final SignalementService signalementService;
-    
+
     /**
      * Récupère tous les signalements pour une borne
      */
@@ -40,7 +40,7 @@ public class SignalementController {
                     .body(ApiResponse.error("Erreur lors de la récupération des signalements: " + e.getMessage()));
         }
     }
-    
+
     /**
      * Récupère tous les signalements d'un utilisateur connecté
      */
@@ -56,16 +56,22 @@ public class SignalementController {
                     .body(ApiResponse.error("Erreur lors de la récupération de vos signalements: " + e.getMessage()));
         }
     }
-    
+
     /**
      * Récupère les signalements par statut
      */
     @GetMapping("/statut/{statut}")
     @PreAuthorize("hasRole('PROPRIETAIRE')")
     public ResponseEntity<ApiResponse<List<SignalementDto>>> getSignalementsByStatut(
-            @PathVariable StatutSignalement statut) {
+            @PathVariable String statut) {
         try {
-            List<SignalementDto> signalements = signalementService.getSignalementsByStatut(statut);
+            StatutSignalement statutEnum = parseStatutSignalement(statut);
+            if (statutEnum == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiResponse.error("Statut invalide: " + statut +
+                                ". Statuts valides: OUVERT, EN_COURS, RESOLU, FERME"));
+            }
+            List<SignalementDto> signalements = signalementService.getSignalementsByStatut(statutEnum);
             return ResponseEntity.ok(ApiResponse.success("Signalements récupérés avec succès", signalements));
         } catch (Exception e) {
             log.error("Erreur lors de la récupération des signalements par statut {}", statut, e);
@@ -73,7 +79,7 @@ public class SignalementController {
                     .body(ApiResponse.error("Erreur lors de la récupération des signalements: " + e.getMessage()));
         }
     }
-    
+
     /**
      * Compte le nombre de signalements ouverts pour une borne
      */
@@ -88,7 +94,7 @@ public class SignalementController {
                     .body(ApiResponse.error("Erreur lors du comptage des signalements: " + e.getMessage()));
         }
     }
-    
+
     /**
      * Crée un nouveau signalement
      */
@@ -110,7 +116,7 @@ public class SignalementController {
                     .body(ApiResponse.error("Erreur lors de la création du signalement: " + e.getMessage()));
         }
     }
-    
+
     /**
      * Met à jour le statut d'un signalement (propriétaire uniquement)
      */
@@ -118,9 +124,15 @@ public class SignalementController {
     @PreAuthorize("hasRole('PROPRIETAIRE')")
     public ResponseEntity<ApiResponse<SignalementDto>> updateStatut(
             @PathVariable Long signalementId,
-            @RequestParam StatutSignalement statut) {
+            @RequestParam String statut) {
         try {
-            SignalementDto signalement = signalementService.updateStatut(signalementId, statut);
+            StatutSignalement statutEnum = parseStatutSignalement(statut);
+            if (statutEnum == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiResponse.error("Statut invalide: " + statut +
+                                ". Statuts valides: OUVERT, EN_COURS, RESOLU, FERME"));
+            }
+            SignalementDto signalement = signalementService.updateStatut(signalementId, statutEnum);
             return ResponseEntity.ok(ApiResponse.success("Statut mis à jour avec succès", signalement));
         } catch (RuntimeException e) {
             log.error("Erreur lors de la mise à jour du statut du signalement {}", signalementId, e);
@@ -132,7 +144,45 @@ public class SignalementController {
                     .body(ApiResponse.error("Erreur lors de la mise à jour du statut: " + e.getMessage()));
         }
     }
-    
+
+    /**
+     * Parse le statut de signalement de manière tolérante
+     */
+    private StatutSignalement parseStatutSignalement(String statutStr) {
+        if (statutStr == null || statutStr.isEmpty()) {
+            return null;
+        }
+
+        String normalized = statutStr.toUpperCase().trim().replace(" ", "_");
+
+        switch (normalized) {
+            case "OUVERT":
+            case "OPEN":
+            case "NOUVEAU":
+                return StatutSignalement.OUVERT;
+            case "EN_COURS":
+            case "ENCOURS":
+            case "IN_PROGRESS":
+            case "PENDING":
+                return StatutSignalement.EN_COURS;
+            case "RESOLU":
+            case "RÉSOLU":
+            case "RESOLVED":
+            case "FIXED":
+                return StatutSignalement.RESOLU;
+            case "FERME":
+            case "FERMÉ":
+            case "CLOSED":
+                return StatutSignalement.FERME;
+            default:
+                try {
+                    return StatutSignalement.valueOf(normalized);
+                } catch (IllegalArgumentException e) {
+                    return null;
+                }
+        }
+    }
+
     /**
      * Supprime un signalement
      */

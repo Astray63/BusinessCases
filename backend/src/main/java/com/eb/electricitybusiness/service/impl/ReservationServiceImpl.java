@@ -250,11 +250,9 @@ public class ReservationServiceImpl implements ReservationService {
             }
 
             if (statut != null && !statut.isEmpty()) {
-                try {
-                    Reservation.EtatReservation etat = Reservation.EtatReservation.valueOf(statut);
+                Reservation.EtatReservation etat = parseEtatReservation(statut);
+                if (etat != null) {
                     predicates.add(cb.equal(root.get("etat"), etat));
-                } catch (IllegalArgumentException e) {
-                    // Ignore
                 }
             }
 
@@ -284,5 +282,53 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional(readOnly = true)
     public List<ReservationDto> getAll() {
         return mapper.toDtoList(reservationRepository.findAll());
+    }
+
+    /**
+     * Parse l'état de réservation de manière tolérante (gère les variations de
+     * noms)
+     */
+    private Reservation.EtatReservation parseEtatReservation(String etatStr) {
+        if (etatStr == null || etatStr.isEmpty()) {
+            return null;
+        }
+
+        // Normaliser : majuscules, trim, remplacer espaces par underscores
+        String normalized = etatStr.toUpperCase().trim().replace(" ", "_");
+
+        switch (normalized) {
+            case "EN_ATTENTE":
+            case "ATTENTE":
+            case "PENDING":
+                return Reservation.EtatReservation.EN_ATTENTE;
+            case "CONFIRMEE":
+            case "CONFIRMÉE":
+            case "CONFIRMED":
+                return Reservation.EtatReservation.CONFIRMEE;
+            case "ACTIVE":
+            case "EN_COURS":
+                return Reservation.EtatReservation.ACTIVE;
+            case "TERMINEE":
+            case "TERMINÉE":
+            case "COMPLETED":
+            case "DONE":
+                return Reservation.EtatReservation.TERMINEE;
+            case "ANNULEE":
+            case "ANNULÉE":
+            case "CANCELLED":
+            case "CANCELED":
+                return Reservation.EtatReservation.ANNULEE;
+            case "REFUSEE":
+            case "REFUSÉE":
+            case "REFUSED":
+            case "REJECTED":
+                return Reservation.EtatReservation.REFUSEE;
+            default:
+                try {
+                    return Reservation.EtatReservation.valueOf(normalized);
+                } catch (IllegalArgumentException e) {
+                    return null; // Retourne null au lieu de lancer une exception
+                }
+        }
     }
 }
