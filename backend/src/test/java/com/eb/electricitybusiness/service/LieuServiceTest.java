@@ -149,7 +149,8 @@ class LieuServiceTest {
 
     @Test
     void getProches_ReturnsList() {
-        when(lieuRepository.findByDistance(1.0, 1.0, 10.0)).thenReturn(Arrays.asList(new Lieu()));
+        // Le service convertit km en mètres (10.0 km * 1000 = 10000.0 mètres)
+        when(lieuRepository.findByDistance(1.0, 1.0, 10000.0)).thenReturn(Arrays.asList(new Lieu()));
         List<LieuDto> result = lieuService.getProches(1.0, 1.0, 10.0);
         assertEquals(1, result.size());
     }
