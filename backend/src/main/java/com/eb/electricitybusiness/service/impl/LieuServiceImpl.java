@@ -124,7 +124,9 @@ public class LieuServiceImpl implements LieuService {
 
     @Override
     public List<LieuDto> getProches(Double latitude, Double longitude, Double distance) {
-        return lieuRepository.findByDistance(latitude, longitude, distance).stream()
+        // Convertir km en mètres pour ST_DWithin
+        Double distanceMeters = distance * 1000;
+        return lieuRepository.findByDistance(latitude, longitude, distanceMeters).stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }

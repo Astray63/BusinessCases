@@ -21,16 +21,16 @@ public interface BorneRepository extends JpaRepository<Borne, Long> {
         List<Borne> findByLieuxId(@Param("idLieu") Long idLieu);
 
         @Query(value = "SELECT * FROM borne cs " +
-                        "WHERE cs.latitude IS NOT NULL AND cs.longitude IS NOT NULL " +
-                        "AND (6371 * acos(" +
-                        "cos(radians(:latitude)) * cos(radians(cs.latitude)) * cos(radians(cs.longitude) - radians(:longitude)) + "
-                        +
-                        "sin(radians(:latitude)) * sin(radians(cs.latitude))" +
-                        ")) < :distance", nativeQuery = true)
+                        "WHERE cs.geom IS NOT NULL " +
+                        "AND ST_DWithin(" +
+                        "CAST(cs.geom AS geography), " +
+                        "CAST(ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326) AS geography), " +
+                        ":distanceMeters" +
+                        ")", nativeQuery = true)
         List<Borne> findByDistance(
                         @Param("latitude") Double latitude,
                         @Param("longitude") Double longitude,
-                        @Param("distance") Double distance);
+                        @Param("distanceMeters") Double distanceMeters);
 
         @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
         @Query("SELECT b FROM Borne b WHERE b.idBorne = :id")

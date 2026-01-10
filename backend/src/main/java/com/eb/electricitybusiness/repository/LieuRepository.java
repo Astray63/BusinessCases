@@ -10,23 +10,23 @@ import java.util.Optional;
 
 @Repository
 public interface LieuRepository extends JpaRepository<Lieu, Long> {
-    
+
     List<Lieu> findByAdresse(String adresse);
-    
+
     List<Lieu> findByNomContainingIgnoreCase(String nom);
-    
+
     @Query("SELECT l FROM Lieu l JOIN FETCH l.adresse WHERE l.idLieu = :id")
     Optional<Lieu> findWithAdresse(Long id);
-    
-    @Query(value = 
-        "SELECT * FROM lieu l " +
-        "WHERE (6371 * acos(" +
-        "cos(radians(:latitude)) * cos(radians(l.latitude)) * cos(radians(l.longitude) - radians(:longitude)) + " +
-        "sin(radians(:latitude)) * sin(radians(l.latitude))" +
-        ")) < :distance", nativeQuery = true)
+
+    @Query(value = "SELECT * FROM lieu l " +
+            "WHERE l.geom IS NOT NULL " +
+            "AND ST_DWithin(" +
+            "CAST(l.geom AS geography), " +
+            "CAST(ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326) AS geography), " +
+            ":distanceMeters" +
+            ")", nativeQuery = true)
     List<Lieu> findByDistance(
-        @Param("latitude") Double latitude,
-        @Param("longitude") Double longitude,
-        @Param("distance") Double distance
-    );
-} 
+            @Param("latitude") Double latitude,
+            @Param("longitude") Double longitude,
+            @Param("distanceMeters") Double distanceMeters);
+}

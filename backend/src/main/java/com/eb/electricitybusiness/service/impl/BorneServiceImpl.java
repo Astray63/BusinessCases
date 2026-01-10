@@ -231,7 +231,9 @@ public class BorneServiceImpl implements BorneService {
     @Override
     @Transactional(readOnly = true)
     public List<BorneDto> getProches(Double latitude, Double longitude, Double distance) {
-        List<Borne> stations = borneRepository.findByDistance(latitude, longitude, distance);
+        // Convertir km en mètres pour ST_DWithin
+        Double distanceMeters = distance * 1000;
+        List<Borne> stations = borneRepository.findByDistance(latitude, longitude, distanceMeters);
         return stations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -274,7 +276,9 @@ public class BorneServiceImpl implements BorneService {
         // D'abord filtrer par distance si coordonnées fournies
         List<Borne> stations;
         if (latitude != null && longitude != null && distance != null) {
-            stations = borneRepository.findByDistance(latitude, longitude, distance);
+            // Convertir km en mètres pour ST_DWithin
+            Double distanceMeters = distance * 1000;
+            stations = borneRepository.findByDistance(latitude, longitude, distanceMeters);
         } else {
             stations = borneRepository.findAll();
         }
