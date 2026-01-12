@@ -16,7 +16,7 @@ export interface GeolocationError {
   providedIn: 'root'
 })
 export class GeolocationService {
-  private readonly DEFAULT_LOCATION: GeolocationPosition = { lat: 48.8566, lng: 2.3522 }; // Paris
+  private readonly DEFAULT_LOCATION: GeolocationPosition = { lat: 45.75825793715416, lng: 3.1268400554095765 }; // Clermont-Ferrand
   private readonly GEOLOCATION_TIMEOUT = 10000;
 
   constructor() { }
